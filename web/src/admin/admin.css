@@ -37,10 +37,12 @@
 .ad-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
 .ad-field { display: flex; flex-direction: column; gap: 5px; }
 .ad-field > span { font-size: 12px; color: #9aa4b2; font-weight: 600; }
-.ad-field input, .ad-field textarea, .ad-team-row input, .ad-team-add input {
+.ad-field input, .ad-field textarea, .ad-team-row input, .ad-team-add input, .ad-gift input, .ad-gift select, .ad-tool input, .ad-tool select {
   background: #0e1117; border: 1px solid #2a323d; border-radius: 9px; color: #e6e9ef;
-  padding: 9px 11px; font-size: 14px; font-family: inherit; width: 100%; box-sizing: border-box;
+  padding: 9px 11px; font-size: 14px; font-family: inherit; box-sizing: border-box;
 }
+/* 그리드 안 필드만 100% (flex 행의 input은 flex로 크기 결정) */
+.ad-field input, .ad-field textarea { width: 100%; }
 .ad-field input:focus, .ad-field textarea:focus { outline: none; border-color: #3d82f6; }
 .ad-field input:disabled { color: #7b8494; background: #131820; }
 .ad-checks { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
@@ -72,12 +74,12 @@
 
 /* 팀 */
 .ad-team-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-.ad-team-row { display: flex; gap: 8px; align-items: center; }
+.ad-team-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .ad-emoji-in { width: 52px; text-align: center; flex: 0 0 auto; }
-.ad-team-name { flex: 1; }
+.ad-team-name { flex: 1 1 140px; min-width: 0; }
 .ad-order-in { width: 64px; flex: 0 0 auto; }
-.ad-team-add { display: flex; gap: 8px; align-items: center; padding-top: 12px; border-top: 1px dashed #2a323d; }
-.ad-team-add input:not(.ad-emoji-in) { flex: 1; }
+.ad-team-add { display: flex; gap: 8px; align-items: center; padding-top: 12px; border-top: 1px dashed #2a323d; flex-wrap: wrap; }
+.ad-team-add input:not(.ad-emoji-in) { flex: 1 1 140px; min-width: 0; }
 
 /* 토스트 */
 .admin-toast {
@@ -91,3 +93,13 @@
   .ad-grade-fields { grid-template-columns: 1fr 1fr; }
   .ad-grade-tag { align-self: flex-start; }
 }
+
+/* 운영 도구 */
+.ad-tool { padding: 15px 0; border-bottom: 1px solid #232b35; }
+.ad-tool:last-child { border-bottom: none; padding-bottom: 0; }
+.ad-tool:first-of-type { padding-top: 4px; }
+.ad-tool-head { display: flex; flex-direction: column; gap: 3px; margin-bottom: 11px; }
+.ad-tool-head b { font-size: 14px; }
+.ad-tool-head span { font-size: 12px; color: #8b95a4; }
+.ad-tool-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ad-tool-unit { color: #9aa4b2; font-size: 13px; }

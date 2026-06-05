@@ -110,14 +110,24 @@ export const drawCard = onCall(async (request) => {
     const isTestAccount = empNo === "0000";
     const unlimitedDraws = cfg.unlimitedDraws === true || isTestAccount;
 
-    // 무한모드(개발/테스트): 매번 새 기록 / 일반모드: 하루1회 잠금(사번__날짜)
-    const drawRef = unlimitedDraws
-      ? db.collection("draws").doc()
-      : db.doc(`draws/${empNo}__${today}`);
-    if (!unlimitedDraws) {
-      const existing = await t.get(drawRef);
+    // 유저 상태(관리자 지급 보너스 추가뽑기) 읽기 — 모든 write 전에
+    const userRef = db.doc(`users/${empNo}`);
+    const userSnap = await t.get(userRef);
+    const bonusDraws = userSnap.exists ? (Number(userSnap.data().bonusDraws) || 0) : 0;
+
+    // 무한모드: 매번 새 기록 / 일반모드: 하루1회 잠금(사번__날짜). 잠겨도 보너스가 있으면 가능.
+    let useBonus = false;
+    let drawRef;
+    if (unlimitedDraws) {
+      drawRef = db.collection("draws").doc();
+    } else {
+      const dailyRef = db.doc(`draws/${empNo}__${today}`);
+      const existing = await t.get(dailyRef);
       if (existing.exists) {
-        throw new HttpsError("already-exists", "오늘은 이미 뽑으셨어요. 내일 다시 도전해 주세요!");
+        if (bonusDraws > 0) { useBonus = true; drawRef = db.collection("draws").doc(); }
+        else throw new HttpsError("already-exists", "오늘은 이미 뽑으셨어요. 내일 다시 도전해 주세요!");
+      } else {
+        drawRef = dailyRef;
       }
     }
 
@@ -203,12 +213,13 @@ export const drawCard = onCall(async (request) => {
     const now = admin.firestore.FieldValue.serverTimestamp();
     t.set(drawRef, { empNo, name, uid, drawDate: today, cards: picked, bestRank, miss: isMiss, createdAt: now });
     t.set(
-      db.doc(`users/${empNo}`),
+      userRef,
       {
         empNo, name, uid,
         lastDrawDate: today,
         drawCount: admin.firestore.FieldValue.increment(1),
         cardCount: admin.firestore.FieldValue.increment(picked.length),
+        ...(useBonus ? { bonusDraws: admin.firestore.FieldValue.increment(-1) } : {}),
         updatedAt: now,
       },
       { merge: true }
@@ -367,6 +378,7 @@ export const getStatus = onCall(async (request) => {
 
   const drewToday = packs.some((p) => p.drawDate === today);
   const savedName = userSnap.data()?.name || name || "";
+  const bonusDraws = Number(userSnap.data()?.bonusDraws) || 0;
   // 테스트 계정(사번 0000)은 운영설정과 무관하게 무한 뽑기
   const unlimited = cfg.unlimitedDraws === true || empNo === "0000";
 
@@ -379,7 +391,8 @@ export const getStatus = onCall(async (request) => {
     endDate: cfg.endDate || null,
     cardsPerPack: cfg.cardsPerPack || 5,
     unlimitedDraws: unlimited,
-    canDrawToday: ev.ok && (unlimited || !drewToday),
+    bonusDraws,
+    canDrawToday: ev.ok && (unlimited || !drewToday || bonusDraws > 0),
     drewToday,
     cards,
     packsCount: packs.length,
@@ -470,4 +483,90 @@ export const adminUpdate = onCall(async (request) => {
   }
 
   throw new HttpsError("invalid-argument", "알 수 없는 section");
+});
+
+// ─────────────────────────────────────────────────────────────
+// 관리자 운영 액션 — 이벤트 초기화 / 전인원 추가뽑기 / 특정인원 카드선물
+// ─────────────────────────────────────────────────────────────
+export const adminAction = onCall(async (request) => {
+  const { masterKey, action, data = {} } = request.data || {};
+  if ((masterKey || "") !== ADMIN_MASTER_KEY) {
+    throw new HttpsError("permission-denied", "관리자 권한이 없습니다.");
+  }
+  const FV = admin.firestore.FieldValue;
+
+  // 이벤트 초기화: 모든 뽑기 기록 삭제 + 등급 재고 복원 + 유저 상태 초기화
+  if (action === "resetEvent") {
+    const [drawsSnap, gradesSnap, usersSnap] = await Promise.all([
+      db.collection("draws").get(),
+      db.collection("grades").get(),
+      db.collection("users").get(),
+    ]);
+    // 배치는 500개 제한 → 청크 처리
+    const ops = [];
+    drawsSnap.docs.forEach((d) => ops.push(["del", d.ref]));
+    usersSnap.docs.forEach((d) => ops.push(["del", d.ref]));
+    gradesSnap.docs.forEach((g) => {
+      const gd = g.data();
+      if (gd.inventoryTotal != null) ops.push(["upd", g.ref, { inventoryRemaining: gd.inventoryTotal }]);
+    });
+    for (let i = 0; i < ops.length; i += 450) {
+      const batch = db.batch();
+      ops.slice(i, i + 450).forEach(([op, ref, val]) => {
+        if (op === "del") batch.delete(ref); else batch.update(ref, val);
+      });
+      await batch.commit();
+    }
+    return { ok: true, message: `초기화 완료 — 뽑기 ${drawsSnap.size}건 삭제, 재고 복원` };
+  }
+
+  // 추가 뽑기 지급: target="all"(명단 전체) 또는 사번. count회.
+  if (action === "grantDraws") {
+    const count = Math.max(1, parseInt(data.count, 10) || 1);
+    const target = cleanStr(data.target);
+    if (target === "all") {
+      const rosterSnap = await db.collection("roster").get();
+      const docs = rosterSnap.docs;
+      for (let i = 0; i < docs.length; i += 450) {
+        const batch = db.batch();
+        docs.slice(i, i + 450).forEach((r) => {
+          batch.set(db.doc(`users/${r.id}`), { empNo: r.id, name: r.data().name || "", bonusDraws: FV.increment(count) }, { merge: true });
+        });
+        await batch.commit();
+      }
+      return { ok: true, message: `명단 ${docs.length}명에게 추가 뽑기 ${count}회 지급` };
+    }
+    if (!target) throw new HttpsError("invalid-argument", "대상(사번) 필요");
+    await db.doc(`users/${target}`).set({ empNo: target, bonusDraws: FV.increment(count) }, { merge: true });
+    return { ok: true, message: `${target}에게 추가 뽑기 ${count}회 지급` };
+  }
+
+  // 카드 선물: 특정 사번에게 지정 등급의 랜덤 카드 1장 선물(도감 추가, 재고 무관).
+  if (action === "giftCard") {
+    const empNo = cleanStr(data.empNo);
+    const gradeId = cleanStr(data.gradeId);
+    if (!empNo || !gradeId) throw new HttpsError("invalid-argument", "사번·등급 필요");
+    const [gradeSnap, cardsSnap, rosterSnap] = await Promise.all([
+      db.doc(`grades/${gradeId}`).get(),
+      db.collection("cards").where("gradeId", "==", gradeId).get(),
+      db.doc(`roster/${empNo}`).get(),
+    ]);
+    if (!gradeSnap.exists) throw new HttpsError("not-found", "등급 없음");
+    if (cardsSnap.empty) throw new HttpsError("failed-precondition", "해당 등급 카드 없음");
+    const grade = gradeSnap.data();
+    const pick = cardsSnap.docs[Math.floor(Math.random() * cardsSnap.size)];
+    const card = pick.data();
+    const picked = [{
+      gradeId, gradeRank: grade.rank, gradeLabel: grade.label, gradeName: grade.name || "",
+      gradePrize: grade.prize || "", cardId: pick.id, cardName: card.name || "", cardImage: card.image, cardDesc: card.desc || "",
+    }];
+    const name = rosterSnap.exists ? (rosterSnap.data().name || empNo) : empNo;
+    await db.collection("draws").add({
+      empNo, name, uid: null, drawDate: kstDate(), cards: picked,
+      bestRank: grade.rank, miss: false, gift: true, createdAt: FV.serverTimestamp(),
+    });
+    return { ok: true, message: `${name}(${empNo})에게 [${grade.name}] ${card.name || ""} 선물 완료` };
+  }
+
+  throw new HttpsError("invalid-argument", "알 수 없는 action");
 });

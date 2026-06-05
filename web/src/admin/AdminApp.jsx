@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { adminLoad, adminUpdate } from "../api";
+import { adminLoad, adminUpdate, adminAction } from "../api";
 import "./admin.css";
 
 const MASTER_KEY = "demo-master";
@@ -61,6 +61,7 @@ export default function AdminApp() {
         <EventSection config={data.config} onSaved={(m) => { flash(m); reload(); }} />
         <GradeSection grades={data.grades} cardCounts={data.cardCounts} onSaved={(m) => { flash(m); reload(); }} />
         <TeamSection teams={data.teams} onSaved={(m) => { flash(m); reload(); }} />
+        <ToolsSection grades={data.grades} onDone={(m) => { flash(m); reload(); }} />
       </main>
 
       {toast && <div className="admin-toast">{toast}</div>}
@@ -224,6 +225,70 @@ function TeamRow({ team, onSaved }) {
       <button className="ad-btn small" onClick={save} disabled={busy}>저장</button>
       <button className="ad-btn small danger" onClick={del} disabled={busy}>삭제</button>
     </div>
+  );
+}
+
+/* ───────── 운영 도구: 초기화 / 추가뽑기 / 카드선물 ───────── */
+function ToolsSection({ grades, onDone }) {
+  const [busy, setBusy] = useState("");
+  const [grantTarget, setGrantTarget] = useState("all");
+  const [grantEmp, setGrantEmp] = useState("");
+  const [grantCount, setGrantCount] = useState(1);
+  const [giftEmp, setGiftEmp] = useState("");
+  const [giftGrade, setGiftGrade] = useState(grades[0]?.id || "");
+
+  const run = async (key, action, data, confirmMsg) => {
+    if (confirmMsg && !confirm(confirmMsg)) return;
+    setBusy(key);
+    try { const r = await adminAction("demo-master", action, data); onDone(r?.message || "완료"); }
+    catch (e) { onDone("실패: " + (e?.message || "")); }
+    finally { setBusy(""); }
+  };
+
+  return (
+    <section className="ad-card">
+      <h2 className="ad-h2">🛠 운영 도구</h2>
+
+      <div className="ad-tool">
+        <div className="ad-tool-head"><b>이벤트 초기화</b><span>모든 뽑기 기록 삭제 · 등급 재고 복원 · 유저 상태 리셋</span></div>
+        <button className="ad-btn danger" disabled={busy === "reset"}
+          onClick={() => run("reset", "resetEvent", {}, "정말 이벤트를 초기화할까요?\n모든 뽑기 기록이 삭제되고 재고가 복원됩니다. 되돌릴 수 없습니다.")}>
+          {busy === "reset" ? "초기화 중…" : "이벤트 초기화"}
+        </button>
+      </div>
+
+      <div className="ad-tool">
+        <div className="ad-tool-head"><b>추가 뽑기 지급</b><span>오늘 이미 뽑은 사람도 추가로 뽑을 수 있게 보너스 지급</span></div>
+        <div className="ad-tool-row">
+          <select value={grantTarget} onChange={(e) => setGrantTarget(e.target.value)}>
+            <option value="all">전 인원(명단 전체)</option>
+            <option value="one">특정 인원(사번)</option>
+          </select>
+          {grantTarget === "one" && <input placeholder="사번" value={grantEmp} onChange={(e) => setGrantEmp(e.target.value)} style={{ width: 120 }} />}
+          <input type="number" min="1" value={grantCount} onChange={(e) => setGrantCount(e.target.value)} style={{ width: 80 }} />
+          <span className="ad-tool-unit">회</span>
+          <button className="ad-btn primary" disabled={busy === "grant"}
+            onClick={() => run("grant", "grantDraws", { target: grantTarget === "all" ? "all" : grantEmp, count: grantCount },
+              grantTarget === "all" ? `전 인원에게 추가 뽑기 ${grantCount}회를 지급할까요?` : null)}>
+            {busy === "grant" ? "지급 중…" : "지급"}
+          </button>
+        </div>
+      </div>
+
+      <div className="ad-tool">
+        <div className="ad-tool-head"><b>카드 선물 (특정 인원)</b><span>지정 사번에게 선택 등급의 카드 1장을 도감에 바로 선물</span></div>
+        <div className="ad-tool-row">
+          <input placeholder="사번" value={giftEmp} onChange={(e) => setGiftEmp(e.target.value)} style={{ width: 120 }} />
+          <select value={giftGrade} onChange={(e) => setGiftGrade(e.target.value)}>
+            {grades.map((g) => <option key={g.id} value={g.id}>{g.label} · {g.name}</option>)}
+          </select>
+          <button className="ad-btn primary" disabled={busy === "gift" || !giftEmp}
+            onClick={() => run("gift", "giftCard", { empNo: giftEmp, gradeId: giftGrade })}>
+            {busy === "gift" ? "선물 중…" : "선물하기"}
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }
 

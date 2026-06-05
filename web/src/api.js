@@ -92,3 +92,9 @@ export async function adminUpdate(masterKey, section, data) {
   const res = await fn({ masterKey, section, data });
   return res.data;
 }
+export async function adminAction(masterKey, action, data) {
+  await ensureAuth();
+  const fn = httpsCallable(functions, "adminAction");
+  const res = await fn({ masterKey, action, data });
+  return res.data;
+}
