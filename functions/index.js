@@ -460,12 +460,19 @@ export const adminLoad = onCall(async (request) => {
     unlimited: g.unlimited === true,
   }));
 
+  // 일반(5등) 배출 수 — 당첨자 테이블엔 미표시(수가 많음), 집계만.
+  const commonGrade = grades.find((g) => g.rank === 5);
+  const commonCount = commonGrade ? (awardedByGrade[commonGrade.id] || 0) : 0;
+  // 명단(검색 선택용)
+  const roster = rosterSnap.docs.map((d) => ({ empNo: d.id, name: d.data().name || "" })).sort((a, b) => a.empNo.localeCompare(b.empNo));
+
   return {
     config: cfgSnap.exists ? cfgSnap.data() : {},
     grades,
     teams: teamsSnap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order || 0) - (b.order || 0)),
     cardCounts,
-    stats: { rosterCount, participantCount, drawCount, giftCount, participationRate: rosterCount > 0 ? Math.round(participantCount / rosterCount * 1000) / 10 : 0 },
+    roster,
+    stats: { rosterCount, participantCount, drawCount, giftCount, commonCount, participationRate: rosterCount > 0 ? Math.round(participantCount / rosterCount * 1000) / 10 : 0 },
     winners,
     gradeStatus,
   };
@@ -480,7 +487,7 @@ export const adminUpdate = onCall(async (request) => {
 
   if (section === "event") {
     const allowed = {};
-    ["eventName", "startDate", "endDate", "rosterRequired", "unlimitedDraws", "cardsPerPack", "missWeight", "prizeNote", "contactTeam", "contactPerson", "contactHow"].forEach((k) => {
+    ["eventName", "active", "startDate", "endDate", "rosterRequired", "unlimitedDraws", "cardsPerPack", "missWeight", "prizeNote", "contactTeam", "contactPerson", "contactHow"].forEach((k) => {
       if (data[k] !== undefined) allowed[k] = clean(data[k]);
     });
     await db.doc("config/event").set(allowed, { merge: true });

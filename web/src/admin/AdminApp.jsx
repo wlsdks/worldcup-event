@@ -72,14 +72,8 @@ export default function AdminApp() {
         <main className="admin-main">
           {tab === "dash" && <Dashboard data={data} />}
           {tab === "winners" && <WinnersView data={data} onDone={onSaved} />}
-          {tab === "settings" && (
-            <>
-              <EventSection config={data.config} onSaved={onSaved} />
-              <GradeSection grades={data.grades} cardCounts={data.cardCounts} onSaved={onSaved} />
-              <TeamSection teams={data.teams} onSaved={onSaved} />
-            </>
-          )}
-          {tab === "tools" && <ToolsSection grades={data.grades} onDone={onSaved} />}
+          {tab === "settings" && <SettingsView data={data} onSaved={onSaved} />}
+          {tab === "tools" && <ToolsSection grades={data.grades} roster={data.roster || []} onDone={onSaved} />}
         </main>
       </div>
 
@@ -170,8 +164,8 @@ function WinnersView({ data, onDone }) {
       <section className="ad-card">
         <div className="winners-head">
           <div>
-            <h2 className="ad-h2">당첨자 ({winners.length}명)</h2>
-            <p className="ad-note">미당첨 한정 경품 {remaining}개. 마감 시 랜덤 추첨으로 모든 경품을 배정할 수 있습니다.</p>
+            <h2 className="ad-h2">경품 당첨자 ({winners.length}명)</h2>
+            <p className="ad-note">스페셜·전설~레어(경품 대상)만 표시. 일반(5등) {data.stats?.commonCount ?? 0}장 배출은 제외. 미당첨 한정 경품 {remaining}개.</p>
           </div>
           <button className="ad-btn primary" onClick={fill} disabled={busy || remaining === 0}>
             {busy ? "추첨 중…" : `🎲 랜덤 추첨 (${remaining})`}
@@ -201,10 +195,61 @@ function WinnersView({ data, onDone }) {
   );
 }
 
+/* ───────── 설정(서브탭: 이벤트 / 등급 / 팀) ───────── */
+function SettingsView({ data, onSaved }) {
+  const [sub, setSub] = useState("event");
+  const SUBS = [{ id: "event", label: "이벤트" }, { id: "grades", label: "등급·확률·재고" }, { id: "teams", label: "응원 팀" }];
+  return (
+    <>
+      <div className="sub-tabs">
+        {SUBS.map((s) => (
+          <button key={s.id} className={`sub-tab ${sub === s.id ? "on" : ""}`} onClick={() => setSub(s.id)}>{s.label}</button>
+        ))}
+      </div>
+      {sub === "event" && <EventSection config={data.config} onSaved={onSaved} />}
+      {sub === "grades" && <GradeSection grades={data.grades} cardCounts={data.cardCounts} onSaved={onSaved} />}
+      {sub === "teams" && <TeamSection teams={data.teams} onSaved={onSaved} />}
+    </>
+  );
+}
+
+/* 명단 검색 선택기 (400명 대응 — 입력 검색 + 자동완성, 미존재 사번 방지) */
+function RosterPicker({ roster, value, onChange, placeholder }) {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const selected = roster.find((r) => r.empNo === value);
+  const needle = q.trim();
+  const filtered = (needle ? roster.filter((r) => r.empNo.includes(needle) || (r.name || "").includes(needle)) : roster).slice(0, 40);
+  return (
+    <div className="rp-wrap">
+      <input
+        className="rp-input"
+        placeholder={placeholder || "사번 또는 이름 검색"}
+        value={open ? q : (selected ? `${selected.name} (${selected.empNo})` : "")}
+        onChange={(e) => { setQ(e.target.value); setOpen(true); }}
+        onFocus={() => { setOpen(true); setQ(""); }}
+        onBlur={() => setTimeout(() => setOpen(false), 160)}
+      />
+      {open && (
+        <div className="rp-list">
+          {filtered.length === 0 && <div className="rp-empty">검색 결과 없음</div>}
+          {filtered.map((r) => (
+            <button type="button" key={r.empNo} className={`rp-item ${r.empNo === value ? "on" : ""}`}
+              onMouseDown={() => { onChange(r.empNo); setOpen(false); }}>
+              <b>{r.name || "(이름없음)"}</b><span>{r.empNo}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ───────── 이벤트 설정 ───────── */
 function EventSection({ config, onSaved }) {
   const [f, setF] = useState({
     eventName: config.eventName || "",
+    active: config.active === true,
     startDate: config.startDate || "",
     endDate: config.endDate || "",
     rosterRequired: config.rosterRequired !== false,
@@ -226,6 +271,10 @@ function EventSection({ config, onSaved }) {
   return (
     <section className="ad-card">
       <h2 className="ad-h2">이벤트 설정</h2>
+      <div className={`event-switch ${f.active ? "on" : "off"}`}>
+        <div><b>이벤트 {f.active ? "진행 중" : "중지됨"}</b><span>꺼지면 사용자가 뽑을 수 없습니다.</span></div>
+        <label className="switch"><input type="checkbox" checked={f.active} onChange={(e) => set("active", e.target.checked)} /><span className="track" /></label>
+      </div>
       <div className="ad-grid">
         <Field label="이벤트 이름"><input value={f.eventName} onChange={(e) => set("eventName", e.target.value)} placeholder="고놈 월드컵 카드뽑기" /></Field>
         <Field label="시작일 (YYYY-MM-DD)"><input value={f.startDate} onChange={(e) => set("startDate", e.target.value)} placeholder="2026-06-04" /></Field>
@@ -325,7 +374,7 @@ function TeamRow({ team, onSaved }) {
 }
 
 /* ───────── 운영 도구 ───────── */
-function ToolsSection({ grades, onDone }) {
+function ToolsSection({ grades, roster, onDone }) {
   const [busy, setBusy] = useState("");
   const [grantTarget, setGrantTarget] = useState("all");
   const [grantEmp, setGrantEmp] = useState("");
@@ -353,7 +402,7 @@ function ToolsSection({ grades, onDone }) {
             <option value="all">전 인원(명단 전체)</option>
             <option value="one">특정 인원(사번)</option>
           </select>
-          {grantTarget === "one" && <input placeholder="사번" value={grantEmp} onChange={(e) => setGrantEmp(e.target.value)} style={{ width: 120 }} />}
+          {grantTarget === "one" && <RosterPicker roster={roster} value={grantEmp} onChange={setGrantEmp} />}
           <input type="number" min="1" value={grantCount} onChange={(e) => setGrantCount(e.target.value)} style={{ width: 80 }} />
           <span className="ad-tool-unit">회</span>
           <button className="ad-btn primary" disabled={busy === "grant"} onClick={() => run("grant", "grantDraws", { target: grantTarget === "all" ? "all" : grantEmp, count: grantCount }, grantTarget === "all" ? `전 인원에게 추가 뽑기 ${grantCount}회를 지급할까요?` : null)}>{busy === "grant" ? "지급 중…" : "지급"}</button>
@@ -362,7 +411,7 @@ function ToolsSection({ grades, onDone }) {
       <div className="ad-tool">
         <div className="ad-tool-head"><b>카드 선물 (특정 인원)</b><span>지정 사번에게 선택 등급의 카드 1장을 도감에 바로 선물</span></div>
         <div className="ad-tool-row">
-          <input placeholder="사번" value={giftEmp} onChange={(e) => setGiftEmp(e.target.value)} style={{ width: 120 }} />
+          <RosterPicker roster={roster} value={giftEmp} onChange={setGiftEmp} />
           <select value={giftGrade} onChange={(e) => setGiftGrade(e.target.value)}>{grades.map((g) => <option key={g.id} value={g.id}>{g.label} · {g.name}</option>)}</select>
           <button className="ad-btn primary" disabled={busy === "gift" || !giftEmp} onClick={() => run("gift", "giftCard", { empNo: giftEmp, gradeId: giftGrade })}>{busy === "gift" ? "선물 중…" : "선물하기"}</button>
         </div>
