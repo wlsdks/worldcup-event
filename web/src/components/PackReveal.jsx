@@ -49,12 +49,26 @@ function Card({ card, revealed, size = "lg" }) {
       onPointerMove={tilt.onMove}
       onPointerLeave={tilt.onLeave}
     >
+      {/* 뒤집힐 때 카드 뒤에서 새어나오는 빛 (프라이즈 등급) */}
+      {revealed && isPrize && <span className={`flip-leak ${rc} r${card.gradeRank}`} aria-hidden />}
       <motion.div
         className="flip-layer"
-        animate={{ rotateY: revealed ? 180 : 0, scale: revealed ? [1, 1.07, 1] : 1 }}
+        animate={{
+          rotateY: revealed ? 180 : 0,
+          scale: revealed ? [1, 1.07, 1] : 1,
+          // 프라이즈 등급: 카드가 펼쳐지는 순간 부르르 흔들림 (등급 높을수록 강하게)
+          ...(revealed && isPrize
+            ? {
+                x: card.gradeRank <= 1 ? [0, -7, 6, -5, 4, -2, 0] : [0, -4, 3, -2, 0],
+                rotateZ: card.gradeRank <= 1 ? [0, -2, 1.6, -1.1, 0.6, 0] : [0, -1, 0.8, 0],
+              }
+            : {}),
+        }}
         transition={{
           rotateY: { duration: 0.62, ease: [0.4, 0.1, 0.2, 1] },
           scale: { duration: 0.46, delay: revealed ? 0.22 : 0, times: [0, 0.55, 1] },
+          x: { duration: card.gradeRank <= 1 ? 0.6 : 0.42, delay: 0.3 },
+          rotateZ: { duration: card.gradeRank <= 1 ? 0.6 : 0.42, delay: 0.3 },
         }}
         style={{ transformStyle: "preserve-3d" }}
       >
@@ -229,9 +243,10 @@ export default function PackReveal({ result, config, onClose }) {
     fireBurst(cards[i].gradeRank);
     if (cards[i].isMiss) playMiss(); else playReveal(cards[i].gradeRank);
     if (cards[i].gradeRank <= 3 && navigator.vibrate) navigator.vibrate(70);
-    if (cards[i].gradeRank <= 2) {
-      setShaking(true);
-      setTimeout(() => setShaking(false), 430); // 1~2등(+스페셜) 공개 임팩트(화면 흔들림)
+    if (cards[i].gradeRank <= 3) {
+      // 3등=가벼운 흔들림 / 1·2등(+스페셜)=강한 흔들림
+      setShaking(cards[i].gradeRank <= 2 ? "hard" : "soft");
+      setTimeout(() => setShaking(false), cards[i].gradeRank <= 2 ? 460 : 300);
     }
   };
 
@@ -258,12 +273,18 @@ export default function PackReveal({ result, config, onClose }) {
     fireBurst(bestRank);
     if (bestRank >= 99) playMiss(); else playReveal(bestRank);
     if (bestRank <= 3 && navigator.vibrate) navigator.vibrate([40, 40, 80]);
-    if (bestRank <= 2) { setShaking(true); setTimeout(() => setShaking(false), 430); }
+    if (bestRank <= 3) { setShaking(bestRank <= 2 ? "hard" : "soft"); setTimeout(() => setShaking(false), bestRank <= 2 ? 460 : 300); }
     setTimeout(() => setPhase("summary"), bestRank <= 3 ? 1100 : 650);
   };
 
   const energyRank = phase === "reveal" && !curRevealed && current && current.gradeRank <= 3 ? current.gradeRank : 0;
-  const overlayRc = energyRank ? rcOf(energyRank) : (allDone || phase === "summary") ? rcOf(bestRank) : "";
+  // 배경 등급 틴트: 프라이즈 카드 공개 동안 계속 유지(3등부터 배경이 달라지도록), 결과화면은 최고등급
+  const overlayRc =
+    phase === "summary" || allDone
+      ? rcOf(bestRank)
+      : phase === "reveal" && current && current.gradeRank <= 3
+        ? rcOf(current.gradeRank)
+        : "";
 
   return (
     <motion.div
@@ -320,7 +341,7 @@ export default function PackReveal({ result, config, onClose }) {
           )}
 
           {mode === "all" && N > 1 ? (
-            <div className={`grid-stage ${shaking ? "shake" : ""}`}>
+            <div className={`grid-stage ${shaking ? `shake ${shaking}` : ""}`}>
               <div className={`pack-grid n${N}`}>
                 {cards.map((c, i) => (
                   <div key={i} className="grid-cell">
@@ -330,7 +351,7 @@ export default function PackReveal({ result, config, onClose }) {
               </div>
             </div>
           ) : (
-            <div className={`deck-stage ${shaking ? "shake" : ""}`}>
+            <div className={`deck-stage ${shaking ? `shake ${shaking}` : ""}`}>
               <AnimatePresence>
                 {curRevealed && current && (
                   <motion.div

@@ -1156,6 +1156,8 @@ button.coll-card:disabled { cursor: default; }
 
 /* 1~2등 공개 임팩트 — 화면(카드 스테이지) 흔들림 */
 .deck-stage.shake, .grid-stage.shake { animation: screenShake 0.43s ease-in-out; }
+.deck-stage.shake.soft, .grid-stage.shake.soft { animation: screenShakeSoft 0.3s ease-in-out; }
+.deck-stage.shake.hard, .grid-stage.shake.hard { animation: screenShake 0.46s ease-in-out; }
 @keyframes screenShake {
   0%, 100% { transform: translate(0, 0); }
   15% { transform: translate(-7px, 4px); }
@@ -1163,6 +1165,12 @@ button.coll-card:disabled { cursor: default; }
   45% { transform: translate(-5px, 3px); }
   60% { transform: translate(5px, -2px); }
   78% { transform: translate(-3px, 1px); }
+}
+@keyframes screenShakeSoft {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 2px); }
+  55% { transform: translate(3px, -1px); }
+  80% { transform: translate(-1.5px, 1px); }
 }
 
 /* SPECIAL 라벨 골드 그라데이션 */
@@ -1327,3 +1335,46 @@ button.coll-card:disabled { cursor: default; }
 }
 .dgp-btn:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.12); box-shadow: 0 4px 14px var(--glow, rgba(0,0,0,0.3)); }
 .dgp-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── 카드 뒤집힐 때 새어나오는 빛 (프라이즈 등급, 등급 높을수록 크게) ── */
+.flip-leak {
+  position: absolute; inset: -14%; z-index: 0; pointer-events: none; border-radius: 26px;
+  transform: translateZ(-30px);
+  background: radial-gradient(circle,
+    var(--glow, #fff) 0%,
+    color-mix(in srgb, var(--glow, #fff) 45%, transparent) 36%,
+    transparent 66%);
+  filter: blur(5px); mix-blend-mode: screen;
+  animation: flipLeak 0.9s ease-out forwards;
+}
+.flip-leak.r1, .flip-leak.holo, .flip-leak.special { inset: -22%; }
+@keyframes flipLeak {
+  0%   { opacity: 0; transform: translateZ(-30px) scale(0.62); }
+  28%  { opacity: 1; transform: translateZ(-30px) scale(1.08); }
+  100% { opacity: 0; transform: translateZ(-30px) scale(1.34); }
+}
+
+/* ── 등급별 배경 격화 (3등부터 확연히 / 1·2·SP 강하게) ── */
+.pack-overlay.silver .haze { opacity: 1; }
+.pack-overlay.gold   .haze { opacity: 1.15; }
+.pack-overlay.holo   .haze,
+.pack-overlay.special .haze { opacity: 1.35; height: 54%; }
+.pack-overlay.gold   .flood,
+.pack-overlay.holo   .flood,
+.pack-overlay.special .flood { opacity: 0.85; }
+/* 2등↑: 화면 전체에 등급색 오로라가 느리게 맥동 */
+.pack-overlay.gold .stadium-bg::after,
+.pack-overlay.holo .stadium-bg::after,
+.pack-overlay.special .stadium-bg::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 82% at 50% 26%, var(--glow, transparent), transparent 60%);
+  mix-blend-mode: screen; animation: gradePulse 2.4s ease-in-out infinite;
+}
+.pack-overlay.holo .stadium-bg::after,
+.pack-overlay.special .stadium-bg::after { animation-duration: 1.8s; }
+.pack-overlay.amped .stadium-bg::after { animation-duration: 1.05s; }
+@keyframes gradePulse { 0%, 100% { opacity: 0.32; } 50% { opacity: 0.74; } }
+@media (prefers-reduced-motion: reduce) {
+  .flip-leak { animation: none; opacity: 0; }
+  .pack-overlay .stadium-bg::after { animation: none; }
+}
