@@ -26,13 +26,15 @@ const SHUF = [
   { x: 0, y: -160, r: 0 },
 ];
 // 부유 파티클(안티그래비티)
-const ORBS = Array.from({ length: 14 }, (_, i) => ({
+// 조명 속을 떠다니는 미세 먼지/입자 (스타디움 공기감) — 큼직한 보케 대체
+const MOTES = Array.from({ length: 24 }, (_, i) => ({
   id: i,
-  left: (i * 67) % 100,
-  top: (i * 41) % 100,
-  size: 8 + ((i * 13) % 26),
-  dur: 6 + (i % 5),
-  delay: (i % 7) * 0.6,
+  left: (i * 37) % 100,
+  top: (i * 53) % 100,
+  size: 1.5 + ((i * 7) % 4),
+  dur: 9 + (i % 7),
+  delay: (i % 9) * 0.7,
+  drift: (i % 2 ? 1 : -1) * (6 + (i % 5) * 3),
 }));
 
 /** 카드 한 장 (뒷면 ?, 앞면 이미지, 홀로 시너) — 등급 탭은 카드 아트에 이미 인쇄됨 */
@@ -272,23 +274,23 @@ export default function PackReveal({ result, config, onClose }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <div className="parallax-bg" aria-hidden>
-        <div className="pl pl-neb" />
-        <div className="pl pl-orbs">
-          {ORBS.map((o) => (
+      <div className="stadium-bg" aria-hidden>
+        <div className="pl floodlights">
+          <span className="flood flood-l"><i className="flood-src" /></span>
+          <span className="flood flood-r"><i className="flood-src" /></span>
+        </div>
+        <div className="stands" />
+        <div className="haze" />
+        <div className="pitch" />
+        <div className="pl motes">
+          {MOTES.map((o) => (
             <span
               key={o.id}
-              className="orb"
-              style={{ left: `${o.left}%`, top: `${o.top}%`, width: o.size, height: o.size, animationDuration: `${o.dur}s`, animationDelay: `${o.delay}s` }}
+              className="mote"
+              style={{ left: `${o.left}%`, top: `${o.top}%`, width: o.size, height: o.size, animationDuration: `${o.dur}s`, animationDelay: `${o.delay}s`, "--drift": `${o.drift}px` }}
             />
           ))}
         </div>
-      </div>
-      <div className="sparkles" />
-      <div className="starfall" aria-hidden>
-        {STARS.map((i) => (
-          <span key={i} className="star" style={{ left: `${(i * 53) % 100}%`, animationDuration: `${3 + (i % 4)}s`, animationDelay: `${(i % 6) * 0.5}s` }} />
-        ))}
       </div>
       <div className="cinematic" aria-hidden />
       <button
