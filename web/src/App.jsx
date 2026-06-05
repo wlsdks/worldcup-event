@@ -141,7 +141,7 @@ export default function App() {
       )}
 
       {screen === "cheer" && (
-        <CheerBoard user={user} onBack={() => setScreen("home")} />
+        <CheerBoard user={user} teams={catalog.teams || []} onBack={() => setScreen("home")} />
       )}
 
       {reveal && (

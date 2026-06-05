@@ -40,13 +40,15 @@ const EVENT = {
 // 1~4등은 한정 수량(소진되면 후보에서 빠져 더 이상 안 나옴). 그 외 전부 5등(무제한).
 // weight: 1~4등은 당첨 수량과 동일, 5등은 매우 크게 두어 대부분 5등이 나오게 함.
 // daily=[cap,0,0] → 첫날부터 전량 풀림(총 재고만 제한, 날짜별 제한 없음).
+// 등급 체계: 스페셜 / 전설(1등) / 유니크(2등) / 에픽(3등) / 레어(4등) / 일반(5등)
+// 재고(inventoryTotal)=등급별 카드 수(5등 제외, 무제한). 확률은 400명 기준(가중치 합=400 → 0.25/0.25/0.5/0.75/1%).
 const GRADES = [
-  { id: "g0", rank: 0, label: "SP",  name: "스페셜",   color: "special", weight: 1,   inventoryTotal: 1,    unlimited: false, daily: [1, 0, 0], prize: "국가대표 축구 유니폼" },
-  { id: "g1", rank: 1, label: "1st", name: "붉은악마", color: "holo",   weight: 1,   inventoryTotal: 1,    unlimited: false, daily: [1, 0, 0], prize: "5만원 쿠폰" },
-  { id: "g2", rank: 2, label: "2nd", name: "골드",     color: "gold",   weight: 2,   inventoryTotal: 2,    unlimited: false, daily: [2, 0, 0], prize: "3만원 상당 상품" },
-  { id: "g3", rank: 3, label: "3rd", name: "실버",     color: "silver", weight: 3,   inventoryTotal: 3,    unlimited: false, daily: [3, 0, 0], prize: "치킨 쿠폰" },
-  { id: "g4", rank: 4, label: "4th", name: "브론즈",   color: "bronze", weight: 4,   inventoryTotal: 4,    unlimited: false, daily: [4, 0, 0], prize: "미니 선풍기" },
-  { id: "g5", rank: 5, label: "5th", name: "아이언",   color: "basic",  weight: 390, inventoryTotal: null, unlimited: true,                  prize: "축구공 초콜릿 (각 호실 비치분)" },
+  { id: "g0", rank: 0, label: "SP",  name: "스페셜", color: "special", weight: 1,   inventoryTotal: 1,    unlimited: false, daily: [1, 0, 0], prize: "국가대표 축구 유니폼" },
+  { id: "g1", rank: 1, label: "1st", name: "전설",   color: "holo",   weight: 1,   inventoryTotal: 1,    unlimited: false, daily: [1, 0, 0], prize: "5만원 쿠폰" },
+  { id: "g2", rank: 2, label: "2nd", name: "유니크", color: "gold",   weight: 2,   inventoryTotal: 2,    unlimited: false, daily: [2, 0, 0], prize: "3만원 상당 상품" },
+  { id: "g3", rank: 3, label: "3rd", name: "에픽",   color: "silver", weight: 3,   inventoryTotal: 3,    unlimited: false, daily: [3, 0, 0], prize: "치킨 쿠폰" },
+  { id: "g4", rank: 4, label: "4th", name: "레어",   color: "bronze", weight: 4,   inventoryTotal: 4,    unlimited: false, daily: [4, 0, 0], prize: "미니 선풍기" },
+  { id: "g5", rank: 5, label: "5th", name: "일반",   color: "basic",  weight: 389, inventoryTotal: null, unlimited: true,                  prize: "축구공 초콜릿 (각 호실 비치분)" },
 ];
 
 /** startDate~endDate(포함) 날짜 문자열 배열 'YYYY-MM-DD' */
@@ -90,12 +92,18 @@ const CARDS = [
 
 // ── 응원전 팀 (임시 — 실제 팀으로 교체 예정) ──
 // cheerCount 는 시드로 건드리지 않음(merge) → 재시드해도 응원 수 유지.
+// 응원 팀 — admin에서 지정/관리(임시 10팀). 사용자는 직접 입력 대신 이 중에서 선택.
 const TEAMS = [
-  { id: "t1", name: "개발본부",   emoji: "🦁", order: 1 },
-  { id: "t2", name: "인재경영팀", emoji: "🐯", order: 2 },
-  { id: "t3", name: "영업본부",   emoji: "🐻", order: 3 },
-  { id: "t4", name: "마케팅팀",   emoji: "🦊", order: 4 },
-  { id: "t5", name: "경영지원팀", emoji: "🐼", order: 5 },
+  { id: "t1",  name: "개발본부",     emoji: "🦁", order: 1 },
+  { id: "t2",  name: "인재경영팀",   emoji: "🐯", order: 2 },
+  { id: "t3",  name: "영업본부",     emoji: "🐻", order: 3 },
+  { id: "t4",  name: "마케팅팀",     emoji: "🦊", order: 4 },
+  { id: "t5",  name: "경영지원팀",   emoji: "🐼", order: 5 },
+  { id: "t6",  name: "콘텐츠개발팀", emoji: "🐰", order: 6 },
+  { id: "t7",  name: "디자인팀",     emoji: "🦄", order: 7 },
+  { id: "t8",  name: "고객성공팀",   emoji: "🐨", order: 8 },
+  { id: "t9",  name: "재무회계팀",   emoji: "🐸", order: 9 },
+  { id: "t10", name: "전략기획팀",   emoji: "🐵", order: 10 },
 ];
 
 // ── 참여자 명단 (임시 — 실제 사번/이름으로 교체 예정) ──

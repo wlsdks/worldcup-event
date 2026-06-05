@@ -62,15 +62,19 @@ export async function likeCheer({ empNo, cheerId }) {
 
 /** 등급 + 카드 도감 + 이벤트 설정(공개 읽기) 로드 */
 export async function loadCatalog() {
-  const [gradesSnap, cardsSnap, configSnap] = await Promise.all([
+  const [gradesSnap, cardsSnap, configSnap, teamsSnap] = await Promise.all([
     getDocs(collection(db, "grades")),
     getDocs(collection(db, "cards")),
     getDoc(doc(db, "config", "event")),
+    getDocs(collection(db, "teams")),
   ]);
   const grades = gradesSnap.docs
     .map((d) => ({ id: d.id, ...d.data() }))
     .sort((a, b) => a.rank - b.rank);
   const cards = cardsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
   const config = configSnap.exists() ? configSnap.data() : {};
-  return { grades, cards, config };
+  const teams = teamsSnap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  return { grades, cards, config, teams };
 }

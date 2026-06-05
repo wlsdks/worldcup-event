@@ -16,6 +16,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+    // 응원 팀 목록 (응원전 팀 선택에 필요). 쓰기는 Functions/Admin 통해서만.
+    match /teams/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
 
     // 유저/뽑기 기록은 클라이언트가 직접 읽거나 쓸 수 없음.
     // 모든 접근은 Cloud Functions(Admin SDK)를 통해서만 이루어짐.

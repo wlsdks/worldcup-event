@@ -4,7 +4,7 @@ import { getCheers, postCheer, likeCheer } from "../api";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
-export default function CheerBoard({ user, onBack }) {
+export default function CheerBoard({ user, teams = [], onBack }) {
   const [cheers, setCheers] = useState([]);
   const [liked, setLiked] = useState(() => new Set());
   const [likesUsed, setLikesUsed] = useState(0);
@@ -86,13 +86,20 @@ export default function CheerBoard({ user, onBack }) {
       </div>
 
       <form className="cheer-composer" onSubmit={submit}>
-        <input
-          className="cheer-in"
-          placeholder="응원할 팀 (예: 개발본부)"
-          value={team}
-          onChange={(e) => setTeam(e.target.value)}
-          maxLength={30}
-        />
+        <div className="team-pick-label">응원할 팀을 선택하세요</div>
+        <div className="team-chips">
+          {teams.map((t) => (
+            <button
+              type="button"
+              key={t.id}
+              className={`team-chip ${team === t.name ? "on" : ""}`}
+              onClick={() => setTeam(t.name)}
+            >
+              <span className="tc-emoji">{t.emoji}</span>
+              {t.name}
+            </button>
+          ))}
+        </div>
         <input
           className="cheer-in"
           placeholder="작성자 이름"
