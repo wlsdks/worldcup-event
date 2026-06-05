@@ -266,7 +266,7 @@ export default function PackReveal({ result, config, onClose }) {
   const N = cards.length;
 
   const [phase, setPhase] = useState("intro"); // intro → reveal → summary
-  const [mode, setMode] = useState("drag"); // drag | one | all
+  const [mode, setMode] = useState("one"); // one | all (드래그 제거)
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(() => cards.map(() => false));
   const [burst, setBurst] = useState({ key: 0, rank: 9 });
@@ -411,6 +411,17 @@ export default function PackReveal({ result, config, onClose }) {
                 </motion.div>
               )}
             </AnimatePresence>
+            {curRevealed && current && !current.isMiss && typeof current.gradeOdds === "number" && (
+              <motion.div
+                className={`win-prob ${rcOf(current.gradeRank)}`}
+                key={`prob-${idx}`}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                ✨ {current.gradeOdds >= 0.1 ? `${current.gradeOdds}%` : "0.1% 미만"} 확률로 획득!
+              </motion.div>
+            )}
           </div>
 
           {mode === "all" && N > 1 ? (
@@ -457,15 +468,7 @@ export default function PackReveal({ result, config, onClose }) {
                     >
                       <motion.div
                         className="deck-card-wrap"
-                        drag={mode === "drag"}
-                        dragSnapToOrigin
-                        dragElastic={0.32}
-                        whileDrag={{ scale: 1.03 }}
-                        onDragEnd={(e, info) => {
-                          const moved = Math.hypot(info.offset.x, info.offset.y);
-                          const flung = Math.max(Math.abs(info.velocity.x), Math.abs(info.velocity.y));
-                          if (moved > 64 || flung > 380) deckAction();
-                        }}
+                        whileTap={!curRevealed ? { scale: 0.97 } : undefined}
                         onClick={() => mode !== "all" && deckAction()}
                       >
                         <Card card={current} revealed={curRevealed} size="lg" />
@@ -499,8 +502,27 @@ export default function PackReveal({ result, config, onClose }) {
                 {current.cardDesc && <p>{current.cardDesc}</p>}
               </motion.div>
             ) : !curRevealed ? (
-              <div className="deck-hint">카드를 탭하거나 스와이프해서 오픈</div>
+              <div className="deck-hint">카드를 탭하면 오픈!</div>
             ) : null}
+
+            {curRevealed && current && !current.isMiss && (
+              <motion.div
+                className={`reveal-prize ${rcOf(current.gradeRank)}`}
+                key={`prize-${idx}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.28, duration: 0.3 }}
+              >
+                <div className="rp-prize">🎁 {current.gradePrize || current.gradeName} 당첨!</div>
+                <div className="rp-contact">
+                  {current.gradeRank <= 4 ? (
+                    <>경품은 <b>{team} {person}</b>님께 DM 또는 방문하여 수령하세요.</>
+                  ) : (
+                    <>각 호실에 비치된 <b>축구공 초콜릿</b>을 가져가서 드시면 됩니다!</>
+                  )}
+                </div>
+              </motion.div>
+            )}
 
             <div className="pack-actions">
               {!allDone && N > 1 && <button className="btn-ghost slim" onClick={revealAllToSummary}>모두 오픈</button>}

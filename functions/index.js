@@ -147,6 +147,9 @@ export const drawCard = onCall(async (request) => {
       ? grades.find((g) => g.id === forceGradeId && (cardsByGrade[g.id] || []).length > 0) || null
       : null;
 
+    // 표시용 기본 확률(가중치 기반): grade.weight / (모든 등급 weight 합 + 꽝 weight)
+    const baseTotalW = grades.reduce((s, g) => s + (g.weight || 0), 0) + missWeight;
+
     const picked = [];
     const consumed = {}; // 유한 등급의 팩 내 소비 수량
     for (let n = 0; n < N; n++) {
@@ -171,9 +174,11 @@ export const drawCard = onCall(async (request) => {
         localAvail[grade.id] -= 1;
         consumed[grade.id] = (consumed[grade.id] || 0) + 1;
       }
+      const odds = baseTotalW > 0 ? (grade.weight || 0) / baseTotalW * 100 : 0;
       picked.push({
         gradeId: grade.id, gradeRank: grade.rank, gradeLabel: grade.label,
         gradeName: grade.name || "", gradeColor: grade.color || null,
+        gradePrize: grade.prize || "", gradeOdds: Math.round(odds * 10) / 10,
         cardId: card.id, cardName: card.name || "", cardImage: card.image, cardDesc: card.desc || "",
       });
     }
