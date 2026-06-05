@@ -145,11 +145,12 @@ function SummonBuildup({ rank }) {
     >
       <div className="sm-dark" />
       <div className="sm-vignette" />
-      {/* 스페셜 전용 — 하늘에서 내려오는 신성한 빛기둥 + 예고 문구 */}
+      {/* 스페셜 전용 — 카드 주변에서 빛이 점점 크게 새어나감 + 예고 문구 */}
       {rank === 0 && (
         <>
-          <div className="sm-column" />
+          <div className="sm-leak" />
           <div className="sm-halo-ring" />
+          <div className="sm-halo-ring sm-halo-ring2" />
           <div className="sm-omen">{SP_OMEN}</div>
         </>
       )}
