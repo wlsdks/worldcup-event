@@ -790,9 +790,10 @@ body {
   background: linear-gradient(160deg, #3a1116, #16060a); border: 1px solid rgba(255,255,255,0.08);
   box-shadow: 0 10px 24px rgba(0,0,0,0.4);
 }
-.deck-card-enter { position: absolute; inset: 0; }
+.deck-card-enter { position: absolute; inset: 0; transform-style: preserve-3d; }
 .deck-card-wrap {
   position: relative; width: 100%; height: 100%; perspective: 1000px;
+  transform-style: preserve-3d;
   cursor: grab; touch-action: none; z-index: 2;
 }
 .deck-card-wrap:active { cursor: grabbing; }
@@ -815,9 +816,12 @@ body {
 .flip-layer { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
 .face {
   position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  border-radius: 16px; overflow: hidden;
+  border-radius: 16px;
 }
-.face-front { transform: rotateY(180deg); filter: drop-shadow(0 0 22px var(--glow, transparent)); }
+/* 라운드 클리핑은 이미지에 (face의 overflow:hidden은 WebKit에서 3D 평면화 → backface 깨짐) */
+.face > img, .face-front img, .back-img { border-radius: 16px; }
+/* scaleX 플립 + 중간 면 교체 방식이라 rotateY/backface 불필요 (글로우는 reveal-halo 담당) */
+.face-front { transform: none; }
 .face-front img { width: 100%; height: 100%; object-fit: contain; display: block; }
 /* 그리드/결과의 작은 카드는 꽉 차게(cover) — 흰 여백 카드도 통일감 있게 */
 .tilt-layer.sm .face-front img { object-fit: cover; }
@@ -1370,98 +1374,78 @@ button.coll-card:disabled { cursor: default; }
   .pack-overlay .stadium-bg::after { animation: none; }
 }
 
-/* ─────────── 워크아웃: 어둠 속 고놈이 그라운드로 걸어나간다 ─────────── */
-.walkout { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; --wk: 1.15s; }
-.walkout.r3 { --wk: 1.15s; }
-.walkout.r2 { --wk: 1.45s; }
-.walkout.r1, .walkout.r0, .walkout.special, .walkout.holo { --wk: 1.7s; }
+/* ─────────── 소환 빌드업 (FIFA 워크아웃 톤): 스포트라이트가 하늘로 솟구친다 ─────────── */
+.summon { position: absolute; inset: 0; z-index: 8; pointer-events: none; overflow: hidden; --sm: 1.3s; }
+.summon.r2 { --sm: 1.9s; }
+.summon.r1, .summon.r0, .summon.holo, .summon.special { --sm: 2.6s; }
 
-.wk-dark {
-  position: absolute; inset: 0;
-  background: radial-gradient(120% 92% at 50% 34%, rgba(0,0,0,0.5), rgba(0,0,0,0.93) 72%);
+.sm-dark {
+  position: absolute; inset: 0; opacity: 0;
+  background: radial-gradient(120% 92% at 50% 42%, rgba(0,0,0,0.5), rgba(0,0,0,0.95) 72%);
+  animation: smDark var(--sm) ease forwards;
 }
-/* 그라운드 입구의 빛 (소실점) — 등급색 */
-.wk-tunnel {
-  position: absolute; left: 50%; top: 29%; width: 42vmax; height: 42vmax; transform: translate(-50%,-50%);
-  background: radial-gradient(circle, var(--glow, rgba(255,240,210,0.7)) 0%, rgba(255,222,184,0.16) 32%, transparent 62%);
-  filter: blur(8px); mix-blend-mode: screen;
-  animation: wkTunnel var(--wk) ease-in forwards;
-}
-@keyframes wkTunnel {
-  0% { opacity: 0.35; transform: translate(-50%,-50%) scale(0.7); }
-  80% { opacity: 0.9; }
-  100% { opacity: 1; transform: translate(-50%,-50%) scale(1.3); }
-}
-/* 그라운드 바닥 + 원근 */
-.wk-ground {
-  position: absolute; left: -20%; right: -20%; bottom: 0; height: 44%;
-  background:
-    radial-gradient(60% 70% at 50% 0%, rgba(120,200,140,0.10), transparent 70%),
-    linear-gradient(to top, rgba(10,30,16,0.72), transparent 100%);
-}
-/* 1등 번개 보강 */
-.wk-bolts .bolt { animation-duration: var(--wk); }
+@keyframes smDark { 0% { opacity: 0; } 20% { opacity: 1; } 88% { opacity: 1; } 100% { opacity: 0.35; } }
 
-/* 걸어가는 고놈 (뒷모습 실루엣) */
-.wk-walker {
-  position: absolute; left: 50%; bottom: 13%; width: 24vmax; max-width: 158px;
-  animation: wkWalk var(--wk) cubic-bezier(0.4, 0, 0.5, 1) forwards;
+/* 스포트라이트 — 하단 모서리 기준, 안쪽 비스듬 → 수직(하늘)으로 솟구침 */
+.sm-spot {
+  position: absolute; bottom: -12%; width: 26vmax; height: 130vmax; transform-origin: bottom center;
+  background: linear-gradient(to top, var(--glow, rgba(255,242,214,0.6)) 0%, rgba(255,228,198,0.13) 30%, transparent 60%);
+  mix-blend-mode: screen; filter: blur(15px); opacity: 0;
 }
-@keyframes wkWalk {
-  0%   { transform: translate(-50%, 10%) scale(1.12); opacity: 0; }
-  14%  { opacity: 1; }
-  80%  { transform: translate(-50%, -118%) scale(0.44); opacity: 1; }
-  100% { transform: translate(-50%, -150%) scale(0.3); opacity: 0; }
+.sm-spot-l  { left: 4%;  animation: spotL var(--sm) cubic-bezier(0.25,0.7,0.3,1) forwards; }
+.sm-spot-r  { right: 4%; animation: spotR var(--sm) cubic-bezier(0.25,0.7,0.3,1) forwards; }
+.sm-spot-l2 { left: 22%; animation: spotL var(--sm) cubic-bezier(0.25,0.7,0.3,1) 0.12s forwards; }
+.sm-spot-r2 { right: 22%; animation: spotR var(--sm) cubic-bezier(0.25,0.7,0.3,1) 0.12s forwards; }
+@keyframes spotL {
+  0% { opacity: 0; transform: rotate(64deg); }
+  22% { opacity: 0.8; }
+  68% { opacity: 0.92; transform: rotate(20deg); }
+  100% { opacity: 0.5; transform: rotate(12deg); }
 }
-.wk-bear { width: 100%; height: auto; display: block; animation: wkBob 0.46s ease-in-out infinite; overflow: visible; }
-.wk-bear * { fill: #08070c; }
-.wk-bear circle, .wk-bear path, .wk-bear .ear {
-  stroke: var(--glow, rgba(255,255,255,0.35)); stroke-width: 1.4; paint-order: stroke;
+@keyframes spotR {
+  0% { opacity: 0; transform: rotate(-64deg); }
+  22% { opacity: 0.8; }
+  68% { opacity: 0.92; transform: rotate(-20deg); }
+  100% { opacity: 0.5; transform: rotate(-12deg); }
 }
-@keyframes wkBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-.wk-bear .leg { transform-box: fill-box; transform-origin: 50% 0; animation: legSwing 0.46s ease-in-out infinite; }
-.wk-bear .leg-r { animation-delay: -0.23s; }
-@keyframes legSwing { 0%, 100% { transform: rotate(12deg); } 50% { transform: rotate(-12deg); } }
-.wk-shadow {
-  position: absolute; left: 50%; bottom: -5%; width: 66%; height: 12px; transform: translateX(-50%);
-  background: radial-gradient(ellipse, rgba(0,0,0,0.6), transparent 70%); filter: blur(3px);
+
+/* 중앙 에너지 코어 — 카드 자리에 빛이 모임 */
+.sm-core {
+  position: absolute; left: 50%; top: 46%; width: 30vmax; height: 30vmax; transform: translate(-50%,-50%);
+  background: radial-gradient(circle, var(--glow, rgba(255,230,200,0.5)) 0%, transparent 60%);
+  mix-blend-mode: screen; filter: blur(10px); opacity: 0;
+  animation: smCore var(--sm) ease-in forwards;
 }
-/* 마지막 플레어 — 카드 솟아오르기 직전 폭발 */
-.wk-flare {
-  position: absolute; left: 50%; top: 29%; width: 10px; height: 10px; transform: translate(-50%,-50%);
+@keyframes smCore {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.6); }
+  72% { opacity: 0.6; }
+  90% { opacity: 0.92; transform: translate(-50%,-50%) scale(1.12); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.32); }
+}
+
+/* 상승 불티 */
+.sm-sparks { position: absolute; inset: 0; }
+.sm-spark {
+  position: absolute; bottom: 6%; border-radius: 50%;
+  background: radial-gradient(circle, #fff, var(--glow, #ffd9a0) 60%, transparent);
+  opacity: 0; animation-name: smSpark; animation-timing-function: ease-out; animation-iteration-count: infinite;
+}
+@keyframes smSpark {
+  0% { opacity: 0; transform: translateY(0) scale(0.8); }
+  18% { opacity: 0.95; }
+  100% { opacity: 0; transform: translateY(-62vh) scale(0.4); }
+}
+
+/* 클라이맥스 플레어 */
+.sm-flare {
+  position: absolute; left: 50%; top: 46%; width: 10px; height: 10px; transform: translate(-50%,-50%);
   border-radius: 50%; background: #fff; opacity: 0;
-  animation: wkFlare var(--wk) ease-in forwards;
+  animation: smFlare var(--sm) ease-in forwards;
 }
-@keyframes wkFlare {
-  0%, 68% { opacity: 0; box-shadow: 0 0 0 0 transparent; }
-  86% { opacity: 1; box-shadow: 0 0 70px 34px var(--glow, #fff), 0 0 160px 80px rgba(255,255,255,0.5); }
-  100% { opacity: 0; box-shadow: 0 0 220px 130px var(--glow, #fff); }
+@keyframes smFlare {
+  0%, 74% { opacity: 0; box-shadow: 0 0 0 0 transparent; }
+  90% { opacity: 1; box-shadow: 0 0 80px 38px var(--glow,#fff), 0 0 180px 90px rgba(255,255,255,0.55); }
+  100% { opacity: 0; box-shadow: 0 0 240px 140px var(--glow,#fff); }
 }
-@media (prefers-reduced-motion: reduce) {
-  .wk-walker, .wk-bear, .wk-bear .leg, .wk-tunnel, .wk-flare { animation-duration: 0.01s !important; }
-}
-
-/* ───── 공개 화면 재설계: 당첨문구(위) · 카드 · 설명(아래) · 버튼 ───── */
-.pack-overlay.phase-reveal { justify-content: center; gap: 14px; }
-.pack-overlay.phase-reveal .deck-stage { flex: 0 1 auto; }
-.pack-overlay.phase-reveal .grid-stage { flex: 0 1 auto; }
-
-.reveal-top { min-height: 40px; display: flex; align-items: flex-end; justify-content: center; z-index: 4; }
-.win-headline {
-  font-size: 27px; font-weight: 900; letter-spacing: -0.5px; text-align: center;
-  color: var(--accent, #fff); text-shadow: 0 2px 18px var(--glow), 0 0 2px rgba(0,0,0,0.4);
-}
-.win-headline.holo, .win-headline.special {
-  background: linear-gradient(92deg, #fff, var(--accent, #ffce3a), #fff);
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 14px var(--glow));
-}
-
-.reveal-bottom { display: flex; flex-direction: column; align-items: center; gap: 16px; z-index: 4; width: 100%; max-width: 440px; }
-.reveal-desc {
-  text-align: center; max-width: 340px; padding: 0 8px; display: grid; gap: 4px; justify-items: center;
-}
-.reveal-desc .rd-name {
-  font-size: 15px; font-weight: 800; color: var(--accent, #fff); letter-spacing: 0.2px;
-}
-.reveal-desc p { margin: 0; font-size: 13.5px; line-height: 1.55; color: #e9dfe0; }
+.summon .bolt { animation-duration: var(--sm); }
+@media (prefers-reduced-motion: reduce) { .summon * { animation-duration: 0.01s !important; } }

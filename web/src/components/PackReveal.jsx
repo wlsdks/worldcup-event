@@ -37,11 +37,21 @@ const MOTES = Array.from({ length: 24 }, (_, i) => ({
   drift: (i % 2 ? 1 : -1) * (6 + (i % 5) * 3),
 }));
 
-/** 카드 한 장 (뒷면 ?, 앞면 이미지, 홀로 시너) — 등급 탭은 카드 아트에 이미 인쇄됨 */
+/** 카드 한 장 — scaleX 스쿼시 플립 + 중간 면 교체 (backface-visibility/3D 의존 X → 모바일 사파리 포함 모든 브라우저 안전) */
 function Card({ card, revealed, size = "lg" }) {
   const tilt = useTilt();
   const rc = rcOf(card.gradeRank);
   const isPrize = card.gradeRank <= 3;
+  // 플립 중간(가장 얇아지는 순간)에 뒷면→앞면 교체
+  const [showFront, setShowFront] = useState(revealed);
+  useEffect(() => {
+    if (revealed && !showFront) {
+      const t = setTimeout(() => setShowFront(true), 200);
+      return () => clearTimeout(t);
+    }
+    if (!revealed && showFront) setShowFront(false);
+  }, [revealed]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div
       ref={tilt.ref}
@@ -54,9 +64,8 @@ function Card({ card, revealed, size = "lg" }) {
       <motion.div
         className="flip-layer"
         animate={{
-          rotateY: revealed ? 180 : 0,
-          scale: revealed ? [1, 1.07, 1] : 1,
-          // 프라이즈 등급: 카드가 펼쳐지는 순간 부르르 흔들림 (등급 높을수록 강하게)
+          scaleX: revealed ? [1, 0.04, 1] : 1,
+          // 프라이즈 등급: 펼쳐진 직후 부르르 흔들림 (등급 높을수록 강하게)
           ...(revealed && isPrize
             ? {
                 x: card.gradeRank <= 1 ? [0, -7, 6, -5, 4, -2, 0] : [0, -4, 3, -2, 0],
@@ -65,33 +74,34 @@ function Card({ card, revealed, size = "lg" }) {
             : {}),
         }}
         transition={{
-          rotateY: { duration: 0.62, ease: [0.4, 0.1, 0.2, 1] },
-          scale: { duration: 0.46, delay: revealed ? 0.22 : 0, times: [0, 0.55, 1] },
-          x: { duration: card.gradeRank <= 1 ? 0.6 : 0.42, delay: 0.3 },
-          rotateZ: { duration: card.gradeRank <= 1 ? 0.6 : 0.42, delay: 0.3 },
+          scaleX: { duration: 0.46, times: [0, 0.46, 1], ease: "easeInOut" },
+          x: { duration: card.gradeRank <= 1 ? 0.6 : 0.42, delay: 0.42 },
+          rotateZ: { duration: card.gradeRank <= 1 ? 0.6 : 0.42, delay: 0.42 },
         }}
-        style={{ transformStyle: "preserve-3d" }}
       >
-        <div className={`face face-back ${rc} ${!revealed && isPrize ? "charged" : ""}`}>
-          <img className="back-img" src="/cards/card-back.png" alt="" draggable={false} />
-        </div>
-        <div className={`face face-front ${rc} ${card.isMiss ? "miss" : ""}`}>
-          {card.isMiss ? (
-            <div className="miss-face">
-              <div className="miss-emoji">😢</div>
-              <div className="miss-big">꽝</div>
-              <div className="miss-sub">다음 기회에!</div>
-            </div>
-          ) : (
-            <>
-              <img src={`/cards/${card.cardImage}`} alt={card.cardName} draggable={false} />
-              {isPrize && <div className="holo-fx" />}
-              {isPrize && <div className="foil-sweep" />}
-              {!isPrize && <div className="card-sheen" />}
-              {card.gradeRank <= 1 && <FrameSparkles />}
-            </>
-          )}
-        </div>
+        {showFront ? (
+          <div className={`face face-front ${rc} ${card.isMiss ? "miss" : ""}`}>
+            {card.isMiss ? (
+              <div className="miss-face">
+                <div className="miss-emoji">😢</div>
+                <div className="miss-big">꽝</div>
+                <div className="miss-sub">다음 기회에!</div>
+              </div>
+            ) : (
+              <>
+                <img src={`/cards/${card.cardImage}`} alt={card.cardName} draggable={false} />
+                {isPrize && <div className="holo-fx" />}
+                {isPrize && <div className="foil-sweep" />}
+                {!isPrize && <div className="card-sheen" />}
+                {card.gradeRank <= 1 && <FrameSparkles />}
+              </>
+            )}
+          </div>
+        ) : (
+          <div className={`face face-back ${rc} ${!revealed && isPrize ? "charged" : ""}`}>
+            <img className="back-img" src="/cards/card-back.png" alt="" draggable={false} />
+          </div>
+        )}
       </motion.div>
     </div>
   );
@@ -109,41 +119,53 @@ function Burst({ rank }) {
   );
 }
 
-/** 워크아웃 — 어둠 속에서 고놈(뒷모습 실루엣)이 그라운드로 걸어나가고, 그 끝에서 카드가 솟아오른다. (등급 높을수록 강하게) */
-function Walkout({ rank }) {
+// 빌드업 상승 불티
+const SPARKS = Array.from({ length: 16 }, (_, i) => ({
+  id: i,
+  left: 6 + ((i * 61) % 88),
+  dur: 1 + (i % 4) * 0.3,
+  delay: (i % 8) * 0.13,
+  size: 2 + (i % 3),
+}));
+
+/** 소환 빌드업 (FIFA 워크아웃 톤) — 어둠 + 양옆 스포트라이트가 하늘로 솟구치고, 불티가 오르며, 클라이맥스에 플레어가 터진다. 등급 높을수록 길고 강하게. */
+function SummonBuildup({ rank }) {
   const rc = rcOf(rank);
   return (
     <motion.div
-      className={`walkout ${rc} r${rank}`}
+      className={`summon ${rc} r${rank}`}
       aria-hidden
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.22 }}
+      transition={{ duration: 0.25 }}
     >
-      <div className="wk-dark" />
-      <div className="wk-tunnel" />
-      <div className="wk-ground" />
+      <div className="sm-dark" />
+      <div className="sm-spot sm-spot-l" />
+      <div className="sm-spot sm-spot-r" />
+      {rank <= 2 && (
+        <>
+          <div className="sm-spot sm-spot-l2" />
+          <div className="sm-spot sm-spot-r2" />
+        </>
+      )}
+      <div className="sm-core" />
+      <div className="sm-sparks">
+        {SPARKS.map((s) => (
+          <span
+            key={s.id}
+            className="sm-spark"
+            style={{ left: `${s.left}%`, width: s.size, height: s.size, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }}
+          />
+        ))}
+      </div>
       {rank <= 1 && (
-        <div className="wk-bolts">
+        <>
           <span className="bolt bolt-1" />
           <span className="bolt bolt-2" />
-        </div>
+        </>
       )}
-      <div className="wk-walker">
-        <div className="wk-shadow" />
-        <svg className="wk-bear" viewBox="0 0 120 150">
-          <ellipse className="ear" cx="40" cy="24" rx="12" ry="12" />
-          <ellipse className="ear" cx="80" cy="24" rx="12" ry="12" />
-          <circle cx="60" cy="42" r="27" />
-          <path d="M30 70 Q60 59 90 70 L86 105 Q60 114 34 105 Z" />
-          <ellipse cx="25" cy="88" rx="8" ry="20" />
-          <ellipse cx="95" cy="88" rx="8" ry="20" />
-          <rect className="leg leg-l" x="44" y="101" width="14" height="47" rx="6" />
-          <rect className="leg leg-r" x="62" y="101" width="14" height="47" rx="6" />
-        </svg>
-      </div>
-      <div className="wk-flare" />
+      <div className="sm-flare" />
     </motion.div>
   );
 }
@@ -238,7 +260,7 @@ export default function PackReveal({ result, config, onClose }) {
   const [burst, setBurst] = useState({ key: 0, rank: 9 });
   const [shaking, setShaking] = useState(false);
   const [lightning, setLightning] = useState(null); // (미사용) 번개 빌드업
-  const [walkout, setWalkout] = useState(null); // 프라이즈 공개 직전 워크아웃
+  const [summon, setSummon] = useState(null); // 프라이즈 공개 직전 소환 빌드업
   const [detail, setDetail] = useState(null); // 결과 화면에서 카드 상세보기
 
   const allDone = revealed.every(Boolean);
@@ -280,11 +302,11 @@ export default function PackReveal({ result, config, onClose }) {
     if (revealed[i]) return;
     const rank = cards[i].gradeRank;
     if (rank <= 3) {
-      // 프라이즈(3등↑): 어둠 속 고놈이 걸어나오는 워크아웃 후 카드 등장. 등급 높을수록 길고 강하게.
-      setWalkout({ key: Date.now(), rank });
-      if (navigator.vibrate) navigator.vibrate(rank <= 1 ? [15, 40, 15, 60, 20] : [15, 40, 15]);
-      const dur = rank <= 1 ? 1700 : rank === 2 ? 1450 : 1150;
-      setTimeout(() => { setWalkout(null); doReveal(i); }, dur);
+      // 프라이즈(3등↑): FIFA식 소환 빌드업(스포트라이트 솟구침) 후 카드 공개. 등급 높을수록 길고 강하게.
+      setSummon({ key: Date.now(), rank });
+      if (navigator.vibrate) navigator.vibrate(rank <= 1 ? [15, 40, 15, 60, 20, 80] : [15, 40, 15]);
+      const dur = rank <= 1 ? 2600 : rank === 2 ? 1900 : 1300; // CSS --sm 과 일치
+      setTimeout(() => { setSummon(null); doReveal(i); }, dur);
     } else {
       doReveal(i);
     }
@@ -343,7 +365,7 @@ export default function PackReveal({ result, config, onClose }) {
       <div className="cinematic" aria-hidden />
       <AnimatePresence>{phase === "reveal" && burst.rank <= 3 && <Burst key={burst.key} rank={burst.rank} />}</AnimatePresence>
       <AnimatePresence>{lightning && <Lightning key={lightning.key} rank={lightning.rank} />}</AnimatePresence>
-      <AnimatePresence>{walkout && <Walkout key={walkout.key} rank={walkout.rank} />}</AnimatePresence>
+      <AnimatePresence>{summon && <SummonBuildup key={summon.key} rank={summon.rank} />}</AnimatePresence>
 
       {/* ── 인트로 ── */}
       <AnimatePresence>
