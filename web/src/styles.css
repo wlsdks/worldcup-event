@@ -410,30 +410,25 @@ body {
 }
 
 /* 응원전 히어로 배너 — 대한민국 응원 메시지 (블루→레드) */
+/* 응원전 진입 — 에디토리얼(그라데이션 소거, 샤프). 좌측 라벨 + 우측 화살표, 좌측 레드 액센트 바 */
 .cheer-hero {
   position: relative; width: 100%; cursor: pointer; overflow: hidden;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  padding: 22px 18px; border-radius: 20px; text-align: center; color: #fff;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: linear-gradient(135deg, #19297f 0%, #3a5fe0 44%, #c8312b 100%);
-  box-shadow: 0 16px 36px rgba(20,40,140,0.4), inset 0 1px 0 rgba(255,255,255,0.32);
-  transition: transform 0.14s ease, box-shadow 0.2s;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 18px 18px 18px 22px; border-radius: 16px; text-align: left; color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #1a0e10;
+  transition: transform 0.14s ease, border-color 0.2s, background 0.2s;
 }
-.cheer-hero:hover { box-shadow: 0 20px 44px rgba(20,40,140,0.5), inset 0 1px 0 rgba(255,255,255,0.4); }
-/* 상단 하이라이트(글래스 광택) */
 .cheer-hero::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(130% 70% at 50% -10%, rgba(255,255,255,0.18), transparent 55%);
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, #ff5a4e, #c8201a);
 }
-.cheer-hero:active { transform: translateY(2px) scale(0.995); }
-.cheer-hero::after {
-  content: ""; position: absolute; top: 0; left: -130%; width: 55%; height: 100%;
-  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.38), transparent);
-  transform: skewX(-18deg); animation: ctaShine 4s ease-in-out infinite;
-}
-.ch-flag { font-size: 26px; line-height: 1; }
-.ch-msg { font-size: 16px; font-weight: 800; line-height: 1.45; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-.ch-go { font-size: 12.5px; font-weight: 700; opacity: 0.92; margin-top: 2px; }
+.cheer-hero:hover { border-color: rgba(255,120,100,0.4); background: #221115; }
+.cheer-hero:active { transform: translateY(1px); }
+.ch-left { display: flex; flex-direction: column; gap: 4px; }
+.ch-kicker { font-size: 10.5px; letter-spacing: 2.2px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; }
+.ch-msg { font-size: 15.5px; font-weight: 800; letter-spacing: -0.3px; }
+.ch-go { font-size: 13px; font-weight: 800; color: #c9ccd3; flex: 0 0 auto; }
 
 .recent { margin-top: 6px; }
 .recent-title { font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
@@ -1677,3 +1672,14 @@ button.coll-card:disabled { cursor: default; }
 }
 .cheer-rank-title span { font-size: 11.5px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #8b909b; }
 .team-pick-label { font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; color: #8b909b; font-weight: 700; }
+
+/* 홈 인사 + FIFA 톤 이벤트 헤딩 (anti-AI: 샤프 타이포, 레드 액센트) */
+.home-greet { display: flex; flex-direction: column; gap: 3px; }
+.hg-kicker { font-size: 10.5px; letter-spacing: 2.2px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; }
+.hg-name { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; color: #fff; }
+.hg-name em { font-style: normal; color: var(--muted); font-size: 14px; font-weight: 600; }
+
+.home-hero { text-align: center; padding: 10px 0 2px; }
+.hh-kicker { display: inline-block; font-size: 11px; letter-spacing: 3px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; margin-bottom: 9px; }
+.hh-title { font-size: 30px; font-weight: 900; letter-spacing: -1px; line-height: 1.08; margin: 0; color: #fff; text-shadow: 0 2px 20px rgba(226,35,26,0.32); }
+.hh-sub { font-size: 13px; color: #b0b4bd; margin: 9px 0 0; letter-spacing: -0.2px; }

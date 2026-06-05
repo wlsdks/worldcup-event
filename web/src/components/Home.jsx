@@ -27,15 +27,17 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
       <WinnerTicker hidden={castActive} />
 
       <header className="home-top">
-        <div>
-          <div className="hi">반가워요,</div>
-          <div className="who">{status.name || user.name} <span>님</span></div>
+        <div className="home-greet">
+          <span className="hg-kicker">HUNET · WORLD CUP 2026</span>
+          <span className="hg-name">{status.name || user.name}<em> 님</em></span>
         </div>
         <button className="link-btn" onClick={onLogout}>로그아웃</button>
       </header>
 
-      <div className="pack-desc">
-        🐻 <b>고놈 카드를 뽑아 상품을 획득하세요!</b>
+      <div className="home-hero">
+        <span className="hh-kicker">GONOM WORLD CUP EDITION</span>
+        <h1 className="hh-title">운명의 카드를 뽑아라</h1>
+        <p className="hh-sub">하루 한 번. 전설부터 일반까지, 오늘의 고놈은?</p>
       </div>
 
       <div className="draw-stage">
@@ -106,9 +108,11 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
       </div>
 
       <button className="cheer-hero" onClick={onOpenCheer}>
-        <span className="ch-flag">🇰🇷</span>
-        <span className="ch-msg">대한민국을 응원하는 마음으로,<br />우리 팀도 함께 응원해요!</span>
-        <span className="ch-go">응원전 바로가기 ›</span>
+        <div className="ch-left">
+          <span className="ch-kicker">CHEER BATTLE</span>
+          <span className="ch-msg">우리 팀을 응원하고 순위를 높이세요</span>
+        </div>
+        <span className="ch-go">바로가기 ›</span>
       </button>
 
       <AnimatePresence>

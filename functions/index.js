@@ -426,17 +426,20 @@ export const adminLoad = onCall(async (request) => {
   const winners = []; // 프라이즈(rank<=4) 당첨자
   const awardedByGrade = {}; // 등급별 당첨 수
   let drawCount = 0;
+  let giftCount = 0;
   drawsSnap.docs.forEach((d) => {
     const dd = d.data();
-    drawCount += 1;
-    if (dd.empNo) participants.add(dd.empNo);
+    const isGift = dd.gift === true || dd.forced === true;
+    // 실제 뽑기만 참여자/뽑기수로 집계 (관리자 선물·강제추첨 제외)
+    if (isGift) giftCount += 1;
+    else { drawCount += 1; if (dd.empNo) participants.add(dd.empNo); }
     (dd.cards || []).forEach((c) => {
       awardedByGrade[c.gradeId] = (awardedByGrade[c.gradeId] || 0) + 1;
       if ((c.gradeRank ?? 9) <= 4) {
         winners.push({
           empNo: dd.empNo || "", name: dd.name || "", gradeRank: c.gradeRank,
           gradeLabel: c.gradeLabel || "", gradeName: c.gradeName || "", prize: c.gradePrize || "",
-          gift: dd.gift === true,
+          gift: isGift, forced: dd.forced === true,
           at: dd.createdAt?.toMillis?.() || 0,
         });
       }
@@ -462,7 +465,7 @@ export const adminLoad = onCall(async (request) => {
     grades,
     teams: teamsSnap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order || 0) - (b.order || 0)),
     cardCounts,
-    stats: { rosterCount, participantCount, drawCount, participationRate: rosterCount > 0 ? Math.round(participantCount / rosterCount * 1000) / 10 : 0 },
+    stats: { rosterCount, participantCount, drawCount, giftCount, participationRate: rosterCount > 0 ? Math.round(participantCount / rosterCount * 1000) / 10 : 0 },
     winners,
     gradeStatus,
   };

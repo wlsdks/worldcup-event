@@ -104,8 +104,8 @@ function Dashboard({ data }) {
     <>
       <div className="kpi-grid">
         <Kpi label="이벤트 참여율" value={`${s.participationRate ?? 0}%`} sub={`${s.participantCount ?? 0} / ${s.rosterCount ?? 0}명`} accent="green" />
-        <Kpi label="참여자 수" value={s.participantCount ?? 0} sub="실제 뽑은 인원" />
-        <Kpi label="총 뽑기 수" value={s.drawCount ?? 0} sub="누적 뽑기" />
+        <Kpi label="참여자 수" value={s.participantCount ?? 0} sub="실제 뽑은 인원(선물 제외)" />
+        <Kpi label="총 뽑기 수" value={s.drawCount ?? 0} sub={s.giftCount ? `실제 뽑기 · 선물/추첨 ${s.giftCount}건 별도` : "실제 뽑기"} />
         <Kpi label="남은 경품" value={remainingTotal} sub="미당첨 한정 재고" accent={remainingTotal > 0 ? "amber" : "green"} />
       </div>
 
