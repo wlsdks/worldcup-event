@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# build output
+web/dist/
+web/.next/
+web/out/
+web/build/
+functions/lib/
+
+# firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+*-debug.log
+firebase-export-*/
+
+# env / secrets
+.env
+.env.*
+!.env.example
+**/serviceAccount*.json
+*.pem
+
+# tooling / local
+.claude/
+.playwright-mcp/
+**/.playwright-mcp/
+.DS_Store
+*.local
+reveal_v2.png
+*.orig.png
