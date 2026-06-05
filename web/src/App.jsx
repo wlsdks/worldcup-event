@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { drawCard, getStatus, loadCatalog } from "./api";
 import Login from "./components/Login.jsx";
 import Home from "./components/Home.jsx";
@@ -113,36 +114,43 @@ export default function App() {
           />
         ))}
       </div>
-      {screen === "login" && <Login onSubmit={handleLogin} />}
-
       {screen === "home" && status && <WinnerBroadcast onActiveChange={setCastActive} />}
 
-      {screen === "home" && status && (
-        <Home
-          castActive={castActive}
-          user={user}
-          status={status}
-          catalog={catalog}
-          drawing={drawing}
-          error={error}
-          onDraw={handleDraw}
-          onOpenCollection={() => setScreen("collection")}
-          onOpenCheer={() => setScreen("cheer")}
-          onLogout={handleLogout}
-        />
-      )}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={screen}
+          className="screen-wrap"
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.32, ease: [0.22, 0.61, 0.36, 1] }}
+        >
+          {screen === "login" && <Login onSubmit={handleLogin} />}
 
-      {screen === "collection" && (
-        <Collection
-          catalog={catalog}
-          status={status}
-          onBack={() => setScreen("home")}
-        />
-      )}
+          {screen === "home" && status && (
+            <Home
+              castActive={castActive}
+              user={user}
+              status={status}
+              catalog={catalog}
+              drawing={drawing}
+              error={error}
+              onDraw={handleDraw}
+              onOpenCollection={() => setScreen("collection")}
+              onOpenCheer={() => setScreen("cheer")}
+              onLogout={handleLogout}
+            />
+          )}
 
-      {screen === "cheer" && (
-        <CheerBoard user={user} teams={catalog.teams || []} onBack={() => setScreen("home")} />
-      )}
+          {screen === "collection" && (
+            <Collection catalog={catalog} status={status} onBack={() => setScreen("home")} />
+          )}
+
+          {screen === "cheer" && (
+            <CheerBoard user={user} teams={catalog.teams || []} onBack={() => setScreen("home")} />
+          )}
+        </motion.div>
+      </AnimatePresence>
 
       {reveal && (
         <PackReveal result={reveal} config={catalog.config} onClose={closeReveal} />
