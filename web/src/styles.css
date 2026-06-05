@@ -1687,3 +1687,14 @@ button.coll-card:disabled { cursor: default; }
 /* 로그인 FIFA 톤 키커 */
 .login-kicker { display: block; font-size: 11px; letter-spacing: 3px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; margin-bottom: 12px; }
 .login-hero .login-sub { color: #b6bac3; font-size: 13.5px; letter-spacing: -0.2px; margin-top: 4px; }
+
+/* 도감 에디토리얼 헤더 */
+.coll-count { color: #fff; font-size: 15px; font-weight: 800; }
+.coll-count i { color: var(--muted); font-style: normal; font-weight: 600; }
+.coll-intro { display: flex; align-items: baseline; justify-content: space-between; margin: 12px 0 9px; }
+.coll-kicker { font-size: 10.5px; letter-spacing: 2.4px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; }
+.coll-progress-line { font-size: 12.5px; color: var(--muted); font-weight: 700; }
+
+/* 상품 안내 팝업 에디토리얼 헤더 */
+.modal-head-txt { display: flex; flex-direction: column; gap: 3px; }
+.modal-kicker { font-size: 10px; letter-spacing: 2.4px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; }

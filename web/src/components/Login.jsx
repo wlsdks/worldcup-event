@@ -42,7 +42,7 @@ export default function Login({ onSubmit }) {
         <div className="login-hero">
           <span className="login-kicker">HUNET · WORLD CUP 2026</span>
           <img className="login-logo" src="/go-korea-hunet.png" alt="Go! Korea, Go! Hunet" />
-          <p className="login-sub">사번과 이름으로 입장하고, 운명의 카드를 뽑으세요</p>
+          <p className="login-sub">사번과 이름을 입력해 입장하세요</p>
         </div>
 
         <form className="login-form" onSubmit={submit}>

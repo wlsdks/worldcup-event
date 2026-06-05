@@ -37,9 +37,13 @@ export default function Collection({ catalog, status, onBack }) {
       <header className="coll-top">
         <button className="link-btn" onClick={onBack}>← 뒤로</button>
         <h2>카드 도감</h2>
-        <span className="coll-count">{owned.size}/{cards.length}</span>
+        <span className="coll-count">{owned.size}<i>/{cards.length}</i></span>
       </header>
 
+      <div className="coll-intro">
+        <span className="coll-kicker">CARD COLLECTION</span>
+        <span className="coll-progress-line">{pct}% 수집 완료</span>
+      </div>
       <div className="coll-progress">
         <div className="coll-progress-bar">
           <div className="coll-progress-fill" style={{ width: `${fill}%` }} />

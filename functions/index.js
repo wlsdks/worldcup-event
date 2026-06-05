@@ -425,6 +425,8 @@ export const adminLoad = onCall(async (request) => {
   const participants = new Set();
   const winners = []; // 프라이즈(rank<=4) 당첨자
   const awardedByGrade = {}; // 등급별 당첨 수
+  const hourly = Array(24).fill(0); // KST 시간대별 실제 뽑기 수
+  const kstHourFmt = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Seoul", hour: "2-digit", hour12: false });
   let drawCount = 0;
   let giftCount = 0;
   drawsSnap.docs.forEach((d) => {
@@ -432,7 +434,12 @@ export const adminLoad = onCall(async (request) => {
     const isGift = dd.gift === true || dd.forced === true;
     // 실제 뽑기만 참여자/뽑기수로 집계 (관리자 선물·강제추첨 제외)
     if (isGift) giftCount += 1;
-    else { drawCount += 1; if (dd.empNo) participants.add(dd.empNo); }
+    else {
+      drawCount += 1;
+      if (dd.empNo) participants.add(dd.empNo);
+      const ms = dd.createdAt?.toMillis?.();
+      if (ms) { let h = parseInt(kstHourFmt.format(new Date(ms)), 10); if (h === 24) h = 0; if (h >= 0 && h < 24) hourly[h] += 1; }
+    }
     (dd.cards || []).forEach((c) => {
       awardedByGrade[c.gradeId] = (awardedByGrade[c.gradeId] || 0) + 1;
       if ((c.gradeRank ?? 9) <= 4) {
@@ -472,7 +479,7 @@ export const adminLoad = onCall(async (request) => {
     teams: teamsSnap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order || 0) - (b.order || 0)),
     cardCounts,
     roster,
-    stats: { rosterCount, participantCount, drawCount, giftCount, commonCount, participationRate: rosterCount > 0 ? Math.round(participantCount / rosterCount * 1000) / 10 : 0 },
+    stats: { rosterCount, participantCount, drawCount, giftCount, commonCount, hourly, participationRate: rosterCount > 0 ? Math.round(participantCount / rosterCount * 1000) / 10 : 0 },
     winners,
     gradeStatus,
   };

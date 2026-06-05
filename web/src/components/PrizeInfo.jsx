@@ -29,7 +29,10 @@ export default function PrizeInfo({ grades, config, onClose }) {
         transition={{ type: "spring", stiffness: 240, damping: 22 }}
       >
         <div className="modal-head">
-          <h3>🎁 당첨 상품 안내</h3>
+          <div className="modal-head-txt">
+            <span className="modal-kicker">PRIZES</span>
+            <h3>당첨 상품 안내</h3>
+          </div>
           <button className="modal-x" onClick={onClose} aria-label="닫기">×</button>
         </div>
 

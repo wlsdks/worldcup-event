@@ -194,3 +194,11 @@
 .switch .track::before { content: ""; position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.18s; }
 .switch input:checked + .track { background: var(--a-green); }
 .switch input:checked + .track::before { transform: translateX(20px); }
+
+/* 시간대별 참여 추이 차트 */
+.trend { position: relative; }
+.trend-chart { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding: 0 2px; }
+.trend-col { flex: 1; display: flex; align-items: flex-end; height: 100%; }
+.trend-bar { width: 100%; min-height: 2px; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, var(--a-accent), color-mix(in srgb, var(--a-accent) 55%, var(--a-green))); transition: height 0.4s ease; }
+.trend-axis { position: relative; height: 18px; margin-top: 6px; }
+.trend-axis span { position: absolute; transform: translateX(-50%); font-size: 11px; color: var(--a-mut2); }

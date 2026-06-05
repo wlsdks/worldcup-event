@@ -126,12 +126,39 @@ function Dashboard({ data }) {
       </section>
 
       <section className="ad-card">
+        <h2 className="ad-h2">시간대별 참여 추이</h2>
+        <p className="ad-note">KST 기준 실제 뽑기 시간대 분포 (선물/추첨 제외)</p>
+        <TrendChart hourly={s.hourly || []} />
+      </section>
+
+      <section className="ad-card">
         <h2 className="ad-h2">상태 점검</h2>
         {issues.length === 0
           ? <div className="health ok">✓ 발견된 문제가 없습니다. 정상 운영 중입니다.</div>
           : <ul className="health-list">{issues.map((m, i) => <li key={i} className="health warn">⚠ {m}</li>)}</ul>}
       </section>
     </>
+  );
+}
+
+function TrendChart({ hourly }) {
+  const data = hourly.length === 24 ? hourly : Array(24).fill(0);
+  const max = Math.max(1, ...data);
+  const total = data.reduce((a, b) => a + b, 0);
+  if (total === 0) return <div className="health ok" style={{ marginTop: 2 }}>아직 참여 데이터가 없습니다.</div>;
+  return (
+    <div className="trend">
+      <div className="trend-chart">
+        {data.map((c, h) => (
+          <div key={h} className="trend-col" title={`${h}시 · ${c}건`}>
+            <div className="trend-bar" style={{ height: `${Math.max(c > 0 ? 6 : 0, (c / max) * 100)}%` }} />
+          </div>
+        ))}
+      </div>
+      <div className="trend-axis">
+        {[0, 6, 12, 18, 23].map((h) => <span key={h} style={{ left: `${(h / 23) * 100}%` }}>{h}시</span>)}
+      </div>
+    </div>
   );
 }
 
