@@ -5,6 +5,10 @@ import { celebrate } from "../lib/celebrate";
 import CardModal from "./CardModal.jsx";
 
 const RANK_MSG = { 0: "👑 SPECIAL 당첨!!!", 1: "🏆 1등 당첨!!!", 2: "🥇 2등 당첨!!", 3: "🥈 3등 당첨!", 4: "당첨!", 5: "당첨!" };
+// 등급별 공개 빌드업 시간(ms) — CSS .summon --sm 과 일치. 5등은 즉시(빌드업 없음).
+const SUMMON_DUR = { 0: 3400, 1: 3200, 2: 3000, 3: 2000, 4: 1000 };
+// 스페셜 전용 예고 문구
+const SP_OMEN = "특별한 기운이 감돈다…";
 // 1등 카드 테두리 반짝이 위치 (%)
 const SPK = [[8,6],[50,3],[92,6],[96,35],[94,70],[88,94],[50,97],[12,94],[6,68],[8,34]];
 export function FrameSparkles() {
@@ -141,6 +145,14 @@ function SummonBuildup({ rank }) {
     >
       <div className="sm-dark" />
       <div className="sm-vignette" />
+      {/* 스페셜 전용 — 하늘에서 내려오는 신성한 빛기둥 + 예고 문구 */}
+      {rank === 0 && (
+        <>
+          <div className="sm-column" />
+          <div className="sm-halo-ring" />
+          <div className="sm-omen">{SP_OMEN}</div>
+        </>
+      )}
       {/* 볼류메트릭 빔 — 하단에서 하늘로 솟구침 (가산 블렌딩) */}
       <div className="sm-spot sm-spot-l" />
       <div className="sm-spot sm-spot-r" />
@@ -342,11 +354,11 @@ export default function PackReveal({ result, config, onClose }) {
   const revealAt = (i) => {
     if (revealed[i]) return;
     const rank = cards[i].gradeRank;
-    if (rank <= 3) {
-      // 프라이즈(3등↑): FIFA식 소환 빌드업(스포트라이트 솟구침) 후 카드 공개. 등급 높을수록 길고 강하게.
+    // 등급별 빌드업 시간(ms). CSS --sm 과 반드시 일치. 5등은 빌드업 없이 즉시.
+    const dur = SUMMON_DUR[rank];
+    if (dur) {
       setSummon({ key: Date.now(), rank });
-      if (navigator.vibrate) navigator.vibrate(rank <= 1 ? [15, 40, 15, 60, 20, 80] : [15, 40, 15]);
-      const dur = rank <= 1 ? 2600 : rank === 2 ? 1900 : 1300; // CSS --sm 과 일치
+      if (navigator.vibrate) navigator.vibrate(rank <= 1 ? [15, 40, 15, 60, 20, 90] : [15, 40, 15]);
       setTimeout(() => { setSummon(null); doReveal(i); }, dur);
     } else {
       doReveal(i);

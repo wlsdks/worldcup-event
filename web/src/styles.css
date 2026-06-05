@@ -1486,9 +1486,13 @@ button.coll-card:disabled { cursor: default; }
 @media (prefers-reduced-motion: reduce) { .winner-cast .wc-emoji, .winner-cast .wc-shine { animation: none; } }
 
 /* ═══════════ 소환 빌드업 (FIFA20 톤 시네마틱 조명) ═══════════ */
-.summon { position: absolute; inset: 0; z-index: 8; pointer-events: none; overflow: hidden; --sm: 1.3s; }
-.summon.r2 { --sm: 1.9s; }
-.summon.r1, .summon.r0, .summon.special, .summon.holo { --sm: 2.6s; }
+/* 빌드업 시간(JS SUMMON_DUR 과 일치): 4등 1.0s / 3등 2.0s / 2등 3.0s / 1등 3.2s / SP 3.4s */
+.summon { position: absolute; inset: 0; z-index: 8; pointer-events: none; overflow: hidden; --sm: 1s; }
+.summon.r4 { --sm: 1s; }
+.summon.r3 { --sm: 2s; }
+.summon.r2 { --sm: 3s; }
+.summon.r1, .summon.holo { --sm: 3.2s; }
+.summon.r0, .summon.special { --sm: 3.4s; }
 
 /* 깊은 어둠 + 중앙 집중 비네팅 */
 .sm-dark {
@@ -1640,3 +1644,37 @@ button.coll-card:disabled { cursor: default; }
 }
 .pack-overlay.holo .topspot-pool, .pack-overlay.special .topspot-pool,
 .pack-overlay.gold .topspot-pool { opacity: 0.62; }
+
+/* ── 스페셜 전용 소환 연출 (1등과 차별: 하늘에서 내려오는 빛기둥 + 후광 링 + 예고 문구) ── */
+.sm-column {
+  position: absolute; left: 50%; top: -8%; width: 26vmax; height: 64%; transform: translateX(-50%);
+  background: linear-gradient(to bottom,
+    transparent 0%, color-mix(in srgb, var(--glow, #34d8a0) 50%, #fff) 55%, var(--glow, #34d8a0) 100%);
+  -webkit-mask: linear-gradient(to bottom, transparent 0%, #000 55%, #000 100%);
+  mask: linear-gradient(to bottom, transparent 0%, #000 55%, #000 100%);
+  filter: blur(11px); mix-blend-mode: screen; opacity: 0;
+  animation: smColumn var(--sm) ease-in forwards;
+}
+@keyframes smColumn {
+  0% { opacity: 0; transform: translateX(-50%) scaleY(0.5); }
+  28% { opacity: 0.85; }
+  82% { opacity: 0.95; transform: translateX(-50%) scaleY(1); }
+  100% { opacity: 0; }
+}
+.sm-halo-ring {
+  position: absolute; left: 50%; top: 44%; width: 22vmax; height: 22vmax; transform: translate(-50%,-50%);
+  border-radius: 50%; border: 2px solid var(--glow, #34d8a0); opacity: 0; mix-blend-mode: screen;
+  animation: smRing calc(var(--sm) / 3) ease-out infinite;
+}
+@keyframes smRing {
+  0% { opacity: 0.75; transform: translate(-50%,-50%) scale(0.28); }
+  70% { opacity: 0; transform: translate(-50%,-50%) scale(1.1); }
+  100% { opacity: 0; }
+}
+.sm-omen {
+  position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20vh;
+  font-size: 23px; font-weight: 900; letter-spacing: 1.5px; text-align: center; color: #ddfff2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.85), 0 0 28px var(--glow, #34d8a0);
+  opacity: 0; animation: smOmen var(--sm) ease forwards;
+}
+@keyframes smOmen { 0% { opacity: 0; letter-spacing: 6px; } 24% { opacity: 1; letter-spacing: 1.5px; } 78% { opacity: 1; } 100% { opacity: 0; } }
