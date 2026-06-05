@@ -4,6 +4,10 @@ import WinnerTicker from "./WinnerTicker.jsx";
 import PrizeInfo from "./PrizeInfo.jsx";
 import { useTilt } from "../lib/cardUtils";
 
+function rankClass(rank) {
+  return ["special", "holo", "gold", "silver", "bronze", "basic"][rank] || "basic";
+}
+
 function eventMessage(status) {
   if (status.eventActive) return null;
   switch (status.eventReason) {
@@ -66,6 +70,27 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
           </button>
         )}
       </div>
+
+      {user.empNo === "0000" && (
+        <div className="demo-grade-pick">
+          <span className="dgp-label">🔧 테스트 전용 · 등급 지정 뽑기 (연출 확인용)</span>
+          <div className="dgp-btns">
+            {(catalog?.grades || [])
+              .slice()
+              .sort((a, b) => a.rank - b.rank)
+              .map((g) => (
+                <button
+                  key={g.id}
+                  className={`dgp-btn ${rankClass(g.rank)}`}
+                  disabled={drawing}
+                  onClick={() => onDraw(g.id)}
+                >
+                  {g.label}
+                </button>
+              ))}
+          </div>
+        </div>
+      )}
 
       <div className="home-actions">
         <button className="action-tile" onClick={onOpenCollection}>

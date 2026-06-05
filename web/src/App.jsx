@@ -61,12 +61,12 @@ export default function App() {
     setScreen("home");
   };
 
-  const handleDraw = async () => {
+  const handleDraw = async (forceGrade) => {
     if (drawing) return;
     setError("");
     setDrawing(true);
     try {
-      const result = await drawCard(user);
+      const result = await drawCard({ ...user, forceGrade: typeof forceGrade === "string" ? forceGrade : undefined });
       setReveal(result);
     } catch (e) {
       const msg = e?.message || "뽑기에 실패했어요. 잠시 후 다시 시도해 주세요.";

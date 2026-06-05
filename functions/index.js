@@ -141,19 +141,29 @@ export const drawCard = onCall(async (request) => {
     const localAvail = {};
     for (const g of grades) localAvail[g.id] = unlimitedDraws ? Infinity : availableTodayCount(g, today);
 
+    // 테스트 계정(0000)만: 등급 강제 선택(데모 미리보기). 재고/확률 무시.
+    const forceGradeId = isTestAccount ? cleanStr(request.data?.forceGrade) : "";
+    const forcedGrade = forceGradeId
+      ? grades.find((g) => g.id === forceGradeId && (cardsByGrade[g.id] || []).length > 0) || null
+      : null;
+
     const picked = [];
     const consumed = {}; // 유한 등급의 팩 내 소비 수량
     for (let n = 0; n < N; n++) {
-      const pool = grades.filter(
-        (g) => (localAvail[g.id] || 0) > 0 && (cardsByGrade[g.id] || []).length > 0
-      );
-      const winW = pool.reduce((s, g) => s + (g.weight || 0), 0);
-      const totalW = winW + missWeight;
-      if (totalW <= 0) continue; // 후보도 꽝 가중치도 없음 → 빈손
-      let r = Math.random() * totalW;
       let grade = null;
-      for (const g of pool) { if (r < (g.weight || 0)) { grade = g; break; } r -= (g.weight || 0); }
-      if (!grade) continue; // 꽝 (missWeight 구간에 당첨)
+      if (forcedGrade) {
+        grade = forcedGrade; // 강제 등급 (테스트)
+      } else {
+        const pool = grades.filter(
+          (g) => (localAvail[g.id] || 0) > 0 && (cardsByGrade[g.id] || []).length > 0
+        );
+        const winW = pool.reduce((s, g) => s + (g.weight || 0), 0);
+        const totalW = winW + missWeight;
+        if (totalW <= 0) continue; // 후보도 꽝 가중치도 없음 → 빈손
+        let r = Math.random() * totalW;
+        for (const g of pool) { if (r < (g.weight || 0)) { grade = g; break; } r -= (g.weight || 0); }
+        if (!grade) continue; // 꽝 (missWeight 구간에 당첨)
+      }
 
       const pcards = cardsByGrade[grade.id];
       const card = pcards[Math.floor(Math.random() * pcards.length)];

@@ -15,10 +15,10 @@ async function ensureAuth() {
   }
 }
 
-export async function drawCard({ empNo, name }) {
+export async function drawCard({ empNo, name, forceGrade }) {
   await ensureAuth();
   const fn = httpsCallable(functions, "drawCard");
-  const res = await fn({ empNo, name });
+  const res = await fn({ empNo, name, forceGrade });
   return res.data;
 }
 
