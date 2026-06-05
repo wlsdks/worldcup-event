@@ -107,16 +107,24 @@ body {
 }
 /* 폼 패널 — 데스크탑/모바일 공통으로 가운데 카드형 */
 .login-panel {
-  position: relative; z-index: 1;
+  position: relative; z-index: 1; overflow: hidden;
   width: 100%; max-width: 400px;
   display: flex; flex-direction: column; gap: 22px;
-  padding: 32px 26px 26px;
+  padding: 34px 26px 26px;
   border-radius: 24px;
-  background: rgba(14, 6, 8, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.08);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(28,10,13,0.82), rgba(10,4,6,0.82));
+  border: 1px solid rgba(255,140,120,0.28);
+  box-shadow: 0 26px 70px rgba(0,0,0,0.66), 0 0 40px rgba(226,35,26,0.18), inset 0 1px 0 rgba(255,255,255,0.1);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
 }
+/* 패널 상단 가로지르는 미세 광택 */
+.login-panel::before {
+  content: ""; position: absolute; top: 0; left: -40%; width: 50%; height: 100%; z-index: 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: loginSheen 6s ease-in-out infinite;
+}
+@keyframes loginSheen { 0% { left: -40%; } 55%, 100% { left: 130%; } }
+.login-panel > * { position: relative; z-index: 1; }
 .login-hero { text-align: center; }
 /* 로그인 상단 로고 (Go! Korea, Go! Hunet) — 어두운 패널 위에서도 또렷하게 광 처리 */
 .login-logo {
