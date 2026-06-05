@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { rcOf, useTilt } from "../lib/cardUtils";
+import { celebrate } from "../lib/celebrate";
 import CardModal from "./CardModal.jsx";
 
 const RANK_MSG = { 0: "👑 SPECIAL 당첨!!!", 1: "🏆 1등 당첨!!!", 2: "🥇 2등 당첨!!", 3: "🥈 3등 당첨!", 4: "당첨!", 5: "당첨!" };
@@ -96,26 +97,14 @@ function Card({ card, revealed, size = "lg" }) {
   );
 }
 
-/** 등급별 레어 연출 — 중심에서 터지는 방사형 파티클 폭발 + 충격파 링 + (1등)레이 버스트 */
+/** 공개 임팩트 — 화면 플래시 + 충격파 링 (파티클/불꽃은 canvas-confetti가 담당) */
 function Burst({ rank }) {
   if (rank > 3) return null;
-  const n = rank <= 1 ? 42 : rank === 2 ? 28 : 20;
-  const parts = Array.from({ length: n }, (_, i) => i);
   return (
-    <div className={`burst ${rcOf(rank)} ${rank <= 1 ? "walkout" : ""}`}>
+    <div className={`burst ${rcOf(rank)}`}>
       <div className="burst-flash" />
-      {rank <= 1 && <div className="rare-rays" />}
       <div className="shock" />
       {rank <= 2 && <div className="shock shock2" />}
-      <div className="radial">
-        {parts.map((i) => (
-          <span
-            key={i}
-            className={`rp rp-${i % 4}`}
-            style={{ "--ang": `${(i * 360) / n}deg`, animationDelay: `${(i % 6) * 0.02}s` }}
-          />
-        ))}
-      </div>
     </div>
   );
 }
@@ -278,6 +267,7 @@ export default function PackReveal({ result, config, onClose }) {
       return next;
     });
     fireBurst(cards[i].gradeRank);
+    if (!cards[i].isMiss) celebrate(cards[i].gradeRank);
     if (cards[i].gradeRank <= 3 && navigator.vibrate) navigator.vibrate(70);
     if (cards[i].gradeRank <= 3) {
       // 3등=가벼운 흔들림 / 1·2등(+스페셜)=강한 흔들림
@@ -308,6 +298,7 @@ export default function PackReveal({ result, config, onClose }) {
   const revealAllToSummary = () => {
     setRevealed(cards.map(() => true));
     fireBurst(bestRank);
+    if (bestRank <= 5) celebrate(bestRank);
     if (bestRank <= 3 && navigator.vibrate) navigator.vibrate([40, 40, 80]);
     if (bestRank <= 3) { setShaking(bestRank <= 2 ? "hard" : "soft"); setTimeout(() => setShaking(false), bestRank <= 2 ? 460 : 300); }
     setTimeout(() => setPhase("summary"), bestRank <= 3 ? 1100 : 650);
@@ -393,7 +384,6 @@ export default function PackReveal({ result, config, onClose }) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.45 }}
                   >
-                    {current.gradeRank <= 3 && <span className="reveal-rays" />}
                   </motion.div>
                 )}
               </AnimatePresence>
