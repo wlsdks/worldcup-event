@@ -1517,3 +1517,14 @@ button.coll-card:disabled { cursor: default; }
 .reveal-prize .rp-prize { font-size: 15.5px; font-weight: 800; color: var(--accent, #fff); text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 .reveal-prize .rp-contact { font-size: 12px; line-height: 1.5; color: #ffe2db; }
 .reveal-prize .rp-contact b { color: #fff; }
+
+/* 인트로 타자기 문구 (카드팩 등장 전) */
+.intro-type {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); z-index: 5;
+  font-size: 26px; font-weight: 900; color: #fff; letter-spacing: 0.5px; white-space: nowrap;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.75), 0 0 22px rgba(255,210,140,0.5);
+}
+.intro-type.epic { color: #fff3da; font-size: 29px; text-shadow: 0 2px 6px rgba(0,0,0,0.75), 0 0 28px rgba(255,220,150,0.9); }
+.intro-type.rare { color: #eaf2ff; }
+.type-caret { animation: caretBlink 0.7s steps(1) infinite; margin-left: 2px; }
+@keyframes caretBlink { 50% { opacity: 0; } }

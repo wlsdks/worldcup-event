@@ -184,13 +184,30 @@ function Lightning({ rank }) {
 
 /** 개봉 인트로: 우주로 빨려들며 카드 셔플 → 카드팩 → (사용자 탭 시에만) 뜯기 */
 function IntroSequence({ onDone, rank = 9 }) {
-  const [step, setStep] = useState("warp"); // warp → pack → torn
+  const [step, setStep] = useState("warp"); // warp → type → pack → torn
   // 좋은 등급은 찢기 전부터 "뭔가 다르다" — 정확한 등급은 숨기고 등급대만 암시
   const tier = rank <= 2 ? "epic" : rank === 3 ? "rare" : "";
+  const introMsg = tier === "epic" ? "심상치 않은 기운이…!" : tier === "rare" ? "오… 느낌이 좋다!" : "행운을 빌어요…";
+  const [typed, setTyped] = useState("");
+
+  // warp(1.0s) → type(타자기) → pack
   useEffect(() => {
-    const t = setTimeout(() => setStep("pack"), 1300);
+    const t = setTimeout(() => setStep("type"), 1000);
     return () => clearTimeout(t);
   }, []);
+  useEffect(() => {
+    if (step !== "type") return;
+    let i = 0;
+    const iv = setInterval(() => {
+      i += 1;
+      setTyped(introMsg.slice(0, i));
+      if (i >= introMsg.length) {
+        clearInterval(iv);
+        setTimeout(() => setStep("pack"), 600);
+      }
+    }, 80);
+    return () => clearInterval(iv);
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 자동 개봉 없음 — 사용자가 직접 탭해야 열림
   function tear() {
@@ -231,7 +248,22 @@ function IntroSequence({ onDone, rank = 9 }) {
       </div>
 
       <AnimatePresence>
-        {step !== "warp" && (
+        {step === "type" && (
+          <motion.div
+            key="introtype"
+            className={`intro-type ${tier}`}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+          >
+            {typed}
+            <span className="type-caret">▍</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {(step === "pack" || step === "torn") && (
           <motion.div
             className={`pack-open ${step === "torn" ? "torn" : ""}`}
             onClick={tear}
