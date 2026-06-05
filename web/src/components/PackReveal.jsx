@@ -5,7 +5,6 @@ import { celebrate } from "../lib/celebrate";
 import CardModal from "./CardModal.jsx";
 
 const RANK_MSG = { 0: "👑 SPECIAL 당첨!!!", 1: "🏆 1등 당첨!!!", 2: "🥇 2등 당첨!!", 3: "🥈 3등 당첨!", 4: "당첨!", 5: "당첨!" };
-const STARS = Array.from({ length: 18 }, (_, i) => i);
 // 1등 카드 테두리 반짝이 위치 (%)
 const SPK = [[8,6],[50,3],[92,6],[96,35],[94,70],[88,94],[50,97],[12,94],[6,68],[8,34]];
 export function FrameSparkles() {
@@ -180,17 +179,6 @@ function SummonBuildup({ rank }) {
   );
 }
 
-/** 번개 빌드업 — 1·2등(+스페셜) 공개 직전 뒤에서 번개가 치다가 카드 등장 */
-function Lightning({ rank }) {
-  return (
-    <div className={`lightning ${rcOf(rank)}`} aria-hidden>
-      <div className="lflash" />
-      <span className="bolt bolt-1" />
-      <span className="bolt bolt-2" />
-      <span className="bolt bolt-3" />
-    </div>
-  );
-}
 
 /** 개봉 인트로: 우주로 빨려들며 카드 셔플 → 카드팩 → (사용자 탭 시에만) 뜯기 */
 function IntroSequence({ onDone, rank = 9 }) {
@@ -313,7 +301,6 @@ export default function PackReveal({ result, config, onClose }) {
   const [revealed, setRevealed] = useState(() => cards.map(() => false));
   const [burst, setBurst] = useState({ key: 0, rank: 9 });
   const [shaking, setShaking] = useState(false);
-  const [lightning, setLightning] = useState(null); // (미사용) 번개 빌드업
   const [summon, setSummon] = useState(null); // 프라이즈 공개 직전 소환 빌드업
   const [detail, setDetail] = useState(null); // 결과 화면에서 카드 상세보기
 
@@ -413,7 +400,6 @@ export default function PackReveal({ result, config, onClose }) {
       </div>
       <div className="cinematic" aria-hidden />
       <AnimatePresence>{phase === "reveal" && burst.rank <= 3 && <Burst key={burst.key} rank={burst.rank} />}</AnimatePresence>
-      <AnimatePresence>{lightning && <Lightning key={lightning.key} rank={lightning.rank} />}</AnimatePresence>
       <AnimatePresence>{summon && <SummonBuildup key={summon.key} rank={summon.rank} />}</AnimatePresence>
 
       {/* ── 인트로 ── */}
