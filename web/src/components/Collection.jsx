@@ -1,43 +1,36 @@
 import { useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import CardModal from "./CardModal.jsx";
-
-const REWARD_KEY = "gonom_rewards";
 
 function rankClass(rank) {
   return ["special", "holo", "gold", "silver", "bronze", "basic"][rank] || "basic";
 }
 
+// 가중치 기반 획득 확률 표시 문자열
+function oddsText(odds) {
+  if (odds >= 1) return `${Math.round(odds * 10) / 10}%`;
+  if (odds >= 0.1) return `${Math.round(odds * 100) / 100}%`;
+  if (odds > 0) return "0.1% 미만";
+  return "-";
+}
+
 export default function Collection({ catalog, status, onBack }) {
   const [selected, setSelected] = useState(null);
-  const [toast, setToast] = useState("");
-  const [claimed, setClaimed] = useState(() => {
-    try { return new Set(JSON.parse(localStorage.getItem(REWARD_KEY) || "[]")); }
-    catch { return new Set(); }
-  });
 
   const grades = catalog.grades || [];
   const cards = catalog.cards || [];
   const owned = new Set((status?.cards || []).map((d) => d.cardId));
   const pct = cards.length ? Math.round((owned.size / cards.length) * 100) : 0;
 
+  // 등급별 카드 1장 뽑힐 확률(가중치/전체가중치+꽝)
+  const totalW = grades.reduce((s, g) => s + (g.weight || 0), 0) + (catalog.config?.missWeight || 0);
+  const oddsOf = (g) => (totalW > 0 ? ((g.weight || 0) / totalW) * 100 : 0);
+
   const [fill, setFill] = useState(0);
   useEffect(() => {
     const t = setTimeout(() => setFill(pct), 120);
     return () => clearTimeout(t);
   }, [pct]);
-
-  const claim = (gradeId, label) => {
-    setClaimed((prev) => {
-      const next = new Set(prev);
-      next.add(gradeId);
-      localStorage.setItem(REWARD_KEY, JSON.stringify([...next]));
-      return next;
-    });
-    setToast(`🎟️ ${label} 컴플리트 보상 — 뽑기권 1장 획득!`);
-    if (navigator.vibrate) navigator.vibrate([30, 40, 60]);
-    setTimeout(() => setToast(""), 2600);
-  };
 
   return (
     <div className="screen collection">
@@ -58,8 +51,6 @@ export default function Collection({ catalog, status, onBack }) {
         const gradeCards = cards.filter((c) => c.gradeId === g.id);
         if (gradeCards.length === 0) return null;
         const ownedCount = gradeCards.filter((c) => owned.has(c.id)).length;
-        const complete = ownedCount === gradeCards.length;
-        const isClaimed = claimed.has(g.id);
         return (
           <section key={g.id} className="coll-grade">
             <div className="grade-head-row">
@@ -68,15 +59,9 @@ export default function Collection({ catalog, status, onBack }) {
                 <span className="grade-name">{g.name}</span>
                 <span className="grade-count">{ownedCount}/{gradeCards.length}</span>
               </div>
-              {complete && (
-                isClaimed ? (
-                  <span className="reward-done">✓ 수령완료</span>
-                ) : (
-                  <button className={`reward-btn ${rankClass(g.rank)}`} onClick={() => claim(g.id, g.label)}>
-                    🎁 선물받기
-                  </button>
-                )
-              )}
+              <span className={`grade-odds ${rankClass(g.rank)}`}>
+                획득확률 <b>{oddsText(oddsOf(g))}</b>
+              </span>
             </div>
             <div className="coll-grid">
               {gradeCards.map((c) => {
@@ -106,19 +91,6 @@ export default function Collection({ catalog, status, onBack }) {
           </section>
         );
       })}
-
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            className="reward-toast"
-            initial={{ opacity: 0, y: 24, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12 }}
-          >
-            {toast}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {selected && <CardModal card={selected} onClose={() => setSelected(null)} />}
