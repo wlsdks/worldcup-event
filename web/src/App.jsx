@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { drawCard, getStatus, loadCatalog } from "./api";
 import Login from "./components/Login.jsx";
 import Home from "./components/Home.jsx";
+import WinnerBroadcast from "./components/WinnerBroadcast.jsx";
 import Collection from "./components/Collection.jsx";
 import CheerBoard from "./components/CheerBoard.jsx";
 import PackReveal from "./components/PackReveal.jsx";
@@ -112,6 +113,8 @@ export default function App() {
         ))}
       </div>
       {screen === "login" && <Login onSubmit={handleLogin} />}
+
+      {screen === "home" && status && <WinnerBroadcast />}
 
       {screen === "home" && status && (
         <Home

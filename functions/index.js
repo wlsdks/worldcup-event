@@ -234,16 +234,20 @@ export const getRecentWinners = onCall(async () => {
   const winners = [];
   for (const doc of snap.docs) {
     const d = doc.data();
-    for (const c of d.cards || []) {
+    const at = d.createdAt?.toMillis?.() || 0;
+    (d.cards || []).forEach((c, ci) => {
       if ((c.gradeRank || 99) <= 3) {
         winners.push({
+          id: `${doc.id}_${ci}`,
+          at,
           name: maskName(d.name),
+          team: d.team || "",
           gradeRank: c.gradeRank,
           gradeLabel: c.gradeLabel,
           gradeName: c.gradeName || "",
         });
       }
-    }
+    });
     if (winners.length >= 15) break;
   }
   return { winners: winners.slice(0, 15) };

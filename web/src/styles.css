@@ -1528,3 +1528,30 @@ button.coll-card:disabled { cursor: default; }
 .intro-type.rare { color: #eaf2ff; }
 .type-caret { animation: caretBlink 0.7s steps(1) infinite; margin-left: 2px; }
 @keyframes caretBlink { 50% { opacity: 0; } }
+
+/* ════ 메인 당첨자 실시간 알림 배너 (로그인/신규 당첨 시 1회 역동적 표시) ════ */
+.winner-cast {
+  position: fixed; top: calc(12px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+  z-index: 120; display: flex; align-items: center; gap: 10px;
+  padding: 11px 20px; border-radius: 999px; max-width: calc(100vw - 24px); overflow: hidden;
+  background: linear-gradient(100deg, rgba(20,8,10,0.92), rgba(40,16,18,0.92));
+  border: 1.5px solid var(--accent, #f4c145);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 26px var(--glow, rgba(244,193,69,0.5));
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.winner-cast .wc-emoji { font-size: 18px; animation: wcPop 0.9s ease-in-out infinite alternate; }
+@keyframes wcPop { from { transform: scale(1) rotate(-6deg); } to { transform: scale(1.18) rotate(6deg); } }
+.winner-cast .wc-text { font-size: 15px; font-weight: 800; color: #fff; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+.winner-cast .wc-name { color: var(--accent, #ffd86e); }
+.winner-cast .wc-grade {
+  color: #fff; padding: 1px 8px; border-radius: 999px; margin: 0 1px;
+  background: var(--glow, rgba(244,193,69,0.4)); border: 1px solid var(--accent, #f4c145);
+}
+/* 가로지르는 광택 */
+.winner-cast .wc-shine {
+  position: absolute; top: 0; bottom: 0; width: 40%; left: -50%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent);
+  animation: wcShine 2.4s ease-in-out infinite; pointer-events: none;
+}
+@keyframes wcShine { 0% { left: -50%; } 60%, 100% { left: 130%; } }
+@media (prefers-reduced-motion: reduce) { .winner-cast .wc-emoji, .winner-cast .wc-shine { animation: none; } }
