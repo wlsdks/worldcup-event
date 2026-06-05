@@ -75,14 +75,16 @@ export default function CheerBoard({ user, teams = [], onBack }) {
     <div className="screen cheer">
       <header className="coll-top">
         <button className="link-btn" onClick={onBack}>← 뒤로</button>
-        <h2>응원전 🏆</h2>
-        <span className="like-pill">❤️ {likesUsed} / {likesMax}</span>
+        <h2>응원전</h2>
+        <span className="like-pill">남은 좋아요 {likesMax - likesUsed}</span>
       </header>
 
-      <div className="cheer-hero-msg">
-        <span className="chm-lead">🎉 우리 팀을 응원하고 <b>좋아요를 모아 상품</b>을 받으세요!</span>
-        <span>좋아요 <b>1~3위 팀</b>에 <b>☕ 커피 상품권</b>을 드립니다.</span>
-        <span>여러분의 응원이 <b>팀 순위</b>를 결정합니다! 🔥</span>
+      <div className="cheer-intro">
+        <div className="cheer-intro-kicker">CHEER BATTLE</div>
+        <h3 className="cheer-intro-title">우리 팀에 힘을 보태세요</h3>
+        <p className="cheer-intro-desc">
+          받은 좋아요가 곧 팀의 순위입니다. 마감 시점 상위 3개 팀에 커피 상품권을 드립니다.
+        </p>
       </div>
 
       <form className="cheer-composer" onSubmit={submit}>
@@ -122,7 +124,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
         {err && <div className="form-err">{err}</div>}
       </form>
 
-      <div className="cheer-rank-title">🏆 실시간 응원 랭킹 <span>(좋아요순)</span></div>
+      <div className="cheer-rank-title">실시간 팀 랭킹<span>좋아요순</span></div>
 
       <div className="cheer-list">
         <AnimatePresence initial={false}>
@@ -161,7 +163,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
             );
           })}
         </AnimatePresence>
-        {cheers.length === 0 && <div className="cheer-empty">첫 응원을 남겨보세요! 🇰🇷</div>}
+        {cheers.length === 0 && <div className="cheer-empty">아직 응원이 없어요. 첫 응원을 남겨보세요.</div>}
       </div>
 
       {/* 좋아요 확인 팝업 */}
