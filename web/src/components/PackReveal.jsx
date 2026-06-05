@@ -183,8 +183,10 @@ function Lightning({ rank }) {
 }
 
 /** 개봉 인트로: 우주로 빨려들며 카드 셔플 → 카드팩 → (사용자 탭 시에만) 뜯기 */
-function IntroSequence({ onDone }) {
+function IntroSequence({ onDone, rank = 9 }) {
   const [step, setStep] = useState("warp"); // warp → pack → torn
+  // 좋은 등급은 찢기 전부터 "뭔가 다르다" — 정확한 등급은 숨기고 등급대만 암시
+  const tier = rank <= 2 ? "epic" : rank === 3 ? "rare" : "";
   useEffect(() => {
     const t = setTimeout(() => setStep("pack"), 1300);
     return () => clearTimeout(t);
@@ -194,14 +196,14 @@ function IntroSequence({ onDone }) {
   function tear() {
     setStep((s) => {
       if (s !== "pack") return s;
-      if (navigator.vibrate) navigator.vibrate([20, 50, 30]);
-      setTimeout(onDone, 720);
+      if (navigator.vibrate) navigator.vibrate(tier === "epic" ? [20, 40, 20, 60, 30] : [20, 50, 30]);
+      setTimeout(onDone, tier === "epic" ? 820 : 720);
       return "torn";
     });
   }
 
   return (
-    <motion.div className="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <motion.div className={`intro ${tier}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <div className={`warp ${step !== "warp" ? "out" : ""}`}>
         {WARP.map((i) => (
           <span
@@ -238,10 +240,20 @@ function IntroSequence({ onDone }) {
             exit={{ opacity: 0 }}
             transition={{ type: "spring", stiffness: 230, damping: 18 }}
           >
+            {tier && <div className="pack-aura" aria-hidden />}
+            {tier === "epic" && (
+              <div className="pack-orbits" aria-hidden>
+                <span /><span /><span />
+              </div>
+            )}
             <div className="po-top" />
             <div className="po-bottom" />
             <div className="tear-flash" />
-            {step !== "torn" && <div className="booster-tab">✦ 탭하여 개봉 ✦</div>}
+            {step !== "torn" && (
+              <div className="booster-tab">
+                {tier === "epic" ? "✦✦ 심상치 않다… 탭하여 개봉 ✦✦" : tier === "rare" ? "✦ 느낌이 좋다! 탭하여 개봉 ✦" : "✦ 탭하여 개봉 ✦"}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -369,7 +381,7 @@ export default function PackReveal({ result, config, onClose }) {
 
       {/* ── 인트로 ── */}
       <AnimatePresence>
-        {phase === "intro" && <IntroSequence key="intro" onDone={() => setPhase("reveal")} />}
+        {phase === "intro" && <IntroSequence key="intro" rank={bestRank} onDone={() => setPhase("reveal")} />}
       </AnimatePresence>
 
       {/* ── 공개 ── */}

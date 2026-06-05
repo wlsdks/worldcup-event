@@ -1449,3 +1449,35 @@ button.coll-card:disabled { cursor: default; }
 }
 .summon .bolt { animation-duration: var(--sm); }
 @media (prefers-reduced-motion: reduce) { .summon * { animation-duration: 0.01s !important; } }
+
+/* ── 개봉 인트로 — 좋은 등급은 찢기 전부터 "심상치 않은" 기운 (정확한 등급은 숨김) ── */
+.pack-aura {
+  position: absolute; left: 50%; top: 50%; width: 168%; height: 168%; transform: translate(-50%,-50%);
+  border-radius: 50%; pointer-events: none; z-index: -1;
+  background: radial-gradient(circle, rgba(255,222,150,0.5) 0%, rgba(255,184,96,0.16) 36%, transparent 64%);
+  filter: blur(7px); animation: auraPulse 1.4s ease-in-out infinite;
+}
+.intro.epic .pack-aura {
+  background: radial-gradient(circle, rgba(255,240,190,0.72) 0%, rgba(255,205,115,0.3) 34%, transparent 64%);
+  animation-duration: 0.95s;
+}
+@keyframes auraPulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%,-50%) scale(0.95); }
+  50% { opacity: 1; transform: translate(-50%,-50%) scale(1.09); }
+}
+.pack-orbits { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; transform: translate(-50%,-50%); pointer-events: none; z-index: 2; }
+.pack-orbits span {
+  position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%;
+  background: radial-gradient(circle, #fff, #ffd27a 60%, transparent);
+  box-shadow: 0 0 12px 3px rgba(255,210,130,0.85);
+  animation: orbit 2.3s linear infinite;
+}
+.pack-orbits span:nth-child(2) { animation-duration: 2.9s; animation-delay: -0.8s; }
+.pack-orbits span:nth-child(3) { animation-duration: 1.8s; animation-delay: -1.4s; }
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(128px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(128px) rotate(-360deg); }
+}
+.intro.epic .tear-flash { box-shadow: 0 0 120px 60px rgba(255,240,200,0.6); }
+.booster-tab { white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .pack-aura, .pack-orbits span { animation: none; } }
