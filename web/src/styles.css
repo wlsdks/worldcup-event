@@ -680,8 +680,9 @@ body {
   backdrop-filter: blur(4px);
 }
 .pack-overlay.holo   { background: radial-gradient(circle at 50% 42%, rgba(40,22,60,0.95), rgba(3,2,6,0.99) 78%); }
-.pack-overlay.gold   { background: radial-gradient(circle at 50% 42%, rgba(74,54,16,0.94), rgba(8,6,3,0.98)); }
-.pack-overlay.silver { background: radial-gradient(circle at 50% 42%, rgba(40,48,58,0.94), rgba(5,6,8,0.98)); }
+.pack-overlay.gold   { background: radial-gradient(circle at 50% 42%, rgba(46,33,10,0.95), rgba(4,3,1,0.99) 78%); }
+.pack-overlay.silver { background: radial-gradient(circle at 50% 42%, rgba(26,30,38,0.95), rgba(3,3,4,0.99) 78%); }
+.pack-overlay.special { background: radial-gradient(circle at 50% 42%, rgba(12,40,32,0.95), rgba(2,4,3,0.99) 78%); }
 .rays.amped { opacity: 0.6; animation-duration: 7s; }
 /* 시네마틱 비네팅 + 센터 스포트라이트 (가챠 소환 프레이밍) */
 .cinematic {
