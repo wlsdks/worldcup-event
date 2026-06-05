@@ -39,6 +39,10 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
       </div>
 
       <div className="draw-stage">
+        <div className="pack-pedestal" aria-hidden>
+          <span className="ped-disc" />
+          <span className="ped-glow" />
+        </div>
         <div
           className="pack-tiltwrap"
           ref={tilt.ref}

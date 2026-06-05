@@ -303,7 +303,21 @@ body {
 .confirm-actions { display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px; margin-top: 18px; }
 .confirm-actions .btn-ghost, .confirm-actions .btn-primary { margin: 0; padding: 13px; }
 
-.draw-stage { display: grid; place-items: center; padding: 12px 0 4px; }
+.draw-stage { position: relative; display: grid; place-items: center; padding: 14px 0 22px; }
+/* 카드팩 받침대 (부유하는 팩 아래 그라운딩 — 가챠 전시대 톤) */
+.pack-pedestal { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); width: 220px; height: 50px; pointer-events: none; z-index: 0; }
+.pack-pedestal .ped-disc {
+  position: absolute; left: 50%; top: 52%; transform: translate(-50%,-50%);
+  width: 164px; height: 30px; border-radius: 50%;
+  background: radial-gradient(50% 100% at 50% 50%, rgba(255,150,110,0.55), rgba(226,35,26,0.2) 52%, transparent 74%);
+  box-shadow: 0 0 24px 6px rgba(255,80,50,0.32);
+}
+.pack-pedestal .ped-glow {
+  position: absolute; left: 50%; top: 36%; transform: translate(-50%,-50%);
+  width: 220px; height: 90px; border-radius: 50%;
+  background: radial-gradient(50% 60% at 50% 60%, rgba(255,95,62,0.3), transparent 72%);
+  filter: blur(13px); animation: glowPulse 2.8s ease-in-out infinite;
+}
 .pack-tiltwrap { perspective: 800px; animation: float 3.5s ease-in-out infinite; }
 .pack {
   position: relative; width: 200px; height: 270px; border-radius: 22px;
