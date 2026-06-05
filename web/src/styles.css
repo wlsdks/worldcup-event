@@ -711,54 +711,12 @@ body {
 .pl { position: absolute; inset: 0; will-change: transform; transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.3, 1); }
 
 /* 조명탑 빔 — 상단 양 모서리에서 중앙으로 비스듬히 쏘는 광선 + 광원 블룸 */
-.floodlights { transform: translate(calc(var(--px, 0) * -12px), calc(var(--py, 0) * -10px)); }
-.flood {
-  position: absolute; top: -14%; width: 60vmax; height: 130vmax;
-  transform-origin: top center; mix-blend-mode: screen; filter: blur(22px); opacity: 0.14;
-  background: linear-gradient(to bottom,
-    rgba(255,243,226,0.3) 0%, rgba(255,216,186,0.10) 22%, rgba(255,200,170,0.03) 42%, transparent 58%);
-}
-.flood-l { left: -16%; transform: rotate(24deg); }
-.flood-r { right: -16%; transform: rotate(-24deg); }
-.flood-src {
-  position: absolute; top: 7%; left: 50%; width: 11px; height: 11px; transform: translateX(-50%);
-  border-radius: 50%; background: #fff;
-  box-shadow: 0 0 22px 9px rgba(255,244,220,0.95), 0 0 70px 26px rgba(255,200,156,0.55), 0 0 130px 50px rgba(255,150,110,0.22);
-}
-.pack-overlay.amped .flood { opacity: 0.24; }
-.pack-overlay.amped .flood-src { box-shadow: 0 0 20px 9px rgba(255,246,224,0.95), 0 0 70px 26px var(--glow, rgba(255,196,150,0.5)); }
 
 /* 원경 스탠드 — 상단 어둠 + 아주 옅은 군중 텍스처(점이 아래로 페이드) */
-.stands {
-  position: absolute; left: -10%; right: -10%; top: -6%; height: 48%;
-  background: radial-gradient(120% 100% at 50% -16%, rgba(255,86,68,0.10), transparent 62%);
-}
-.stands::after {
-  content: ""; position: absolute; inset: 0;
-  background-image: radial-gradient(rgba(255,235,220,0.16) 0.5px, transparent 0.7px);
-  background-size: 6px 6px; opacity: 0.35;
-  -webkit-mask: linear-gradient(to bottom, #000 0%, transparent 64%);
-  mask: linear-gradient(to bottom, #000 0%, transparent 64%);
-}
 
 /* 대기 산란 헤이즈 — 등급 색으로 물드는 중하단 빛무리 */
-.haze {
-  position: absolute; left: -12%; right: -12%; bottom: 13%; height: 46%;
-  background: radial-gradient(120% 92% at 50% 100%, var(--glow, rgba(226,35,26,0.20)), transparent 73%);
-  filter: blur(26px); opacity: 0.28;
-  transform: translateY(calc(var(--py, 0) * -8px));
-}
-.pack-overlay.amped .haze { opacity: 0.6; }
 
 /* 피치 그라운딩 — 조명 아래 어둑한 잔디 + 중앙 스폿 */
-.pitch {
-  position: absolute; left: -12%; right: -12%; bottom: -8%; height: 30%;
-  background: linear-gradient(to top, rgba(11,30,17,0.62), rgba(11,30,17,0) 100%);
-}
-.pitch::before {
-  content: ""; position: absolute; inset: 0;
-  background: radial-gradient(58% 80% at 50% 122%, rgba(120,200,140,0.10), transparent 70%);
-}
 
 /* 조명 속 미세 먼지/입자 */
 .motes { transform: translate(calc(var(--px, 0) * -40px), calc(var(--py, 0) * -30px)); }
@@ -949,23 +907,11 @@ body {
   100% { width: 92vmin; height: 92vmin; opacity: 0; border-width: 1px; }
 }
 /* 방사형 파티클 폭발 (중심에서 사방으로) */
-.radial { position: absolute; width: 0; height: 0; }
-.rp {
-  position: absolute; left: 0; top: 0; width: 8px; height: 14px; border-radius: 3px;
-  transform-origin: 50% 50%; animation: rpfly 0.95s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
-}
-.rp-0 { background: #ff5a4d; } .rp-1 { background: #ffd24a; }
-.rp-2 { background: #5ad6ff; } .rp-3 { background: #c06bff; }
 @keyframes rpfly {
   0%   { transform: rotate(var(--ang)) translateY(0) scale(1); opacity: 1; }
   100% { transform: rotate(var(--ang)) translateY(-46vmin) scale(0.35); opacity: 0; }
 }
 /* 1등 레이 버스트 (짧게 터지고 사라짐 — 상시 배경 아님) */
-.rare-rays {
-  position: absolute; width: 130vmax; height: 130vmax; border-radius: 50%;
-  background: repeating-conic-gradient(from 0deg, rgba(255,220,140,0.32) 0deg 5deg, transparent 5deg 16deg);
-  animation: raysBurst 0.9s ease-out forwards;
-}
 @keyframes raysBurst {
   0%   { transform: scale(0.15) rotate(0deg); opacity: 0.7; }
   100% { transform: scale(1.1) rotate(38deg); opacity: 0; }
@@ -1009,12 +955,6 @@ button.coll-card:disabled { cursor: default; }
 .card-modal-close { margin-top: 2px; }
 
 /* 떨어지는 별/글리터 — Genshin raining stars + FUT glitter rain 레퍼런스 */
-.starfall { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
-.star {
-  position: absolute; top: -6%; width: 3px; height: 3px; border-radius: 50%;
-  background: #fff; box-shadow: 0 0 6px 1px rgba(255, 220, 180, 0.9); opacity: 0.85;
-  animation-name: starfall; animation-timing-function: linear; animation-iteration-count: infinite;
-}
 @keyframes starfall {
   0% { transform: translateY(-10%) scale(0.6); opacity: 0; }
   12% { opacity: 0.9; }
@@ -1193,12 +1133,6 @@ button.coll-card:disabled { cursor: default; }
 .burst.special { --flash: rgba(255,225,120,0.95); }
 
 /* 번개 빌드업 (1·2등·스페셜 공개 직전 뒤에서 번개) */
-.lightning { position: fixed; inset: 0; z-index: 7; pointer-events: none; overflow: hidden; }
-.lflash {
-  position: absolute; inset: 0;
-  background: radial-gradient(circle at 50% 42%, var(--flash, rgba(190,210,255,0.92)), transparent 66%);
-  animation: lflash 0.72s steps(1, end) forwards;
-}
 @keyframes lflash {
   0%{opacity:0} 8%{opacity:0.95} 14%{opacity:0.08} 22%{opacity:0.85} 30%{opacity:0.15}
   46%{opacity:0.7} 60%{opacity:0.1} 78%{opacity:0.5} 100%{opacity:0}
@@ -1214,8 +1148,6 @@ button.coll-card:disabled { cursor: default; }
 .bolt-2 { left: 54%; transform: rotate(-7deg); animation-delay: 0.2s; }
 .bolt-3 { left: 70%; transform: rotate(5deg); animation-delay: 0.44s; }
 @keyframes boltFlash { 0%{opacity:0} 5%{opacity:1} 15%{opacity:0} 100%{opacity:0} }
-.lightning.special .lflash, .lightning.holo .lflash { --flash: rgba(255,235,150,0.92); }
-.lightning.gold .lflash { --flash: rgba(255,225,130,0.9); }
 
 /* 결과(summary) 화면 중앙 정렬 + 카드 크게 (특히 웹 넓은 화면) */
 .summary { margin: auto 0; max-width: 480px; }
@@ -1317,17 +1249,6 @@ button.coll-card:disabled { cursor: default; }
 .reveal-halo.basic  { opacity: 0.6; }
 .reveal-halo.bronze { opacity: 0.78; }
 .reveal-halo.silver, .reveal-halo.gold, .reveal-halo.holo, .reveal-halo.special { opacity: 1; }
-.reveal-rays {
-  position: absolute; top: 50%; left: 50%; width: 150%; height: 150%;
-  transform: translate(-50%, -50%); border-radius: 50%;
-  background: repeating-conic-gradient(from 0deg,
-    color-mix(in srgb, var(--glow, #fff) 55%, transparent) 0deg 4deg,
-    transparent 4deg 13deg);
-  -webkit-mask: radial-gradient(circle, #000 8%, transparent 64%);
-  mask: radial-gradient(circle, #000 8%, transparent 64%);
-  animation: raysSpin 22s linear infinite;
-  mix-blend-mode: screen; opacity: 0.85;
-}
 @keyframes raysSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .reveal-rays { animation: none; } }
 
@@ -1368,13 +1289,9 @@ button.coll-card:disabled { cursor: default; }
 }
 
 /* ── 등급별 배경 격화 (3등부터 확연히 / 1·2·SP 강하게) ── */
-.pack-overlay.silver .haze { opacity: 0.32; }
-.pack-overlay.gold   .haze { opacity: 0.36; }
 .pack-overlay.holo   .haze,
-.pack-overlay.special .haze { opacity: 0.42; height: 46%; }
 .pack-overlay.gold   .flood,
 .pack-overlay.holo   .flood,
-.pack-overlay.special .flood { opacity: 0.2; }
 /* 2등↑: 화면 전체에 등급색 오로라가 느리게 맥동 */
 .pack-overlay.gold .stadium-bg::after,
 .pack-overlay.holo .stadium-bg::after,
@@ -1431,11 +1348,6 @@ button.coll-card:disabled { cursor: default; }
 .pack-overlay.phase-reveal .grid-stage { flex: 0 0 auto; }
 
 .reveal-top { display: flex; flex-direction: column; align-items: center; gap: 7px; z-index: 6; text-align: center; min-height: 30px; }
-.win-headline {
-  font-size: 28px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.12; color: #ffffff;
-  text-shadow: 0 2px 5px rgba(0,0,0,0.85), 0 0 22px var(--glow, rgba(255,255,255,0.35));
-  -webkit-text-stroke: 0.6px rgba(0,0,0,0.3);
-}
 .win-prob {
   font-size: 12.5px; font-weight: 800; color: var(--accent, #ffd9a0); letter-spacing: 0.2px;
   background: rgba(0,0,0,0.46); border: 1px solid color-mix(in srgb, var(--accent,#ffffff) 42%, transparent);
@@ -1456,9 +1368,6 @@ button.coll-card:disabled { cursor: default; }
   border: 1px solid color-mix(in srgb, var(--accent, #ff8a7a) 48%, transparent);
   box-shadow: 0 6px 22px rgba(0,0,0,0.4);
 }
-.reveal-prize .rp-prize { font-size: 15.5px; font-weight: 800; color: var(--accent, #fff); text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
-.reveal-prize .rp-contact { font-size: 12px; line-height: 1.5; color: #ffe2db; }
-.reveal-prize .rp-contact b { color: #fff; }
 
 /* 인트로 타자기 문구 (카드팩 등장 전) */
 .intro-type {
