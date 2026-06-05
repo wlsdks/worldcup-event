@@ -1640,3 +1640,21 @@ button.coll-card:disabled { cursor: default; }
   box-shadow: 0 4px 14px rgba(226,35,26,0.42);
 }
 .team-chip .tc-emoji { font-size: 15px; }
+
+/* ── 개봉 인트로 등급색 (rc 클래스가 --glow/--accent 제공) ── */
+.intro.holo, .intro.gold, .intro.silver, .intro.bronze, .intro.special {
+  background: radial-gradient(125% 85% at 50% 44%, color-mix(in srgb, var(--glow, transparent) 22%, transparent), transparent 60%);
+}
+.intro.holo .pack-aura, .intro.gold .pack-aura, .intro.silver .pack-aura,
+.intro.bronze .pack-aura, .intro.special .pack-aura {
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--glow, #ffde96) 78%, #fff) 0%,
+    var(--glow, rgba(255,205,115,0.3)) 34%, transparent 64%);
+}
+.intro.holo .booster-tab, .intro.gold .booster-tab, .intro.silver .booster-tab,
+.intro.bronze .booster-tab, .intro.special .booster-tab,
+.intro.holo .intro-type, .intro.gold .intro-type, .intro.silver .intro-type,
+.intro.bronze .intro-type, .intro.special .intro-type {
+  color: color-mix(in srgb, var(--accent, #ffffff) 65%, #ffffff);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.8), 0 0 26px var(--glow, rgba(255,220,150,0.8));
+}
