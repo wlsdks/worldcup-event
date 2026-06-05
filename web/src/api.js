@@ -78,3 +78,17 @@ export async function loadCatalog() {
     .sort((a, b) => (a.order || 0) - (b.order || 0));
   return { grades, cards, config, teams };
 }
+
+// ── 관리자(admin) ──
+export async function adminLoad(masterKey) {
+  await ensureAuth();
+  const fn = httpsCallable(functions, "adminLoad");
+  const res = await fn({ masterKey });
+  return res.data;
+}
+export async function adminUpdate(masterKey, section, data) {
+  await ensureAuth();
+  const fn = httpsCallable(functions, "adminUpdate");
+  const res = await fn({ masterKey, section, data });
+  return res.data;
+}

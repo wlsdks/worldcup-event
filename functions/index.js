@@ -385,3 +385,89 @@ export const getStatus = onCall(async (request) => {
     packsCount: packs.length,
   };
 });
+
+// ─────────────────────────────────────────────────────────────
+// 관리자(admin) — 설정/등급/팀 갱신. 클라이언트 직접 쓰기는 rules로 막혀있으므로
+// 마스터 키로 인증된 호출만 Admin SDK 로 쓰기. (데모: 비밀번호 없음, masterKey="demo-master")
+// ─────────────────────────────────────────────────────────────
+const ADMIN_MASTER_KEY = "demo-master";
+
+export const adminLoad = onCall(async (request) => {
+  if ((request.data?.masterKey || "") !== ADMIN_MASTER_KEY) {
+    throw new HttpsError("permission-denied", "관리자 권한이 없습니다.");
+  }
+  const [cfgSnap, gradesSnap, teamsSnap, cardsSnap] = await Promise.all([
+    db.doc("config/event").get(),
+    db.collection("grades").get(),
+    db.collection("teams").get(),
+    db.collection("cards").get(),
+  ]);
+  const grades = gradesSnap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => a.rank - b.rank);
+  const cardCounts = {};
+  cardsSnap.docs.forEach((d) => { const g = d.data().gradeId; cardCounts[g] = (cardCounts[g] || 0) + 1; });
+  return {
+    config: cfgSnap.exists ? cfgSnap.data() : {},
+    grades,
+    teams: teamsSnap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order || 0) - (b.order || 0)),
+    cardCounts,
+  };
+});
+
+export const adminUpdate = onCall(async (request) => {
+  const { masterKey, section, data } = request.data || {};
+  if ((masterKey || "") !== ADMIN_MASTER_KEY) {
+    throw new HttpsError("permission-denied", "관리자 권한이 없습니다.");
+  }
+  const clean = (v) => (typeof v === "string" ? v.trim() : v);
+
+  if (section === "event") {
+    const allowed = {};
+    ["eventName", "startDate", "endDate", "rosterRequired", "unlimitedDraws", "cardsPerPack", "missWeight", "prizeNote", "contactTeam", "contactPerson", "contactHow"].forEach((k) => {
+      if (data[k] !== undefined) allowed[k] = clean(data[k]);
+    });
+    await db.doc("config/event").set(allowed, { merge: true });
+    return { ok: true };
+  }
+
+  if (section === "grade") {
+    const id = clean(data.id);
+    if (!id) throw new HttpsError("invalid-argument", "grade id 필요");
+    const fields = {};
+    ["name", "prize", "color"].forEach((k) => { if (data[k] !== undefined) fields[k] = clean(data[k]); });
+    if (data.weight !== undefined) fields.weight = Math.max(0, Number(data.weight) || 0);
+    if (data.inventoryTotal !== undefined) {
+      if (data.inventoryTotal === null || data.inventoryTotal === "") {
+        fields.inventoryTotal = null; fields.unlimited = true; fields.dailyQuota = {};
+      } else {
+        const total = Math.max(0, parseInt(data.inventoryTotal, 10) || 0);
+        const cfg = (await db.doc("config/event").get()).data() || {};
+        fields.inventoryTotal = total;
+        fields.inventoryRemaining = total;
+        fields.unlimited = false;
+        fields.dailyQuota = cfg.startDate ? { [cfg.startDate]: total } : {};
+      }
+    }
+    await db.doc(`grades/${id}`).set(fields, { merge: true });
+    return { ok: true };
+  }
+
+  if (section === "teamUpsert") {
+    const id = clean(data.id);
+    if (!id) throw new HttpsError("invalid-argument", "team id 필요");
+    await db.doc(`teams/${id}`).set({
+      name: clean(data.name) || "팀",
+      emoji: clean(data.emoji) || "⚽",
+      order: Number(data.order) || 0,
+    }, { merge: true });
+    return { ok: true };
+  }
+
+  if (section === "teamDelete") {
+    const id = clean(data.id);
+    if (!id) throw new HttpsError("invalid-argument", "team id 필요");
+    await db.doc(`teams/${id}`).delete();
+    return { ok: true };
+  }
+
+  throw new HttpsError("invalid-argument", "알 수 없는 section");
+});
