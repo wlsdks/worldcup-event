@@ -409,20 +409,62 @@ export const adminLoad = onCall(async (request) => {
   if ((request.data?.masterKey || "") !== ADMIN_MASTER_KEY) {
     throw new HttpsError("permission-denied", "관리자 권한이 없습니다.");
   }
-  const [cfgSnap, gradesSnap, teamsSnap, cardsSnap] = await Promise.all([
+  const [cfgSnap, gradesSnap, teamsSnap, cardsSnap, drawsSnap, rosterSnap] = await Promise.all([
     db.doc("config/event").get(),
     db.collection("grades").get(),
     db.collection("teams").get(),
     db.collection("cards").get(),
+    db.collection("draws").get(),
+    db.collection("roster").get(),
   ]);
   const grades = gradesSnap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => a.rank - b.rank);
   const cardCounts = {};
   cardsSnap.docs.forEach((d) => { const g = d.data().gradeId; cardCounts[g] = (cardCounts[g] || 0) + 1; });
+
+  // ── 통계 집계 ──
+  const participants = new Set();
+  const winners = []; // 프라이즈(rank<=4) 당첨자
+  const awardedByGrade = {}; // 등급별 당첨 수
+  let drawCount = 0;
+  drawsSnap.docs.forEach((d) => {
+    const dd = d.data();
+    drawCount += 1;
+    if (dd.empNo) participants.add(dd.empNo);
+    (dd.cards || []).forEach((c) => {
+      awardedByGrade[c.gradeId] = (awardedByGrade[c.gradeId] || 0) + 1;
+      if ((c.gradeRank ?? 9) <= 4) {
+        winners.push({
+          empNo: dd.empNo || "", name: dd.name || "", gradeRank: c.gradeRank,
+          gradeLabel: c.gradeLabel || "", gradeName: c.gradeName || "", prize: c.gradePrize || "",
+          gift: dd.gift === true,
+          at: dd.createdAt?.toMillis?.() || 0,
+        });
+      }
+    });
+  });
+  winners.sort((a, b) => (a.gradeRank - b.gradeRank) || (b.at - a.at));
+  const rosterCount = rosterSnap.size;
+  // 비-테스트 참여자(0000 제외)
+  participants.delete("0000");
+  const participantCount = participants.size;
+
+  // 등급 현황: 한정 등급의 남은 재고
+  const gradeStatus = grades.map((g) => ({
+    id: g.id, rank: g.rank, label: g.label, name: g.name,
+    inventoryTotal: g.inventoryTotal ?? null,
+    inventoryRemaining: g.unlimited ? null : (g.inventoryRemaining ?? g.inventoryTotal ?? 0),
+    awarded: awardedByGrade[g.id] || 0,
+    unlimited: g.unlimited === true,
+  }));
+
   return {
     config: cfgSnap.exists ? cfgSnap.data() : {},
     grades,
     teams: teamsSnap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order || 0) - (b.order || 0)),
     cardCounts,
+    stats: { rosterCount, participantCount, drawCount, participationRate: rosterCount > 0 ? Math.round(participantCount / rosterCount * 1000) / 10 : 0 },
+    winners,
+    gradeStatus,
   };
 });
 
@@ -566,6 +608,47 @@ export const adminAction = onCall(async (request) => {
       bestRank: grade.rank, miss: false, gift: true, createdAt: FV.serverTimestamp(),
     });
     return { ok: true, message: `${name}(${empNo})에게 [${grade.name}] ${card.name || ""} 선물 완료` };
+  }
+
+  // 강제 랜덤 추첨: 한정 등급의 남은 재고를 명단의 미당첨자 중 랜덤으로 채워 당첨자 생성.
+  if (action === "fillWinners") {
+    const today = kstDate();
+    const [gradesSnap, rosterSnap, drawsSnap, cardsSnap] = await Promise.all([
+      db.collection("grades").get(),
+      db.collection("roster").get(),
+      db.collection("draws").get(),
+      db.collection("cards").get(),
+    ]);
+    const wonEmps = new Set();
+    drawsSnap.docs.forEach((d) => { const dd = d.data(); (dd.cards || []).forEach((c) => { if ((c.gradeRank ?? 9) <= 4) wonEmps.add(dd.empNo); }); });
+    let candidates = rosterSnap.docs
+      .map((r) => ({ empNo: r.id, name: r.data().name || r.id }))
+      .filter((c) => c.empNo !== "0000" && !wonEmps.has(c.empNo));
+    const cardsByGrade = {};
+    cardsSnap.docs.forEach((d) => { const c = { id: d.id, ...d.data() }; (cardsByGrade[c.gradeId] = cardsByGrade[c.gradeId] || []).push(c); });
+    const grades = gradesSnap.docs.map((d) => ({ id: d.id, ref: d.ref, ...d.data() })).filter((g) => g.unlimited !== true).sort((a, b) => a.rank - b.rank);
+    const results = [];
+    const batch = db.batch();
+    for (const g of grades) {
+      let remaining = g.inventoryRemaining ?? g.inventoryTotal ?? 0;
+      const pool = cardsByGrade[g.id] || [];
+      if (!pool.length) continue;
+      let consumed = 0;
+      while (remaining > 0 && candidates.length > 0) {
+        const winner = candidates.splice(Math.floor(Math.random() * candidates.length), 1)[0];
+        const card = pool[Math.floor(Math.random() * pool.length)];
+        batch.set(db.collection("draws").doc(), {
+          empNo: winner.empNo, name: winner.name, drawDate: today, bestRank: g.rank, miss: false, gift: true, forced: true,
+          cards: [{ gradeId: g.id, gradeRank: g.rank, gradeLabel: g.label, gradeName: g.name || "", gradePrize: g.prize || "", cardId: card.id, cardName: card.name || "", cardImage: card.image, cardDesc: card.desc || "" }],
+          createdAt: FV.serverTimestamp(),
+        });
+        results.push({ empNo: winner.empNo, name: winner.name, grade: g.name || g.label });
+        remaining -= 1; consumed += 1;
+      }
+      if (consumed > 0) batch.update(g.ref, { inventoryRemaining: FV.increment(-consumed) });
+    }
+    await batch.commit();
+    return { ok: true, message: `강제 추첨 완료 — ${results.length}명 당첨`, awarded: results };
   }
 
   throw new HttpsError("invalid-argument", "알 수 없는 action");
