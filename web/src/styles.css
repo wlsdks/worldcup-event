@@ -831,15 +831,6 @@ body {
 .miss-big { font-size: 64px; font-weight: 900; color: #d4d7e0; letter-spacing: 6px; line-height: 1; }
 .miss-sub { font-size: 15px; font-weight: 700; color: var(--muted); }
 
-/* 소리 on/off 토글 (공개 오버레이 우상단) */
-.sound-toggle {
-  position: fixed; top: 14px; right: 14px; z-index: 30;
-  width: 40px; height: 40px; border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.22); background: rgba(0,0,0,0.42);
-  color: #fff; font-size: 18px; cursor: pointer; display: grid; place-items: center;
-  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-}
-.sound-toggle:active { transform: scale(0.92); }
 
 /* 일반(4·5등) 카드 은은한 광택 — 공개가 밋밋하지 않게 */
 .card-sheen { position: absolute; inset: 0; pointer-events: none; border-radius: 16px; overflow: hidden; }
@@ -1377,4 +1368,75 @@ button.coll-card:disabled { cursor: default; }
 @media (prefers-reduced-motion: reduce) {
   .flip-leak { animation: none; opacity: 0; }
   .pack-overlay .stadium-bg::after { animation: none; }
+}
+
+/* ─────────── 워크아웃: 어둠 속 고놈이 그라운드로 걸어나간다 ─────────── */
+.walkout { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; --wk: 1.15s; }
+.walkout.r3 { --wk: 1.15s; }
+.walkout.r2 { --wk: 1.45s; }
+.walkout.r1, .walkout.r0, .walkout.special, .walkout.holo { --wk: 1.7s; }
+
+.wk-dark {
+  position: absolute; inset: 0;
+  background: radial-gradient(120% 92% at 50% 34%, rgba(0,0,0,0.5), rgba(0,0,0,0.93) 72%);
+}
+/* 그라운드 입구의 빛 (소실점) — 등급색 */
+.wk-tunnel {
+  position: absolute; left: 50%; top: 29%; width: 42vmax; height: 42vmax; transform: translate(-50%,-50%);
+  background: radial-gradient(circle, var(--glow, rgba(255,240,210,0.7)) 0%, rgba(255,222,184,0.16) 32%, transparent 62%);
+  filter: blur(8px); mix-blend-mode: screen;
+  animation: wkTunnel var(--wk) ease-in forwards;
+}
+@keyframes wkTunnel {
+  0% { opacity: 0.35; transform: translate(-50%,-50%) scale(0.7); }
+  80% { opacity: 0.9; }
+  100% { opacity: 1; transform: translate(-50%,-50%) scale(1.3); }
+}
+/* 그라운드 바닥 + 원근 */
+.wk-ground {
+  position: absolute; left: -20%; right: -20%; bottom: 0; height: 44%;
+  background:
+    radial-gradient(60% 70% at 50% 0%, rgba(120,200,140,0.10), transparent 70%),
+    linear-gradient(to top, rgba(10,30,16,0.72), transparent 100%);
+}
+/* 1등 번개 보강 */
+.wk-bolts .bolt { animation-duration: var(--wk); }
+
+/* 걸어가는 고놈 (뒷모습 실루엣) */
+.wk-walker {
+  position: absolute; left: 50%; bottom: 13%; width: 24vmax; max-width: 158px;
+  animation: wkWalk var(--wk) cubic-bezier(0.4, 0, 0.5, 1) forwards;
+}
+@keyframes wkWalk {
+  0%   { transform: translate(-50%, 10%) scale(1.12); opacity: 0; }
+  14%  { opacity: 1; }
+  80%  { transform: translate(-50%, -118%) scale(0.44); opacity: 1; }
+  100% { transform: translate(-50%, -150%) scale(0.3); opacity: 0; }
+}
+.wk-bear { width: 100%; height: auto; display: block; animation: wkBob 0.46s ease-in-out infinite; overflow: visible; }
+.wk-bear * { fill: #08070c; }
+.wk-bear circle, .wk-bear path, .wk-bear .ear {
+  stroke: var(--glow, rgba(255,255,255,0.35)); stroke-width: 1.4; paint-order: stroke;
+}
+@keyframes wkBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.wk-bear .leg { transform-box: fill-box; transform-origin: 50% 0; animation: legSwing 0.46s ease-in-out infinite; }
+.wk-bear .leg-r { animation-delay: -0.23s; }
+@keyframes legSwing { 0%, 100% { transform: rotate(12deg); } 50% { transform: rotate(-12deg); } }
+.wk-shadow {
+  position: absolute; left: 50%; bottom: -5%; width: 66%; height: 12px; transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(0,0,0,0.6), transparent 70%); filter: blur(3px);
+}
+/* 마지막 플레어 — 카드 솟아오르기 직전 폭발 */
+.wk-flare {
+  position: absolute; left: 50%; top: 29%; width: 10px; height: 10px; transform: translate(-50%,-50%);
+  border-radius: 50%; background: #fff; opacity: 0;
+  animation: wkFlare var(--wk) ease-in forwards;
+}
+@keyframes wkFlare {
+  0%, 68% { opacity: 0; box-shadow: 0 0 0 0 transparent; }
+  86% { opacity: 1; box-shadow: 0 0 70px 34px var(--glow, #fff), 0 0 160px 80px rgba(255,255,255,0.5); }
+  100% { opacity: 0; box-shadow: 0 0 220px 130px var(--glow, #fff); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wk-walker, .wk-bear, .wk-bear .leg, .wk-tunnel, .wk-flare { animation-duration: 0.01s !important; }
 }

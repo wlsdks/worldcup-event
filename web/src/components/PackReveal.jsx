@@ -1,7 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { rcOf, useTilt } from "../lib/cardUtils";
-import { playRip, playReveal, playMiss, isMuted, toggleMute } from "../lib/sfx";
 import CardModal from "./CardModal.jsx";
 
 const RANK_MSG = { 0: "👑 SPECIAL 당첨!!!", 1: "🏆 1등 당첨!!!", 2: "🥇 2등 당첨!!", 3: "🥈 3등 당첨!", 4: "당첨!", 5: "당첨!" };
@@ -121,6 +120,45 @@ function Burst({ rank }) {
   );
 }
 
+/** 워크아웃 — 어둠 속에서 고놈(뒷모습 실루엣)이 그라운드로 걸어나가고, 그 끝에서 카드가 솟아오른다. (등급 높을수록 강하게) */
+function Walkout({ rank }) {
+  const rc = rcOf(rank);
+  return (
+    <motion.div
+      className={`walkout ${rc} r${rank}`}
+      aria-hidden
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+    >
+      <div className="wk-dark" />
+      <div className="wk-tunnel" />
+      <div className="wk-ground" />
+      {rank <= 1 && (
+        <div className="wk-bolts">
+          <span className="bolt bolt-1" />
+          <span className="bolt bolt-2" />
+        </div>
+      )}
+      <div className="wk-walker">
+        <div className="wk-shadow" />
+        <svg className="wk-bear" viewBox="0 0 120 150">
+          <ellipse className="ear" cx="40" cy="24" rx="12" ry="12" />
+          <ellipse className="ear" cx="80" cy="24" rx="12" ry="12" />
+          <circle cx="60" cy="42" r="27" />
+          <path d="M30 70 Q60 59 90 70 L86 105 Q60 114 34 105 Z" />
+          <ellipse cx="25" cy="88" rx="8" ry="20" />
+          <ellipse cx="95" cy="88" rx="8" ry="20" />
+          <rect className="leg leg-l" x="44" y="101" width="14" height="47" rx="6" />
+          <rect className="leg leg-r" x="62" y="101" width="14" height="47" rx="6" />
+        </svg>
+      </div>
+      <div className="wk-flare" />
+    </motion.div>
+  );
+}
+
 /** 번개 빌드업 — 1·2등(+스페셜) 공개 직전 뒤에서 번개가 치다가 카드 등장 */
 function Lightning({ rank }) {
   return (
@@ -146,7 +184,6 @@ function IntroSequence({ onDone }) {
     setStep((s) => {
       if (s !== "pack") return s;
       if (navigator.vibrate) navigator.vibrate([20, 50, 30]);
-      playRip();
       setTimeout(onDone, 720);
       return "torn";
     });
@@ -211,8 +248,8 @@ export default function PackReveal({ result, config, onClose }) {
   const [revealed, setRevealed] = useState(() => cards.map(() => false));
   const [burst, setBurst] = useState({ key: 0, rank: 9 });
   const [shaking, setShaking] = useState(false);
-  const [lightning, setLightning] = useState(null); // 1·2등 공개 직전 번개 빌드업
-  const [muted, setMuted] = useState(isMuted());
+  const [lightning, setLightning] = useState(null); // (미사용) 번개 빌드업
+  const [walkout, setWalkout] = useState(null); // 프라이즈 공개 직전 워크아웃
   const [detail, setDetail] = useState(null); // 결과 화면에서 카드 상세보기
 
   const allDone = revealed.every(Boolean);
@@ -241,7 +278,6 @@ export default function PackReveal({ result, config, onClose }) {
       return next;
     });
     fireBurst(cards[i].gradeRank);
-    if (cards[i].isMiss) playMiss(); else playReveal(cards[i].gradeRank);
     if (cards[i].gradeRank <= 3 && navigator.vibrate) navigator.vibrate(70);
     if (cards[i].gradeRank <= 3) {
       // 3등=가벼운 흔들림 / 1·2등(+스페셜)=강한 흔들림
@@ -253,11 +289,12 @@ export default function PackReveal({ result, config, onClose }) {
   const revealAt = (i) => {
     if (revealed[i]) return;
     const rank = cards[i].gradeRank;
-    if (rank <= 2) {
-      // 1·2등(+스페셜): 번개 빌드업(0.7s) 후 카드 등장
-      setLightning({ key: Date.now(), rank });
-      if (navigator.vibrate) navigator.vibrate([15, 40, 15, 40]);
-      setTimeout(() => { setLightning(null); doReveal(i); }, 720);
+    if (rank <= 3) {
+      // 프라이즈(3등↑): 어둠 속 고놈이 걸어나오는 워크아웃 후 카드 등장. 등급 높을수록 길고 강하게.
+      setWalkout({ key: Date.now(), rank });
+      if (navigator.vibrate) navigator.vibrate(rank <= 1 ? [15, 40, 15, 60, 20] : [15, 40, 15]);
+      const dur = rank <= 1 ? 1700 : rank === 2 ? 1450 : 1150;
+      setTimeout(() => { setWalkout(null); doReveal(i); }, dur);
     } else {
       doReveal(i);
     }
@@ -271,7 +308,6 @@ export default function PackReveal({ result, config, onClose }) {
   const revealAllToSummary = () => {
     setRevealed(cards.map(() => true));
     fireBurst(bestRank);
-    if (bestRank >= 99) playMiss(); else playReveal(bestRank);
     if (bestRank <= 3 && navigator.vibrate) navigator.vibrate([40, 40, 80]);
     if (bestRank <= 3) { setShaking(bestRank <= 2 ? "hard" : "soft"); setTimeout(() => setShaking(false), bestRank <= 2 ? 460 : 300); }
     setTimeout(() => setPhase("summary"), bestRank <= 3 ? 1100 : 650);
@@ -314,15 +350,9 @@ export default function PackReveal({ result, config, onClose }) {
         </div>
       </div>
       <div className="cinematic" aria-hidden />
-      <button
-        className="sound-toggle"
-        onClick={() => setMuted(toggleMute())}
-        aria-label={muted ? "소리 켜기" : "소리 끄기"}
-      >
-        {muted ? "🔇" : "🔊"}
-      </button>
       <AnimatePresence>{phase === "reveal" && burst.rank <= 3 && <Burst key={burst.key} rank={burst.rank} />}</AnimatePresence>
       <AnimatePresence>{lightning && <Lightning key={lightning.key} rank={lightning.rank} />}</AnimatePresence>
+      <AnimatePresence>{walkout && <Walkout key={walkout.key} rank={walkout.rank} />}</AnimatePresence>
 
       {/* ── 인트로 ── */}
       <AnimatePresence>
