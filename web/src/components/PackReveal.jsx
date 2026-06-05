@@ -317,7 +317,7 @@ export default function PackReveal({ result, config, onClose }) {
     <motion.div
       ref={overlayRef}
       onPointerMove={onParallax}
-      className={`pack-overlay ${overlayRc} ${energyRank ? "amped" : ""}`}
+      className={`pack-overlay ${overlayRc} ${energyRank ? "amped" : ""} phase-${phase}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -360,6 +360,24 @@ export default function PackReveal({ result, config, onClose }) {
               <button className={mode === "all" ? "on" : ""} onClick={() => setMode("all")}>한번에</button>
             </div>
           )}
+
+          {/* 당첨 헤드라인 — 카드 위 */}
+          <div className="reveal-top">
+            <AnimatePresence mode="wait">
+              {curRevealed && current && (
+                <motion.div
+                  key={`wh-${idx}`}
+                  className={`win-headline ${rcOf(current.gradeRank)}`}
+                  initial={{ opacity: 0, y: 14, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ type: "spring", stiffness: 360, damping: 15 }}
+                >
+                  {current.isMiss ? "꽝! 다음 기회에" : RANK_MSG[current.gradeRank]}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {mode === "all" && N > 1 ? (
             <div className={`grid-stage ${shaking ? `shake ${shaking}` : ""}`}>
@@ -422,38 +440,39 @@ export default function PackReveal({ result, config, onClose }) {
                   )}
                 </AnimatePresence>
               </div>
-
-              <div className="deck-hint">
-                {!curRevealed ? "카드를 탭하거나 스와이프해서 오픈" : idx < N - 1 ? "탭 / 스와이프해서 다음 카드" : "모두 확인했어요!"}
-              </div>
             </div>
           )}
 
-          <div className="pack-progress">
-            {cards.map((c, i) => (
-              <span key={i} className={`dot ${revealed[i] ? `on ${rcOf(c.gradeRank)}` : ""} ${i === idx && mode !== "all" ? "cur" : ""}`} />
-            ))}
-          </div>
+          {N > 1 && (
+            <div className="pack-progress">
+              {cards.map((c, i) => (
+                <span key={i} className={`dot ${revealed[i] ? `on ${rcOf(c.gradeRank)}` : ""} ${i === idx && mode !== "all" ? "cur" : ""}`} />
+              ))}
+            </div>
+          )}
 
-          <div className="pack-footer">
-            {mode !== "all" && curRevealed && current && (
+          {/* 카드 아래 — 설명란 + 액션 */}
+          <div className="reveal-bottom">
+            {curRevealed && current && !current.isMiss && (current.cardDesc || current.cardName) ? (
               <motion.div
-                className={`reveal-label ${rcOf(current.gradeRank)}`}
-                initial={{ opacity: 0, scale: 0.55, y: 6 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ type: "spring", stiffness: 440, damping: 13 }}
-                key={`lbl-${idx}`}
+                className="reveal-desc"
+                key={`desc-${idx}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.18, duration: 0.3 }}
               >
-                <b>{current.gradeLabel}{current.gradeName && current.gradeName !== current.gradeLabel ? ` · ${current.gradeName}` : ""}</b>
-                <span className="reveal-sub">{current.isMiss ? "꽝! 다음 기회에" : RANK_MSG[current.gradeRank]}</span>
+                {current.cardName && <span className="rd-name">{current.cardName}</span>}
+                {current.cardDesc && <p>{current.cardDesc}</p>}
               </motion.div>
-            )}
+            ) : !curRevealed ? (
+              <div className="deck-hint">카드를 탭하거나 스와이프해서 오픈</div>
+            ) : null}
 
             <div className="pack-actions">
-              {!allDone && <button className="btn-ghost slim" onClick={revealAllToSummary}>모두 오픈</button>}
+              {!allDone && N > 1 && <button className="btn-ghost slim" onClick={revealAllToSummary}>모두 오픈</button>}
               {allDone ? (
                 <button className="btn-primary" onClick={() => setPhase("summary")}>결과 확인 ▶</button>
-              ) : mode === "all" ? (
+              ) : mode === "all" && N > 1 ? (
                 <button className="btn-primary" onClick={revealAllToSummary}>한번에 오픈 후 결과 보기</button>
               ) : (
                 <button className="btn-primary" onClick={deckAction}>{curRevealed ? "다음 ▶" : "오픈"}</button>

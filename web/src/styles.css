@@ -1440,3 +1440,28 @@ button.coll-card:disabled { cursor: default; }
 @media (prefers-reduced-motion: reduce) {
   .wk-walker, .wk-bear, .wk-bear .leg, .wk-tunnel, .wk-flare { animation-duration: 0.01s !important; }
 }
+
+/* ───── 공개 화면 재설계: 당첨문구(위) · 카드 · 설명(아래) · 버튼 ───── */
+.pack-overlay.phase-reveal { justify-content: center; gap: 14px; }
+.pack-overlay.phase-reveal .deck-stage { flex: 0 1 auto; }
+.pack-overlay.phase-reveal .grid-stage { flex: 0 1 auto; }
+
+.reveal-top { min-height: 40px; display: flex; align-items: flex-end; justify-content: center; z-index: 4; }
+.win-headline {
+  font-size: 27px; font-weight: 900; letter-spacing: -0.5px; text-align: center;
+  color: var(--accent, #fff); text-shadow: 0 2px 18px var(--glow), 0 0 2px rgba(0,0,0,0.4);
+}
+.win-headline.holo, .win-headline.special {
+  background: linear-gradient(92deg, #fff, var(--accent, #ffce3a), #fff);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 14px var(--glow));
+}
+
+.reveal-bottom { display: flex; flex-direction: column; align-items: center; gap: 16px; z-index: 4; width: 100%; max-width: 440px; }
+.reveal-desc {
+  text-align: center; max-width: 340px; padding: 0 8px; display: grid; gap: 4px; justify-items: center;
+}
+.reveal-desc .rd-name {
+  font-size: 15px; font-weight: 800; color: var(--accent, #fff); letter-spacing: 0.2px;
+}
+.reveal-desc p { margin: 0; font-size: 13.5px; line-height: 1.55; color: #e9dfe0; }
