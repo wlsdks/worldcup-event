@@ -12,6 +12,7 @@ const EMBERS = Array.from({ length: 14 }, (_, i) => i);
 
 export default function App() {
   const [user, setUser] = useState(null); // { empNo, name }
+  const [castActive, setCastActive] = useState(false);
   const [catalog, setCatalog] = useState({ grades: [], cards: [] });
   const [status, setStatus] = useState(null);
   const [screen, setScreen] = useState("login"); // login | home | collection
@@ -114,10 +115,11 @@ export default function App() {
       </div>
       {screen === "login" && <Login onSubmit={handleLogin} />}
 
-      {screen === "home" && status && <WinnerBroadcast />}
+      {screen === "home" && status && <WinnerBroadcast onActiveChange={setCastActive} />}
 
       {screen === "home" && status && (
         <Home
+          castActive={castActive}
           user={user}
           status={status}
           catalog={catalog}

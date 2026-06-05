@@ -9,7 +9,7 @@ const RANK_TXT = { 0: "스페셜", 1: "1등", 2: "2등", 3: "3등" };
  * 메인 화면 당첨자 실시간 알림 — 접속 중 새 당첨이 생기면 1번씩 역동적으로 띄우고,
  * 로그인 직후엔 가장 최근 당첨을 1번 보여준 뒤 상단 티커가 이어서 회전 표시.
  */
-export default function WinnerBroadcast() {
+export default function WinnerBroadcast({ onActiveChange }) {
   const [current, setCurrent] = useState(null);
   const lastAt = useRef(-1);
   const seen = useRef(new Set());
@@ -22,9 +22,11 @@ export default function WinnerBroadcast() {
     if (!next) return;
     showing.current = true;
     setCurrent(next);
+    onActiveChange?.(true);
     setTimeout(() => {
       setCurrent(null);
       showing.current = false;
+      onActiveChange?.(false);
       setTimeout(pump, 450);
     }, 4500);
   };

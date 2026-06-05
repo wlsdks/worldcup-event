@@ -141,14 +141,20 @@ function SummonBuildup({ rank }) {
       transition={{ duration: 0.25 }}
     >
       <div className="sm-dark" />
+      <div className="sm-vignette" />
+      {/* 볼류메트릭 빔 — 하단에서 하늘로 솟구침 (가산 블렌딩) */}
       <div className="sm-spot sm-spot-l" />
       <div className="sm-spot sm-spot-r" />
-      {rank <= 2 && (
+      <div className="sm-spot sm-spot-l2" />
+      <div className="sm-spot sm-spot-r2" />
+      {rank <= 1 && (
         <>
-          <div className="sm-spot sm-spot-l2" />
-          <div className="sm-spot sm-spot-r2" />
+          <div className="sm-spot sm-spot-l3" />
+          <div className="sm-spot sm-spot-r3" />
         </>
       )}
+      {/* 카드 솟아오르는 자리에서 퍼지는 god-ray 팬 */}
+      <div className="sm-rays" />
       <div className="sm-core" />
       <div className="sm-sparks">
         {SPARKS.map((s) => (
@@ -163,9 +169,13 @@ function SummonBuildup({ rank }) {
         <>
           <span className="bolt bolt-1" />
           <span className="bolt bolt-2" />
+          <div className="sm-thunder" />
         </>
       )}
+      {/* 클라이맥스: 렌즈 플레어(가로 streak + 광원) + 화면 플래시 */}
       <div className="sm-flare" />
+      <div className="sm-streak" />
+      <div className="sm-whiteflash" />
     </motion.div>
   );
 }
@@ -389,13 +399,8 @@ export default function PackReveal({ result, config, onClose }) {
       exit={{ opacity: 0 }}
     >
       <div className="stadium-bg" aria-hidden>
-        <div className="pl floodlights">
-          <span className="flood flood-l"><i className="flood-src" /></span>
-          <span className="flood flood-r"><i className="flood-src" /></span>
-        </div>
-        <div className="stands" />
-        <div className="haze" />
-        <div className="pitch" />
+        <div className="pl topspot" />
+        <div className="topspot-pool" />
         <div className="pl motes">
           {MOTES.map((o) => (
             <span
@@ -427,22 +432,8 @@ export default function PackReveal({ result, config, onClose }) {
             </div>
           )}
 
-          {/* 당첨 헤드라인 — 카드 위 */}
+          {/* 카드 위 — 확률 배지만 (등급/당첨문구는 카드 아트 + 하단 상품란이 전달) */}
           <div className="reveal-top">
-            <AnimatePresence mode="wait">
-              {curRevealed && current && (
-                <motion.div
-                  key={`wh-${idx}`}
-                  className={`win-headline ${rcOf(current.gradeRank)}`}
-                  initial={{ opacity: 0, y: 14, scale: 0.8 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ type: "spring", stiffness: 360, damping: 15 }}
-                >
-                  {current.isMiss ? "꽝! 다음 기회에" : RANK_MSG[current.gradeRank]}
-                </motion.div>
-              )}
-            </AnimatePresence>
             {curRevealed && current && !current.isMiss && typeof current.gradeOdds === "number" && (
               <motion.div
                 className={`win-prob ${rcOf(current.gradeRank)}`}

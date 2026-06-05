@@ -700,7 +700,7 @@ body {
 .floodlights { transform: translate(calc(var(--px, 0) * -12px), calc(var(--py, 0) * -10px)); }
 .flood {
   position: absolute; top: -14%; width: 60vmax; height: 130vmax;
-  transform-origin: top center; mix-blend-mode: screen; filter: blur(22px); opacity: 0.32;
+  transform-origin: top center; mix-blend-mode: screen; filter: blur(22px); opacity: 0.14;
   background: linear-gradient(to bottom,
     rgba(255,243,226,0.3) 0%, rgba(255,216,186,0.10) 22%, rgba(255,200,170,0.03) 42%, transparent 58%);
 }
@@ -711,7 +711,7 @@ body {
   border-radius: 50%; background: #fff;
   box-shadow: 0 0 22px 9px rgba(255,244,220,0.95), 0 0 70px 26px rgba(255,200,156,0.55), 0 0 130px 50px rgba(255,150,110,0.22);
 }
-.pack-overlay.amped .flood { opacity: 0.5; }
+.pack-overlay.amped .flood { opacity: 0.24; }
 .pack-overlay.amped .flood-src { box-shadow: 0 0 20px 9px rgba(255,246,224,0.95), 0 0 70px 26px var(--glow, rgba(255,196,150,0.5)); }
 
 /* 원경 스탠드 — 상단 어둠 + 아주 옅은 군중 텍스처(점이 아래로 페이드) */
@@ -731,7 +731,7 @@ body {
 .haze {
   position: absolute; left: -12%; right: -12%; bottom: 13%; height: 46%;
   background: radial-gradient(120% 92% at 50% 100%, var(--glow, rgba(226,35,26,0.20)), transparent 73%);
-  filter: blur(26px); opacity: 0.42;
+  filter: blur(26px); opacity: 0.28;
   transform: translateY(calc(var(--py, 0) * -8px));
 }
 .pack-overlay.amped .haze { opacity: 0.6; }
@@ -1290,8 +1290,9 @@ button.coll-card:disabled { cursor: default; }
 
 /* 카드 공개 순간 — 등급별 후광 + 빛줄기(god rays) */
 .reveal-halo {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 96vw; max-width: 480px; aspect-ratio: 1; z-index: 1; pointer-events: none;
+  /* framer가 scale transform을 잡으므로 translate 중앙정렬 대신 inset+margin:auto 사용(우하단 쏠림 방지) */
+  position: absolute; inset: 0; margin: auto;
+  width: 90vw; max-width: 430px; aspect-ratio: 1; z-index: 1; pointer-events: none;
   background: radial-gradient(circle,
     color-mix(in srgb, var(--glow, #ff5a5a) 90%, #fff) 0%,
     var(--glow, rgba(255,90,90,0.6)) 26%,
@@ -1352,13 +1353,13 @@ button.coll-card:disabled { cursor: default; }
 }
 
 /* ── 등급별 배경 격화 (3등부터 확연히 / 1·2·SP 강하게) ── */
-.pack-overlay.silver .haze { opacity: 0.5; }
-.pack-overlay.gold   .haze { opacity: 0.62; }
+.pack-overlay.silver .haze { opacity: 0.32; }
+.pack-overlay.gold   .haze { opacity: 0.36; }
 .pack-overlay.holo   .haze,
-.pack-overlay.special .haze { opacity: 0.72; height: 50%; }
+.pack-overlay.special .haze { opacity: 0.42; height: 46%; }
 .pack-overlay.gold   .flood,
 .pack-overlay.holo   .flood,
-.pack-overlay.special .flood { opacity: 0.42; }
+.pack-overlay.special .flood { opacity: 0.2; }
 /* 2등↑: 화면 전체에 등급색 오로라가 느리게 맥동 */
 .pack-overlay.gold .stadium-bg::after,
 .pack-overlay.holo .stadium-bg::after,
@@ -1376,81 +1377,6 @@ button.coll-card:disabled { cursor: default; }
   .pack-overlay .stadium-bg::after { animation: none; }
 }
 
-/* ─────────── 소환 빌드업 (FIFA 워크아웃 톤): 스포트라이트가 하늘로 솟구친다 ─────────── */
-.summon { position: absolute; inset: 0; z-index: 8; pointer-events: none; overflow: hidden; --sm: 1.3s; }
-.summon.r2 { --sm: 1.9s; }
-.summon.r1, .summon.r0, .summon.holo, .summon.special { --sm: 2.6s; }
-
-.sm-dark {
-  position: absolute; inset: 0; opacity: 0;
-  background: radial-gradient(120% 92% at 50% 42%, rgba(0,0,0,0.5), rgba(0,0,0,0.95) 72%);
-  animation: smDark var(--sm) ease forwards;
-}
-@keyframes smDark { 0% { opacity: 0; } 20% { opacity: 1; } 88% { opacity: 1; } 100% { opacity: 0.35; } }
-
-/* 스포트라이트 — 하단 모서리 기준, 안쪽 비스듬 → 수직(하늘)으로 솟구침 */
-.sm-spot {
-  position: absolute; bottom: -12%; width: 26vmax; height: 130vmax; transform-origin: bottom center;
-  background: linear-gradient(to top, var(--glow, rgba(255,242,214,0.6)) 0%, rgba(255,228,198,0.13) 30%, transparent 60%);
-  mix-blend-mode: screen; filter: blur(15px); opacity: 0;
-}
-.sm-spot-l  { left: 4%;  animation: spotL var(--sm) cubic-bezier(0.25,0.7,0.3,1) forwards; }
-.sm-spot-r  { right: 4%; animation: spotR var(--sm) cubic-bezier(0.25,0.7,0.3,1) forwards; }
-.sm-spot-l2 { left: 22%; animation: spotL var(--sm) cubic-bezier(0.25,0.7,0.3,1) 0.12s forwards; }
-.sm-spot-r2 { right: 22%; animation: spotR var(--sm) cubic-bezier(0.25,0.7,0.3,1) 0.12s forwards; }
-@keyframes spotL {
-  0% { opacity: 0; transform: rotate(64deg); }
-  22% { opacity: 0.8; }
-  68% { opacity: 0.92; transform: rotate(20deg); }
-  100% { opacity: 0.5; transform: rotate(12deg); }
-}
-@keyframes spotR {
-  0% { opacity: 0; transform: rotate(-64deg); }
-  22% { opacity: 0.8; }
-  68% { opacity: 0.92; transform: rotate(-20deg); }
-  100% { opacity: 0.5; transform: rotate(-12deg); }
-}
-
-/* 중앙 에너지 코어 — 카드 자리에 빛이 모임 */
-.sm-core {
-  position: absolute; left: 50%; top: 46%; width: 30vmax; height: 30vmax; transform: translate(-50%,-50%);
-  background: radial-gradient(circle, var(--glow, rgba(255,230,200,0.5)) 0%, transparent 60%);
-  mix-blend-mode: screen; filter: blur(10px); opacity: 0;
-  animation: smCore var(--sm) ease-in forwards;
-}
-@keyframes smCore {
-  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.6); }
-  72% { opacity: 0.6; }
-  90% { opacity: 0.92; transform: translate(-50%,-50%) scale(1.12); }
-  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.32); }
-}
-
-/* 상승 불티 */
-.sm-sparks { position: absolute; inset: 0; }
-.sm-spark {
-  position: absolute; bottom: 6%; border-radius: 50%;
-  background: radial-gradient(circle, #fff, var(--glow, #ffd9a0) 60%, transparent);
-  opacity: 0; animation-name: smSpark; animation-timing-function: ease-out; animation-iteration-count: infinite;
-}
-@keyframes smSpark {
-  0% { opacity: 0; transform: translateY(0) scale(0.8); }
-  18% { opacity: 0.95; }
-  100% { opacity: 0; transform: translateY(-62vh) scale(0.4); }
-}
-
-/* 클라이맥스 플레어 */
-.sm-flare {
-  position: absolute; left: 50%; top: 46%; width: 10px; height: 10px; transform: translate(-50%,-50%);
-  border-radius: 50%; background: #fff; opacity: 0;
-  animation: smFlare var(--sm) ease-in forwards;
-}
-@keyframes smFlare {
-  0%, 74% { opacity: 0; box-shadow: 0 0 0 0 transparent; }
-  90% { opacity: 1; box-shadow: 0 0 80px 38px var(--glow,#fff), 0 0 180px 90px rgba(255,255,255,0.55); }
-  100% { opacity: 0; box-shadow: 0 0 240px 140px var(--glow,#fff); }
-}
-.summon .bolt { animation-duration: var(--sm); }
-@media (prefers-reduced-motion: reduce) { .summon * { animation-duration: 0.01s !important; } }
 
 /* ── 개봉 인트로 — 좋은 등급은 찢기 전부터 "심상치 않은" 기운 (정확한 등급은 숨김) ── */
 .pack-aura {
@@ -1521,8 +1447,10 @@ button.coll-card:disabled { cursor: default; }
 
 /* 인트로 타자기 문구 (카드팩 등장 전) */
 .intro-type {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); z-index: 5;
-  font-size: 26px; font-weight: 900; color: #fff; letter-spacing: 0.5px; white-space: nowrap;
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 0 24px;
+  font-size: 26px; font-weight: 900; color: #fff; letter-spacing: 0.5px;
   text-shadow: 0 2px 6px rgba(0,0,0,0.75), 0 0 22px rgba(255,210,140,0.5);
 }
 .intro-type.epic { color: #fff3da; font-size: 29px; text-shadow: 0 2px 6px rgba(0,0,0,0.75), 0 0 28px rgba(255,220,150,0.9); }
@@ -1556,3 +1484,159 @@ button.coll-card:disabled { cursor: default; }
 }
 @keyframes wcShine { 0% { left: -50%; } 60%, 100% { left: 130%; } }
 @media (prefers-reduced-motion: reduce) { .winner-cast .wc-emoji, .winner-cast .wc-shine { animation: none; } }
+
+/* ═══════════ 소환 빌드업 (FIFA20 톤 시네마틱 조명) ═══════════ */
+.summon { position: absolute; inset: 0; z-index: 8; pointer-events: none; overflow: hidden; --sm: 1.3s; }
+.summon.r2 { --sm: 1.9s; }
+.summon.r1, .summon.r0, .summon.special, .summon.holo { --sm: 2.6s; }
+
+/* 깊은 어둠 + 중앙 집중 비네팅 */
+.sm-dark {
+  position: absolute; inset: 0; opacity: 0;
+  background: radial-gradient(125% 95% at 50% 44%, rgba(0,0,0,0.55), rgba(0,0,0,0.97) 70%);
+  animation: smDark var(--sm) ease forwards;
+}
+.sm-vignette {
+  position: absolute; inset: 0; opacity: 0; mix-blend-mode: multiply;
+  background: radial-gradient(60% 55% at 50% 46%, transparent 40%, rgba(0,0,0,0.7) 100%);
+  animation: smDark var(--sm) ease forwards;
+}
+@keyframes smDark { 0% { opacity: 0; } 18% { opacity: 1; } 86% { opacity: 1; } 100% { opacity: 0.3; } }
+
+/* 볼류메트릭 빔 — 하단 모서리에서 솟구침. 가산 블렌딩 + 안쪽 밝은 코어로 부피감 */
+.sm-spot {
+  position: absolute; bottom: -14%; width: 22vmax; height: 135vmax; transform-origin: bottom center;
+  mix-blend-mode: screen; filter: blur(13px); opacity: 0;
+  background: linear-gradient(to top,
+    var(--glow, rgba(255,244,220,0.85)) 0%,
+    color-mix(in srgb, var(--glow, #ffe6c0) 55%, transparent) 16%,
+    rgba(255,228,198,0.12) 38%, transparent 60%);
+}
+/* 빔 안쪽 밝은 심지 */
+.sm-spot::after {
+  content: ""; position: absolute; left: 42%; right: 42%; top: 0; bottom: 30%;
+  background: linear-gradient(to top, rgba(255,255,255,0.5), transparent 52%); filter: blur(5px);
+}
+.sm-spot-l  { left: 2%;  animation: spotL var(--sm) cubic-bezier(0.22,0.7,0.28,1) forwards; }
+.sm-spot-r  { right: 2%; animation: spotR var(--sm) cubic-bezier(0.22,0.7,0.28,1) forwards; }
+.sm-spot-l2 { left: 24%; animation: spotL var(--sm) cubic-bezier(0.22,0.7,0.28,1) 0.1s forwards; }
+.sm-spot-r2 { right: 24%; animation: spotR var(--sm) cubic-bezier(0.22,0.7,0.28,1) 0.1s forwards; }
+.sm-spot-l3 { left: 12%; animation: spotL var(--sm) cubic-bezier(0.22,0.7,0.28,1) 0.2s forwards; }
+.sm-spot-r3 { right: 12%; animation: spotR var(--sm) cubic-bezier(0.22,0.7,0.28,1) 0.2s forwards; }
+@keyframes spotL {
+  0% { opacity: 0; transform: rotate(66deg) scaleY(0.7); }
+  24% { opacity: 0.85; }
+  64% { opacity: 0.95; transform: rotate(20deg) scaleY(1); }
+  100% { opacity: 0.45; transform: rotate(11deg) scaleY(1); }
+}
+@keyframes spotR {
+  0% { opacity: 0; transform: rotate(-66deg) scaleY(0.7); }
+  24% { opacity: 0.85; }
+  64% { opacity: 0.95; transform: rotate(-20deg) scaleY(1); }
+  100% { opacity: 0.45; transform: rotate(-11deg) scaleY(1); }
+}
+
+/* god-ray 팬 — 카드 솟는 자리에서 퍼지는 빛살. 클라이맥스에 한 번 회전+확대+페이드 */
+.sm-rays {
+  position: absolute; left: 50%; top: 44%; width: 150vmax; height: 150vmax; transform: translate(-50%,-50%) scale(0.2);
+  border-radius: 50%; opacity: 0; mix-blend-mode: screen;
+  background: repeating-conic-gradient(from 0deg,
+    color-mix(in srgb, var(--glow, #fff) 70%, transparent) 0deg 2.4deg,
+    transparent 2.4deg 9deg);
+  -webkit-mask: radial-gradient(circle, #000 4%, rgba(0,0,0,0.5) 30%, transparent 60%);
+  mask: radial-gradient(circle, #000 4%, rgba(0,0,0,0.5) 30%, transparent 60%);
+  animation: smRays var(--sm) ease-out forwards;
+}
+@keyframes smRays {
+  0%, 58% { opacity: 0; transform: translate(-50%,-50%) scale(0.2) rotate(0deg); }
+  82% { opacity: 0.85; transform: translate(-50%,-50%) scale(1) rotate(14deg); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.25) rotate(22deg); }
+}
+
+/* 중앙 에너지 코어 (빛이 모임) */
+.sm-core {
+  position: absolute; left: 50%; top: 44%; width: 34vmax; height: 34vmax; transform: translate(-50%,-50%);
+  background: radial-gradient(circle, var(--glow, rgba(255,236,205,0.6)) 0%, transparent 58%);
+  mix-blend-mode: screen; filter: blur(8px); opacity: 0;
+  animation: smCore var(--sm) ease-in forwards;
+}
+@keyframes smCore {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.55); }
+  70% { opacity: 0.7; }
+  90% { opacity: 1; transform: translate(-50%,-50%) scale(1.18); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.4); }
+}
+
+/* 빔 속 상승 먼지/불티 */
+.sm-sparks { position: absolute; inset: 0; }
+.sm-spark {
+  position: absolute; bottom: 4%; border-radius: 50%;
+  background: radial-gradient(circle, #fff, var(--glow, #ffd9a0) 60%, transparent);
+  opacity: 0; animation-name: smSpark; animation-timing-function: ease-out; animation-iteration-count: infinite;
+}
+@keyframes smSpark {
+  0% { opacity: 0; transform: translateY(0) scale(0.8); }
+  16% { opacity: 0.95; }
+  100% { opacity: 0; transform: translateY(-66vh) scale(0.35); }
+}
+
+/* 1등·SP: 천둥번개 플래시 (PES 톤) */
+.sm-thunder {
+  position: absolute; inset: 0; background: rgba(220,235,255,0.9); opacity: 0; mix-blend-mode: screen;
+  animation: smThunder var(--sm) ease-out forwards;
+}
+@keyframes smThunder {
+  0%, 30% { opacity: 0; } 33% { opacity: 0.3; } 36% { opacity: 0; } 50% { opacity: 0.4; } 53% { opacity: 0; } 100% { opacity: 0; }
+}
+
+/* 클라이맥스 광원 */
+.sm-flare {
+  position: absolute; left: 50%; top: 44%; width: 10px; height: 10px; transform: translate(-50%,-50%);
+  border-radius: 50%; background: #fff; opacity: 0;
+  animation: smFlare var(--sm) ease-in forwards;
+}
+@keyframes smFlare {
+  0%, 74% { opacity: 0; box-shadow: 0 0 0 0 transparent; }
+  90% { opacity: 1; box-shadow: 0 0 80px 38px var(--glow, #fff), 0 0 180px 90px rgba(255,255,255,0.55); }
+  100% { opacity: 0; box-shadow: 0 0 240px 130px var(--glow, #fff); }
+}
+/* 아나모픽 가로 streak */
+.sm-streak {
+  position: absolute; left: 0; right: 0; top: 44%; height: 3px; transform: translateY(-50%) scaleX(0);
+  background: linear-gradient(90deg, transparent, var(--glow, #fff) 30%, #fff 50%, var(--glow, #fff) 70%, transparent);
+  filter: blur(1.5px); opacity: 0; mix-blend-mode: screen;
+  animation: smStreak var(--sm) ease-out forwards;
+}
+@keyframes smStreak {
+  0%, 76% { opacity: 0; transform: translateY(-50%) scaleX(0); }
+  88% { opacity: 1; transform: translateY(-50%) scaleX(1); }
+  100% { opacity: 0; transform: translateY(-50%) scaleX(1.1); }
+}
+/* 마지막 화이트 플래시 */
+.sm-whiteflash {
+  position: absolute; inset: 0; background: #fff; opacity: 0;
+  animation: smWhite var(--sm) ease-out forwards;
+}
+@keyframes smWhite { 0%, 86% { opacity: 0; } 92% { opacity: 0.32; } 100% { opacity: 0; } }
+
+.summon .bolt { animation-duration: var(--sm); }
+@media (prefers-reduced-motion: reduce) { .summon * { animation-duration: 0.01s !important; } }
+
+/* 깨끗한 상단 중앙 스포트라이트 콘 (좌우대칭, 하단 blob 없음) — 커튼콜 톤 */
+.topspot {
+  position: absolute; top: -10%; left: 50%; transform: translateX(-50%);
+  width: 86vmax; height: 108vh; pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(255,243,224,0.16) 0%, rgba(255,232,205,0.06) 32%, rgba(255,225,195,0.02) 50%, transparent 62%);
+  clip-path: polygon(43% 0, 57% 0, 100% 100%, 0% 100%);
+  mix-blend-mode: screen; filter: blur(16px);
+}
+.pack-overlay.amped .topspot { background: linear-gradient(to bottom, rgba(255,246,228,0.24) 0%, rgba(255,234,206,0.09) 32%, transparent 60%); }
+/* 스포트라이트가 닿는 바닥의 옅은 빛웅덩이 (중앙) */
+.topspot-pool {
+  position: absolute; left: 50%; bottom: 6%; width: 56vmax; height: 22vh; transform: translateX(-50%);
+  background: radial-gradient(60% 100% at 50% 100%, color-mix(in srgb, var(--glow, rgba(255,210,160,0.35)) 60%, transparent), transparent 72%);
+  filter: blur(26px); opacity: 0.5; mix-blend-mode: screen; pointer-events: none;
+}
+.pack-overlay.holo .topspot-pool, .pack-overlay.special .topspot-pool,
+.pack-overlay.gold .topspot-pool { opacity: 0.62; }

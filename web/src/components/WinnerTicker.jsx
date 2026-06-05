@@ -5,7 +5,7 @@ import { getRecentWinners } from "../api";
 const RC = ["", "holo", "gold", "silver"];
 
 /** 상단 확성기 배너 — 최근 1~3등 당첨자를 주기적으로 흘려보여줌 */
-export default function WinnerTicker() {
+export default function WinnerTicker({ hidden }) {
   const [winners, setWinners] = useState([]);
   const [idx, setIdx] = useState(0);
 
@@ -30,7 +30,7 @@ export default function WinnerTicker() {
     return () => clearInterval(t);
   }, [winners]);
 
-  if (winners.length === 0) return null;
+  if (winners.length === 0 || hidden) return null;
   const w = winners[idx % winners.length];
   const rc = RC[w.gradeRank] || "gold";
 

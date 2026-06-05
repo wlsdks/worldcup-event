@@ -17,14 +17,14 @@ function eventMessage(status) {
   }
 }
 
-export default function Home({ user, status, catalog, drawing, error, onDraw, onOpenCollection, onOpenCheer, onLogout }) {
+export default function Home({ user, status, catalog, drawing, error, onDraw, onOpenCollection, onOpenCheer, onLogout, castActive }) {
   const [showPrize, setShowPrize] = useState(false);
   const tilt = useTilt();
   const evMsg = eventMessage(status);
 
   return (
     <div className="screen home">
-      <WinnerTicker />
+      <WinnerTicker hidden={castActive} />
 
       <header className="home-top">
         <div>
