@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import CardModal from "./CardModal.jsx";
 import { getPublicResult } from "../api";
 
@@ -30,14 +30,36 @@ function useCountUp(target, ms = 1000) {
 export default function Collection({ catalog, onBack }) {
   const [selected, setSelected] = useState(null);
   const [pub, setPub] = useState(null);
+  const [toast, setToast] = useState(null);
+  const seenIdsRef = useRef(null);
 
   useEffect(() => {
     let alive = true;
-    const load = () => getPublicResult().then((d) => { if (alive) setPub(d); }).catch(() => {});
+    const load = () => getPublicResult().then((d) => {
+      if (!alive) return;
+      const hallNow = d.hall || [];
+      // 첫 로드 이후 새로 공개된 한정 카드 → 토스트
+      if (seenIdsRef.current) {
+        const fresh = hallNow.filter((h) => !seenIdsRef.current.has(h.id));
+        if (fresh.length) {
+          const top = fresh.slice().sort((a, b) => b.at - a.at)[0];
+          setToast({ key: Date.now(), name: top.name, grade: top.gradeLabel, rank: top.gradeRank });
+        }
+      }
+      seenIdsRef.current = new Set(hallNow.map((h) => h.id));
+      setPub(d);
+    }).catch(() => {});
     load();
     const poll = setInterval(load, 15000); // 실시간 공개 반영
     return () => { alive = false; clearInterval(poll); };
   }, []);
+
+  // 토스트 자동 사라짐
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4200);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   const grades = (catalog.grades || []).slice().sort((a, b) => a.rank - b.rank);
   const gradeTotals = pub?.gradeTotals || {};
@@ -80,6 +102,14 @@ export default function Collection({ catalog, onBack }) {
         <div className="hs-div" aria-hidden />
         <div className="hs-cell"><b>{pub?.participantCount || 0}</b><span>참여 인원</span></div>
       </div>
+
+      {pub && claimed === 0 && (
+        <div className="hall-empty">
+          <div className="hall-empty-mark">★</div>
+          <div className="hall-empty-title">아직 공개된 한정 카드가 없어요</div>
+          <div className="hall-empty-sub">곧 첫 번째 주인공이 나타납니다!</div>
+        </div>
+      )}
 
       {recent.length > 0 && (
         <div className="hall-recent">
@@ -151,6 +181,22 @@ export default function Collection({ catalog, onBack }) {
           </section>
         );
       })}
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key={toast.key}
+            className={`hall-toast ${rankClass(toast.rank)}`}
+            initial={{ y: -44, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -44, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 320, damping: 24 }}
+          >
+            <span className="ht-spark" aria-hidden>✦</span>
+            <span><b>{toast.name}</b>님 <b className="ht-grade">{toast.grade}</b> 공개!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {selected && <CardModal card={selected} onClose={() => setSelected(null)} />}

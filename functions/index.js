@@ -450,9 +450,10 @@ export const getStatus = onCall(async (request) => {
 
 // ─────────────────────────────────────────────────────────────
 // 관리자(admin) — 설정/등급/팀 갱신. 클라이언트 직접 쓰기는 rules로 막혀있으므로
-// 마스터 키로 인증된 호출만 Admin SDK 로 쓰기. (데모: 비밀번호 없음, masterKey="demo-master")
+// 마스터 키로 인증된 호출만 Admin SDK 로 쓰기.
+// 운영: 환경변수 ADMIN_MASTER_KEY(시크릿)로 주입. 미설정 시 데모 키로 폴백(로컬/데모 전용).
 // ─────────────────────────────────────────────────────────────
-const ADMIN_MASTER_KEY = "demo-master";
+const ADMIN_MASTER_KEY = process.env.ADMIN_MASTER_KEY || "demo-master";
 
 export const adminLoad = onCall(async (request) => {
   if ((request.data?.masterKey || "") !== ADMIN_MASTER_KEY) {
