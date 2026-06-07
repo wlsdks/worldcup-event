@@ -67,7 +67,7 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
           </button>
         ) : status.drewToday ? (
           <button className="btn-primary big" onClick={onOpenCheer}>
-            🏆 팀별 응원전을 통해 상품을 획득하세요!
+            팀별 응원전을 통해 상품을 획득하세요
           </button>
         ) : (
           <button className="btn-primary big" disabled>
@@ -99,10 +99,12 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
 
       <div className="home-actions">
         <button className="action-tile" onClick={onOpenCollection}>
-          <span className="at-ic">📖</span> 도감 보기
+          <span className="at-kicker">COLLECTION</span>
+          <span className="at-label">도감 보기</span>
         </button>
         <button className="action-tile" onClick={() => setShowPrize(true)}>
-          <span className="at-ic">🎁</span> 당첨 상품 안내
+          <span className="at-kicker">PRIZES</span>
+          <span className="at-label">당첨 상품 안내</span>
         </button>
       </div>
 

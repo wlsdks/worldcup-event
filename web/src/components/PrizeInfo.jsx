@@ -49,7 +49,7 @@ export default function PrizeInfo({ grades, config, onClose }) {
         </div>
 
         <div className="prize-contact">
-          <span className="prize-contact-ic">📣</span>
+          <span className="prize-contact-kicker">NOTICE</span>
           <span>{note}</span>
         </div>
       </motion.div>

@@ -71,7 +71,7 @@ export default function WinnerTicker({ hidden, me }) {
             {item.kind === "win" ? (
               <>
                 <span className={`ti-badge ${rc}`}>{item.gradeLabel}</span>
-                <strong className={rc}>{item.name}</strong>님 당첨! 🎉
+                <strong className={rc}>{item.name}</strong>님 당첨!
               </>
             ) : (
               <>

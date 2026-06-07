@@ -102,6 +102,7 @@ function Card({ card, revealed, size = "lg" }) {
               <>
                 <img src={`/cards/${card.cardImage}`} alt={card.cardName} draggable={false} />
                 {isPrize && <div className="holo-fx" />}
+                {isPrize && <div className="card-glitter" />}
                 {isPrize && <div className="foil-sweep" />}
                 {!isPrize && <div className="card-sheen" />}
                 {card.gradeRank <= 1 && <FrameSparkles />}
@@ -481,7 +482,7 @@ export default function PackReveal({ result, config, onClose }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
               >
-                ✨ {current.gradeOdds >= 0.1 ? `${current.gradeOdds}%` : "0.1% 미만"} 확률로 획득!
+                {current.gradeOdds >= 0.1 ? `${current.gradeOdds}%` : "0.1% 미만"} 확률로 획득!
               </motion.div>
             )}
           </div>
@@ -533,7 +534,9 @@ export default function PackReveal({ result, config, onClose }) {
                         whileTap={!curRevealed ? { scale: 0.97 } : undefined}
                         onClick={() => mode !== "all" && deckAction()}
                       >
-                        <Card card={current} revealed={curRevealed} size="lg" />
+                        <div className={`card-bob ${curRevealed ? "revealed" : ""}`}>
+                          <Card card={current} revealed={curRevealed} size="lg" />
+                        </div>
                       </motion.div>
                     </motion.div>
                   )}
@@ -575,7 +578,7 @@ export default function PackReveal({ result, config, onClose }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.28, duration: 0.3 }}
               >
-                <div className="rp-prize">🎁 {current.gradePrize || current.gradeName} 당첨!</div>
+                <div className="rp-prize">{current.gradePrize || current.gradeName} 당첨!</div>
                 <div className="rp-contact">
                   {current.gradeRank <= 4 ? (
                     <>경품은 <b>{team} {person}</b>님께 DM 또는 방문하여 수령하세요.</>
@@ -603,7 +606,7 @@ export default function PackReveal({ result, config, onClose }) {
       {/* ── 최종 5장 요약 ── */}
       {phase === "summary" && (
         <motion.div className="summary" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-          <div className="summary-title">🎉 이번 팩 결과 <span>({N}장)</span></div>
+          <div className="summary-title">이번 팩 결과 <span>({N}장)</span></div>
           <div className={`pack-grid n${N} summary-grid`}>
             {cards.map((c, i) => (
               <motion.div
@@ -624,12 +627,12 @@ export default function PackReveal({ result, config, onClose }) {
           )}
           {bestRank <= 4 && (
             <div className="pack-contact">
-              🎁 <b>{team} {person}</b>님께 DM 또는 방문하여 경품을 수령하세요!
+<b>{team} {person}</b>님께 DM 또는 방문하여 경품을 수령하세요!
             </div>
           )}
           {bestRank === 5 && (
             <div className="pack-contact">
-              🍫 각 호실별 비치된 <b>축구공 초콜릿</b>을 가져가서 드세요~!
+각 호실별 비치된 <b>축구공 초콜릿</b>을 가져가서 드세요!
             </div>
           )}
           <button className="btn-primary" onClick={onClose}>확인</button>

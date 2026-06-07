@@ -399,11 +399,11 @@ body {
 }
 .action-tile:hover { border-color: rgba(255,120,90,0.45); box-shadow: 0 9px 24px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.13); }
 .action-tile:active { transform: translateY(2px) scale(0.98); }
-.action-tile .at-ic {
-  font-size: 20px; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px;
-  background: radial-gradient(circle at 50% 35%, rgba(255,90,60,0.3), rgba(226,35,26,0.12));
-  border: 1px solid rgba(255,120,90,0.32);
+.action-tile { gap: 5px; }
+.action-tile .at-kicker {
+  font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #ff9b92;
 }
+.action-tile .at-label { font-size: 15px; font-weight: 800; letter-spacing: -0.2px; color: #fff; }
 
 /* 응원전 히어로 배너 — 대한민국 응원 메시지 (블루→레드) */
 /* 응원전 진입 — 에디토리얼(그라데이션 소거, 샤프). 좌측 라벨 + 우측 화살표, 좌측 레드 액센트 바 */
@@ -674,7 +674,10 @@ body {
   padding: 12px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5;
   background: rgba(226,35,26,0.16); border: 1px solid rgba(255,120,90,0.35); color: #ffd6cf;
 }
-.prize-contact-ic { font-size: 16px; }
+.prize-contact-kicker {
+  flex: 0 0 auto; font-size: 9.5px; font-weight: 800; letter-spacing: 1.5px; color: #ff9b92;
+  border: 1px solid rgba(255,120,90,0.5); border-radius: 5px; padding: 2px 6px; margin-top: 1px;
+}
 
 /* ───── 당첨 수령 안내 (뽑기 결과) ───── */
 .reveal-contact {
@@ -879,6 +882,29 @@ body {
 .face-front.holo    .holo-fx { opacity: 0.44; }
 .face-front.special .holo-fx { opacity: 0.52; }
 
+/* 글리터 트윙클 — 포인터 글레어 부근에서만 미세 입자가 반짝(마스크) */
+.card-glitter {
+  position: absolute; inset: 0; pointer-events: none; border-radius: 16px; z-index: 3;
+  mix-blend-mode: color-dodge; opacity: 0.55;
+  background-image: radial-gradient(rgba(255,255,255,0.95) 0.6px, transparent 1.2px);
+  background-size: 6px 6px; background-position: var(--mx, 50%) var(--my, 50%);
+  -webkit-mask: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), #000 2%, rgba(0,0,0,0.45) 16%, transparent 38%);
+  mask: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), #000 2%, rgba(0,0,0,0.45) 16%, transparent 38%);
+}
+.face-front.silver .card-glitter { opacity: 0.3; }
+.face-front.gold   .card-glitter { opacity: 0.45; }
+.face-front.special .card-glitter { opacity: 0.7; }
+
+/* 카드 무게감(juice) — 공개 시 스프링 안착 pop + 잔잔한 부유 + 묵직한 캐스트 섀도 */
+.card-bob { width: 100%; height: 100%; will-change: transform; }
+.card-bob.revealed {
+  filter: drop-shadow(0 16px 22px rgba(0,0,0,0.45));
+  animation: cardPop 0.55s cubic-bezier(0.34,1.56,0.64,1) both, cardBob 4.6s ease-in-out 0.7s infinite;
+}
+@keyframes cardPop { 0% { transform: scale(1); } 40% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@keyframes cardBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .card-bob.revealed { animation: cardPop 0.4s ease both; } }
+
 /* 한번에 (그리드) */
 .grid-stage { flex: 1; width: 100%; display: grid; place-items: center; z-index: 3; }
 .pack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 360px; }
@@ -1010,8 +1036,8 @@ button.coll-card:disabled { cursor: default; }
   60%, 100% { background-position: -50% 0; }
 }
 /* 등급별 '빛 새어나오는' 글로우 (공개 순간부터 카드 밖으로 빛이 번짐) — 차등 적용 */
-.face-front.special { animation: glowSpecial 1.8s linear infinite; }  /* 스페셜: 골드+무지개 최강 */
-.face-front.holo   { animation: glow1st 2.2s linear infinite; }       /* 1등: 무지개 반짝임 */
+.face-front.special { animation: glowSpecial 2.4s ease-in-out infinite; }  /* 스페셜: 골드+무지개 최강 */
+.face-front.holo   { animation: glow1st 2.8s ease-in-out infinite; }       /* 1등: 무지개 반짝임 */
 .face-front.gold   { animation: glowGold 2.4s ease-in-out infinite; } /* 2등: 골드 펄스 */
 .face-front.silver { animation: glowSilver 2.6s ease-in-out infinite; }/* 3등: 실버 은은 */
 @keyframes glowSpecial {
