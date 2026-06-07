@@ -876,11 +876,41 @@ body {
   background-blend-mode: screen, overlay;
   filter: contrast(1.12) saturate(1.18);
 }
-/* 등급 차등 — 실버 은은 → 스페셜 최강 */
-.face-front.silver  .holo-fx { opacity: 0.24; filter: contrast(1.04) saturate(0.72); }
-.face-front.gold    .holo-fx { opacity: 0.32; filter: contrast(1.1) saturate(1.05) hue-rotate(-14deg); }
-.face-front.holo    .holo-fx { opacity: 0.44; }
-.face-front.special .holo-fx { opacity: 0.52; }
+/* 등급별 포일 '결' 차별화 (실제 TCG처럼 레어도마다 포일 텍스처가 다름) */
+.face-front.holo .holo-fx { opacity: 0.44; } /* 1등 — 레인보우(베이스) */
+/* SP — 코스모스: 촘촘한 더블 레인보우 + 글리터(별가루)로 최강 */
+.face-front.special .holo-fx {
+  opacity: 0.5;
+  background-image:
+    radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.62), rgba(255,255,255,0.05) 32%, transparent 50%),
+    repeating-linear-gradient(115deg, #ff5e7e 0%, #ffcf5e 8%, #6dff8e 16%, #5ee8ff 24%, #7d7bff 32%, #e45eff 40%, #ff5e7e 48%);
+  background-size: 130% 130%, 175% 175%;
+  background-position: var(--mx,50%) var(--my,50%), calc(100% - var(--mx,50%)) var(--my,50%);
+  background-blend-mode: screen, overlay;
+  filter: contrast(1.16) saturate(1.32);
+}
+/* 2등 — 갈바닉 골드 스트라이프(메탈릭) */
+.face-front.gold .holo-fx {
+  opacity: 0.34;
+  background-image:
+    radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,240,200,0.6), transparent 48%),
+    repeating-linear-gradient(102deg, #8a5a0c 0%, #ffd96a 7%, #fff6cf 11%, #ffd96a 15%, #9a6a12 24%);
+  background-size: 130% 130%, 240% 240%;
+  background-position: var(--mx,50%) var(--my,50%), calc(100% - var(--mx,50%)) var(--my,50%);
+  background-blend-mode: screen, overlay;
+  filter: contrast(1.1) saturate(1.08);
+}
+/* 3등 — 브러시드 메탈(미세 결 + 은은한 시너) */
+.face-front.silver .holo-fx {
+  opacity: 0.28;
+  background-image:
+    radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(235,242,250,0.5), transparent 46%),
+    repeating-linear-gradient(100deg, rgba(220,228,240,0) 0%, rgba(220,228,240,0.38) 6%, rgba(255,255,255,0.14) 9%, rgba(190,200,214,0) 16%);
+  background-size: 130% 130%, 220% 220%;
+  background-position: var(--mx,50%) var(--my,50%), calc(100% - var(--mx,50%)) var(--my,50%);
+  background-blend-mode: screen, soft-light;
+  filter: contrast(1.05) saturate(0.82);
+}
 
 /* 글리터 트윙클 — 포인터 글레어 부근에서만 미세 입자가 반짝(마스크) */
 .card-glitter {
@@ -1628,6 +1658,20 @@ button.coll-card:disabled { cursor: default; }
 
 .summon .bolt { animation-duration: var(--sm); }
 @media (prefers-reduced-motion: reduce) { .summon * { animation-duration: 0.01s !important; } }
+
+/* 연출 건너뛰기 — 빌드업 시작 후 잠깐 뒤에 은은하게 등장 */
+.skip-summon {
+  position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 12;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.3px; color: rgba(255,255,255,0.7);
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px; padding: 7px 17px; cursor: pointer;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; animation: skipIn 0.4s ease 0.9s forwards;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.12s;
+}
+.skip-summon:hover { color: #fff; background: rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.34); }
+.skip-summon:active { transform: translateX(-50%) scale(0.95); }
+@keyframes skipIn { to { opacity: 1; } }
 
 /* 깨끗한 상단 중앙 스포트라이트 콘 (좌우대칭, 하단 blob 없음) — 커튼콜 톤 */
 .topspot {

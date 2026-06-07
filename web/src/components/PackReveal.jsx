@@ -366,6 +366,42 @@ export default function PackReveal({ result, config, onClose }) {
   const bestRank = useMemo(() => cards.reduce((m, c) => Math.min(m, c.gradeRank), 9), [cards]);
 
   const overlayRef = useRef(null);
+  const summonTimerRef = useRef(null);
+  const gyroRef = useRef(null);
+  useEffect(() => () => {
+    if (summonTimerRef.current) clearTimeout(summonTimerRef.current);
+    if (gyroRef.current) window.removeEventListener("deviceorientation", gyroRef.current);
+  }, []);
+
+  // 모바일 자이로 포일 — 기기를 기울이면 포일/틸트가 반응(라이브러리 없음).
+  // iOS 13+ 는 사용자 제스처에서 권한 요청 필요. 데스크톱/미지원은 자동 무시(폴백).
+  const requestGyro = () => {
+    if (gyroRef.current) return;
+    const DOE = typeof window !== "undefined" && window.DeviceOrientationEvent;
+    if (!DOE) return;
+    const attach = () => {
+      const handler = (e) => {
+        if (e.gamma == null && e.beta == null) return;
+        const el = overlayRef.current?.querySelector(".deck-stage .tilt-layer");
+        if (!el) return;
+        const g = Math.max(-45, Math.min(45, e.gamma || 0));        // 좌우 기울기
+        const b = Math.max(-45, Math.min(45, (e.beta || 0) - 40));  // 앞뒤(45° 파지 기준)
+        el.style.setProperty("--ry", `${(g / 45 * 14).toFixed(1)}deg`);
+        el.style.setProperty("--rx", `${(-b / 45 * 14).toFixed(1)}deg`);
+        el.style.setProperty("--mx", `${(50 + g / 45 * 50).toFixed(1)}%`);
+        el.style.setProperty("--my", `${(50 + b / 45 * 50).toFixed(1)}%`);
+      };
+      window.addEventListener("deviceorientation", handler);
+      gyroRef.current = handler;
+    };
+    try {
+      if (typeof DOE.requestPermission === "function") {
+        DOE.requestPermission().then((res) => { if (res === "granted") attach(); }).catch(() => {});
+      } else {
+        attach();
+      }
+    } catch { /* 무시 */ }
+  };
   const onParallax = (e) => {
     const el = overlayRef.current;
     if (!el) return;
@@ -398,16 +434,24 @@ export default function PackReveal({ result, config, onClose }) {
     // 등급별 빌드업 시간(ms). CSS --sm 과 반드시 일치. 5등은 빌드업 없이 즉시.
     const dur = SUMMON_DUR[rank];
     if (dur) {
-      setSummon({ key: Date.now(), rank });
+      setSummon({ key: Date.now(), rank, i });
       if (navigator.vibrate) navigator.vibrate(rank <= 1 ? [15, 40, 15, 60, 20, 90] : [15, 40, 15]);
-      setTimeout(() => { setSummon(null); doReveal(i); }, dur);
+      summonTimerRef.current = setTimeout(() => { summonTimerRef.current = null; setSummon(null); doReveal(i); }, dur);
     } else {
       doReveal(i);
     }
   };
+  // 빌드업 중 탭 → 즉시 공개로 스킵
+  const skipSummon = () => {
+    if (!summon) return;
+    if (summonTimerRef.current) { clearTimeout(summonTimerRef.current); summonTimerRef.current = null; }
+    const i = summon.i;
+    setSummon(null);
+    doReveal(i);
+  };
   const advance = () => setIdx((i) => Math.min(N - 1, i + 1));
   const deckAction = () => {
-    if (!curRevealed) revealAt(idx);
+    if (!curRevealed) { requestGyro(); revealAt(idx); } // 공개 탭(제스처)에서 자이로 권한 요청
     else if (idx < N - 1) advance();
   };
   // 모두까기 → 전부 공개 후 곧장 결과(summary) 화면으로
@@ -455,6 +499,11 @@ export default function PackReveal({ result, config, onClose }) {
       <div className="cinematic" aria-hidden />
       <AnimatePresence>{phase === "reveal" && burst.rank <= 3 && <Burst key={burst.key} rank={burst.rank} />}</AnimatePresence>
       <AnimatePresence>{summon && <SummonBuildup key={summon.key} rank={summon.rank} />}</AnimatePresence>
+      {summon && (
+        <button className="skip-summon" onClick={skipSummon} aria-label="연출 건너뛰기">
+          건너뛰기 ›
+        </button>
+      )}
 
       {/* ── 인트로 ── */}
       <AnimatePresence>
