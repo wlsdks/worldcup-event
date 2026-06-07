@@ -5,6 +5,7 @@ import { celebrate } from "../lib/celebrate";
 import { haptic } from "../lib/haptics";
 import CardModal from "./CardModal.jsx";
 import CountUp from "./CountUp.jsx";
+import { shareCardImage } from "../lib/shareCard";
 
 // 등급별 공개 빌드업 시간(ms) — CSS .summon --sm 과 일치. 5등은 즉시(빌드업 없음).
 const SUMMON_DUR = { 0: 3400, 1: 3200, 2: 3000, 3: 2000, 4: 1000 };
@@ -487,26 +488,14 @@ export default function PackReveal({ result, config, onClose }) {
     setTimeout(() => setPhase("summary"), bestRank <= 3 ? 1100 : 650);
   };
 
-  // 결과 카드 저장/공유 — 최고 등급 카드를 Web Share(가능 시) 또는 다운로드
+  // 결과 카드 저장/공유 — 최고 등급 카드를 프레임/캡션과 합성해 공유(폴백: 다운로드)
+  const [sharing, setSharing] = useState(false);
   const shareCard = async () => {
+    if (sharing) return;
     const best = cards.filter((c) => !c.isMiss).sort((a, b) => a.gradeRank - b.gradeRank)[0];
     if (!best) return;
-    const url = `/cards/${best.cardImage}`;
-    const fname = `gonom_${(best.cardName || best.gradeName || "card").replace(/\s+/g, "")}.png`;
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const file = new File([blob], fname, { type: blob.type || "image/png" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "고놈 월드컵 카드뽑기", text: `${best.gradeName} ${best.cardName || ""} 획득!` });
-        return;
-      }
-    } catch { /* 공유 실패 → 다운로드 폴백 */ }
-    try {
-      const a = document.createElement("a");
-      a.href = url; a.download = fname;
-      document.body.appendChild(a); a.click(); a.remove();
-    } catch { /* 무시 */ }
+    setSharing(true);
+    try { await shareCardImage(best); } catch { /* 무시 */ } finally { setSharing(false); }
   };
 
   const energyRank = phase === "reveal" && !curRevealed && current && current.gradeRank <= 3 ? current.gradeRank : 0;
@@ -585,6 +574,17 @@ export default function PackReveal({ result, config, onClose }) {
                 {current.gradeOdds >= 0.1
                   ? <><CountUp key={`cu-${idx}`} value={current.gradeOdds} decimals={current.gradeOdds < 1 ? 1 : 0} suffix="%" /> 확률로 획득!</>
                   : "0.1% 미만 확률로 획득!"}
+              </motion.div>
+            )}
+            {curRevealed && current && !current.isMiss && current.gradeTotal > 0 && (
+              <motion.div
+                className={`win-scarce ${rcOf(current.gradeRank)}`}
+                key={`scarce-${idx}`}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                단 {current.gradeTotal}장 한정 · {current.gradeOrdinal}번째 주인공
               </motion.div>
             )}
           </div>
@@ -739,7 +739,9 @@ export default function PackReveal({ result, config, onClose }) {
           )}
           <div className="summary-actions">
             {!cards.every((c) => c.isMiss) && (
-              <button className="btn-ghost slim" onClick={shareCard}>카드 저장 · 공유</button>
+              <button className="btn-ghost slim" onClick={shareCard} disabled={sharing}>
+                {sharing ? "이미지 생성 중…" : "카드 저장 · 공유"}
+              </button>
             )}
             <button className="btn-primary" onClick={onClose}>확인</button>
           </div>

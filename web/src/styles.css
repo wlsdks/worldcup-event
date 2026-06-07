@@ -389,7 +389,7 @@ body {
 .bento-tile {
   position: relative; overflow: hidden; cursor: pointer; text-align: left; color: var(--text);
   display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
-  padding: 16px 16px; border-radius: 20px;
+  padding: 17px 18px 17px 22px; border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.1);
   background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
   box-shadow: 0 8px 24px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.07);
@@ -477,6 +477,16 @@ body {
 }
 .coll-card.got:hover { transform: translateY(-4px); box-shadow: 0 12px 26px rgba(0,0,0,0.5), 0 0 18px color-mix(in srgb, var(--glow, transparent) 60%, transparent); }
 .coll-card.got:active { transform: translateY(-1px) scale(0.98); }
+/* 도감 100% 컴플리트 배너 */
+.coll-complete {
+  margin: 10px 0 4px; padding: 11px 16px; border-radius: 12px; text-align: center;
+  font-size: 13.5px; font-weight: 800; letter-spacing: -0.2px; color: #fff;
+  background: linear-gradient(100deg, rgba(255,176,64,0.22), rgba(226,35,26,0.2) 60%, rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,150,90,0.55);
+  box-shadow: 0 8px 26px rgba(226,35,26,0.22), inset 0 1px 0 rgba(255,255,255,0.1);
+  animation: newGlow 2s ease-in-out infinite;
+}
+
 /* 신규 획득 NEW 스탬프 */
 .coll-new {
   position: absolute; top: 6px; left: 6px; z-index: 4;
@@ -1500,6 +1510,11 @@ button.coll-card:disabled { cursor: default; }
   background: rgba(0,0,0,0.46); border: 1px solid color-mix(in srgb, var(--accent,#ffffff) 42%, transparent);
   padding: 4px 12px; border-radius: 999px; text-shadow: 0 1px 2px rgba(0,0,0,0.6);
   backdrop-filter: blur(4px);
+}
+/* 희소성 카피 — '단 N장 한정 · K번째 주인공' */
+.win-scarce {
+  margin-top: 7px; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent, #fff) 88%, #fff); text-shadow: 0 1px 6px var(--glow, rgba(0,0,0,0.6));
 }
 
 .reveal-bottom { display: flex; flex-direction: column; align-items: center; gap: 13px; z-index: 6; width: 100%; max-width: 440px; }

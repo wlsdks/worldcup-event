@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import CardModal from "./CardModal.jsx";
+import { celebrate } from "../lib/celebrate";
 
 function rankClass(rank) {
   return ["special", "holo", "gold", "silver", "bronze", "basic"][rank] || "basic";
@@ -62,6 +63,15 @@ export default function Collection({ catalog, status, user, onBack }) {
   const shownPct = useCountUp(pct);          // 수집률 % 카운트업
   const shownOwned = useCountUp(owned.size); // 보유 수 카운트업
 
+  // 100% 수집 시 1회 축포
+  const doneFired = useRef(false);
+  useEffect(() => {
+    if (pct >= 100 && cards.length > 0 && !doneFired.current) {
+      doneFired.current = true;
+      setTimeout(() => celebrate(0), 400);
+    }
+  }, [pct, cards.length]);
+
   return (
     <div className="screen collection">
       <header className="coll-top">
@@ -74,6 +84,9 @@ export default function Collection({ catalog, status, user, onBack }) {
         <span className="coll-kicker">CARD COLLECTION</span>
         <span className="coll-progress-line">{shownPct}% 수집 완료</span>
       </div>
+      {pct >= 100 && cards.length > 0 && (
+        <div className="coll-complete">★ 도감 100% 컴플리트 — 모든 고놈을 모았어요!</div>
+      )}
       <div className="coll-progress">
         <div className="coll-progress-bar">
           <div className="coll-progress-fill" style={{ width: `${fill}%` }} />

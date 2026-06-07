@@ -180,15 +180,21 @@ export const drawCard = onCall(async (request) => {
 
       const pcards = cardsByGrade[grade.id];
       const card = pcards[Math.floor(Math.random() * pcards.length)];
+      // 희소성 카피용 — 유한 등급의 총 한정 수량 / 이번이 몇 번째 획득인지
+      let gradeTotal = null, gradeOrdinal = null;
       if (grade.unlimited !== true) {
         localAvail[grade.id] -= 1;
         consumed[grade.id] = (consumed[grade.id] || 0) + 1;
+        gradeTotal = grade.inventoryTotal || 0;
+        const remainingBefore = grade.inventoryRemaining ?? grade.inventoryTotal ?? 0;
+        gradeOrdinal = Math.max(1, gradeTotal - remainingBefore + consumed[grade.id]); // 이번 카드 포함 순번
       }
       const odds = baseTotalW > 0 ? (grade.weight || 0) / baseTotalW * 100 : 0;
       picked.push({
         gradeId: grade.id, gradeRank: grade.rank, gradeLabel: grade.label,
         gradeName: grade.name || "", gradeColor: grade.color || null,
         gradePrize: grade.prize || "", gradeOdds: Math.round(odds * 10) / 10,
+        gradeTotal, gradeOrdinal,
         cardId: card.id, cardName: card.name || "", cardImage: card.image, cardDesc: card.desc || "",
       });
     }
