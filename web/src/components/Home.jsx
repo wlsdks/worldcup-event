@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import WinnerTicker from "./WinnerTicker.jsx";
 import PrizeInfo from "./PrizeInfo.jsx";
-import { useTilt } from "../lib/cardUtils";
+import { useTilt, rcOf } from "../lib/cardUtils";
+import { getPublicResult } from "../api";
 
 function rankClass(rank) {
   return ["special", "holo", "gold", "silver", "bronze", "basic"][rank] || "basic";
@@ -23,8 +24,28 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
   const evMsg = eventMessage(status);
   const ended = status.eventReason === "ended";
   const ownedCount = (status?.cards || []).length;
-  const totalCards = (catalog?.cards || []).length;
-  const collPct = totalCards ? Math.round((ownedCount / totalCards) * 100) : 0;
+
+  // 종료 화면용 공용 결과(전체 참여율 + 1~4등) — 종료 시에만 로드
+  const [pub, setPub] = useState(null);
+  useEffect(() => {
+    if (!ended) return;
+    let alive = true;
+    getPublicResult().then((d) => { if (alive) setPub(d); }).catch(() => {});
+    return () => { alive = false; };
+  }, [ended]);
+
+  // 내가 뽑은 카드 (catalog 매핑) + 1~4등 명단
+  const gradeRankById = {};
+  (catalog?.grades || []).forEach((g) => { gradeRankById[g.id] = g.rank; });
+  const cardById = {};
+  (catalog?.cards || []).forEach((c) => { cardById[c.id] = c; });
+  const myCards = (status?.cards || [])
+    .map((sc) => cardById[sc.cardId]).filter(Boolean)
+    .map((c) => ({ ...c, rank: gradeRankById[c.gradeId] ?? 5 }))
+    .sort((a, b) => a.rank - b.rank);
+  const topWinners = (pub?.hall || [])
+    .filter((h) => h.gradeRank <= 4)
+    .sort((a, b) => a.gradeRank - b.gradeRank || a.at - b.at);
 
   return (
     <div className="screen home">
@@ -44,11 +65,40 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
           <h1 className="ee-title">이벤트가 종료되었습니다</h1>
           <p className="ee-sub">함께해 주셔서 감사합니다. 수고하셨어요!</p>
           <div className="ee-stat">
-            <div className="ee-cell"><b>{ownedCount}</b><span>획득한 카드</span></div>
+            <div className="ee-cell"><b>{pub ? pub.participationRate : 0}%</b><span>전체 참여율</span></div>
             <div className="ee-div" aria-hidden />
-            <div className="ee-cell"><b>{collPct}%</b><span>도감 수집률</span></div>
+            <div className="ee-cell"><b>{ownedCount}</b><span>내 획득 카드</span></div>
           </div>
-          <button className="btn-primary big" onClick={onOpenCollection}>내 도감 보기</button>
+
+          {myCards.length > 0 && (
+            <div className="ee-block">
+              <span className="ee-label">내가 뽑은 카드</span>
+              <div className="ee-mine-row">
+                {myCards.map((c, i) => (
+                  <div key={i} className={`ee-mini ${rcOf(c.rank)}`}>
+                    <img src={`/cards/${c.image}`} alt={c.name} draggable={false} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {topWinners.length > 0 && (
+            <div className="ee-block">
+              <span className="ee-label">1~4등 주인공</span>
+              <div className="ee-win-list">
+                {topWinners.map((w) => (
+                  <div key={w.id} className="ee-win">
+                    <span className={`ee-badge ${rcOf(w.gradeRank)}`}>{w.gradeLabel}</span>
+                    <span className="ee-win-name">{w.name}</span>
+                    <span className="ee-win-prize">{w.gradeName}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button className="btn-primary big" onClick={onOpenCollection}>명예의 전당 보기</button>
         </section>
       ) : (
         <>
@@ -129,8 +179,8 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
           <span className="bt-go">바로가기 ›</span>
         </button>
         <button className="bento-tile" onClick={onOpenCollection}>
-          <span className="bt-kicker">COLLECTION</span>
-          <span className="bt-title">도감 보기</span>
+          <span className="bt-kicker">HALL OF FAME</span>
+          <span className="bt-title">명예의 전당</span>
         </button>
         <button className="bento-tile" onClick={() => setShowPrize(true)}>
           <span className="bt-kicker">PRIZES</span>

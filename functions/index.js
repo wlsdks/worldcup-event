@@ -274,6 +274,45 @@ export const getRecentWinners = onCall(async (request) => {
   return { winners: winners.slice(0, 15) };
 });
 
+/**
+ * 공용 결과 — 명예의 전당(한정 등급 당첨 카드+당첨자) + 전체 참여 통계.
+ * 종료 화면/명예의 전당 보드에서 사용. 이름은 마스킹.
+ */
+export const getPublicResult = onCall(async () => {
+  const [rosterSnap, gradesSnap, drawsSnap] = await Promise.all([
+    db.collection("roster").get(),
+    db.collection("grades").get(),
+    db.collection("draws").orderBy("createdAt", "asc").get(),
+  ]);
+  const rosterCount = rosterSnap.size;
+  const gradeTotals = {};
+  gradesSnap.docs.forEach((d) => { const g = d.data(); if (g.unlimited !== true) gradeTotals[d.id] = g.inventoryTotal || 0; });
+
+  const participants = new Set();
+  const hall = [];
+  let commonCount = 0;
+  drawsSnap.docs.forEach((doc) => {
+    const d = doc.data();
+    if (!d.gift && !d.forced) participants.add(d.empNo);
+    (d.cards || []).forEach((c, ci) => {
+      const rank = c.gradeRank ?? 99;
+      if (rank <= 4) {
+        hall.push({
+          id: `${doc.id}_${ci}`, gradeId: c.gradeId, gradeRank: rank,
+          gradeLabel: c.gradeLabel, gradeName: c.gradeName || "",
+          cardId: c.cardId, cardImage: c.cardImage || null, cardName: c.cardName || "",
+          name: maskName(d.name), team: d.team || "", at: d.createdAt?.toMillis?.() || 0,
+        });
+      } else if (rank === 5) {
+        commonCount += 1;
+      }
+    });
+  });
+  const participantCount = participants.size;
+  const participationRate = rosterCount ? Math.round((participantCount / rosterCount) * 1000) / 10 : 0;
+  return { rosterCount, participantCount, participationRate, commonCount, gradeTotals, hall };
+});
+
 // ───────────────────────────────────────── 응원전 ─────────────────────────────────────────
 // 응원 댓글(게시글) 단위. 좋아요 수 높은 순으로 랭킹. 사용자당 좋아요 최대 3회.
 const LIKE_MAX = 3;

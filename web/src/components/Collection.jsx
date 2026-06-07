@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import CardModal from "./CardModal.jsx";
-import { celebrate } from "../lib/celebrate";
+import { getPublicResult } from "../api";
 
 function rankClass(rank) {
   return ["special", "holo", "gold", "silver", "bronze", "basic"][rank] || "basic";
@@ -23,118 +23,108 @@ function useCountUp(target, ms = 1000) {
   return val;
 }
 
-// 가중치 기반 획득 확률 표시 문자열
-function oddsText(odds) {
-  if (odds >= 1) return `${Math.round(odds * 10) / 10}%`;
-  if (odds >= 0.1) return `${Math.round(odds * 100) / 100}%`;
-  if (odds > 0) return "0.1% 미만";
-  return "-";
-}
-
-export default function Collection({ catalog, status, user, onBack }) {
+/**
+ * 명예의 전당 — 한정 카드(SP·1~4등)가 누군가 뽑을 때마다 당첨자와 함께 공개되는 공용 보드.
+ * 1일 1회·1인 1뽑기 이벤트라 개인 도감 대신 "누가 무엇을 가져갔나" 현황으로 재해석.
+ */
+export default function Collection({ catalog, onBack }) {
   const [selected, setSelected] = useState(null);
+  const [pub, setPub] = useState(null);
 
-  const grades = catalog.grades || [];
-  const cards = catalog.cards || [];
-  const owned = new Set((status?.cards || []).map((d) => d.cardId));
-  const pct = cards.length ? Math.round((owned.size / cards.length) * 100) : 0;
-
-  // 지난 방문 이후 새로 획득한 카드 = NEW 스탬프. 마운트 시 '본 것'으로 기록.
-  const seenKey = `gonom_seen_${user?.empNo || "guest"}`;
-  const [newIds] = useState(() => {
-    let seen = [];
-    try { seen = JSON.parse(localStorage.getItem(seenKey) || "[]"); } catch { /* 무시 */ }
-    const seenSet = new Set(seen);
-    return new Set([...owned].filter((id) => !seenSet.has(id)));
-  });
   useEffect(() => {
-    try { localStorage.setItem(seenKey, JSON.stringify([...owned])); } catch { /* 무시 */ }
-  }, [seenKey, status]); // eslint-disable-line react-hooks/exhaustive-deps
+    let alive = true;
+    const load = () => getPublicResult().then((d) => { if (alive) setPub(d); }).catch(() => {});
+    load();
+    const poll = setInterval(load, 15000); // 실시간 공개 반영
+    return () => { alive = false; clearInterval(poll); };
+  }, []);
 
-  // 등급별 카드 1장 뽑힐 확률(가중치/전체가중치+꽝)
-  const totalW = grades.reduce((s, g) => s + (g.weight || 0), 0) + (catalog.config?.missWeight || 0);
-  const oddsOf = (g) => (totalW > 0 ? ((g.weight || 0) / totalW) * 100 : 0);
+  const grades = (catalog.grades || []).slice().sort((a, b) => a.rank - b.rank);
+  const gradeTotals = pub?.gradeTotals || {};
+  const hall = pub?.hall || [];
+  const byGrade = {};
+  hall.forEach((h) => { (byGrade[h.gradeId] = byGrade[h.gradeId] || []).push(h); });
 
-  const [fill, setFill] = useState(0);
-  useEffect(() => {
-    const t = setTimeout(() => setFill(pct), 120);
-    return () => clearTimeout(t);
-  }, [pct]);
-  const shownPct = useCountUp(pct);          // 수집률 % 카운트업
-  const shownOwned = useCountUp(owned.size); // 보유 수 카운트업
-
-  // 100% 수집 시 1회 축포
-  const doneFired = useRef(false);
-  useEffect(() => {
-    if (pct >= 100 && cards.length > 0 && !doneFired.current) {
-      doneFired.current = true;
-      setTimeout(() => celebrate(0), 400);
-    }
-  }, [pct, cards.length]);
+  const limitedTotal = Object.values(gradeTotals).reduce((s, n) => s + n, 0);
+  // 채워진 슬롯 수(등급별 재고 상한으로 캡 — 테스트 초과뽑기 방어)
+  const claimed = grades.reduce((s, g) => {
+    const t = gradeTotals[g.id];
+    return t == null ? s : s + Math.min((byGrade[g.id] || []).length, t);
+  }, 0);
+  const shownPart = useCountUp(Math.round(pub?.participationRate || 0));
 
   return (
     <div className="screen collection">
       <header className="coll-top">
         <button className="link-btn" onClick={onBack}>← 뒤로</button>
-        <h2>카드 도감</h2>
-        <span className="coll-count">{shownOwned}<i>/{cards.length}</i></span>
+        <h2>명예의 전당</h2>
+        <span className="coll-count">{claimed}<i>/{limitedTotal}</i></span>
       </header>
 
       <div className="coll-intro">
-        <span className="coll-kicker">CARD COLLECTION</span>
-        <span className="coll-progress-line">{shownPct}% 수집 완료</span>
+        <span className="coll-kicker">HALL OF FAME</span>
+        <span className="coll-progress-line">한정 카드 {claimed} / {limitedTotal} 공개</span>
       </div>
-      {pct >= 100 && cards.length > 0 && (
-        <div className="coll-complete">★ 도감 100% 컴플리트 — 모든 고놈을 모았어요!</div>
-      )}
-      <div className="coll-progress">
-        <div className="coll-progress-bar">
-          <div className="coll-progress-fill" style={{ width: `${fill}%` }} />
-        </div>
-        <span className="coll-progress-pct">{shownPct}%</span>
+      <p className="hall-desc">
+        누군가 <b>한정 카드</b>를 뽑을 때마다 이 곳에 당첨자와 함께 카드가 공개됩니다.
+        단 한 명의 주인공만 가질 수 있어요.
+      </p>
+      <div className="hall-stat">
+        <div className="hs-cell"><b>{shownPart}%</b><span>전체 참여율</span></div>
+        <div className="hs-div" aria-hidden />
+        <div className="hs-cell"><b>{pub?.participantCount || 0}</b><span>참여 인원</span></div>
       </div>
 
       {grades.map((g) => {
-        const gradeCards = cards.filter((c) => c.gradeId === g.id);
-        if (gradeCards.length === 0) return null;
-        const ownedCount = gradeCards.filter((c) => owned.has(c.id)).length;
+        const unlimited = gradeTotals[g.id] == null;
+        if (unlimited) {
+          return (
+            <section key={g.id} className="coll-grade">
+              <div className="grade-head-row">
+                <div className={`grade-head ${rankClass(g.rank)}`}>
+                  <span className="grade-label">{g.label}</span>
+                  <span className="grade-name">{g.name}</span>
+                </div>
+                <span className="grade-odds basic">참여 상품</span>
+              </div>
+              <div className="hall-common">함께한 모두의 카드 · <b>{pub?.commonCount || 0}명</b> 획득</div>
+            </section>
+          );
+        }
+        const total = gradeTotals[g.id] || 0;
+        const wins = byGrade[g.id] || [];
+        const slots = Array.from({ length: total }, (_, i) => wins[i] || null);
         return (
           <section key={g.id} className="coll-grade">
             <div className="grade-head-row">
               <div className={`grade-head ${rankClass(g.rank)}`}>
                 <span className="grade-label">{g.label}</span>
                 <span className="grade-name">{g.name}</span>
-                <span className="grade-count">{ownedCount}/{gradeCards.length}</span>
+                <span className="grade-count">{Math.min(wins.length, total)}/{total}</span>
               </div>
-              <span className={`grade-odds ${rankClass(g.rank)}`}>
-                획득확률 <b>{oddsText(oddsOf(g))}</b>
-              </span>
+              <span className={`grade-odds ${rankClass(g.rank)}`}>한정 {total}장</span>
             </div>
             <div className="coll-grid">
-              {gradeCards.map((c) => {
-                const got = owned.has(c.id);
-                const open = () =>
-                  got &&
-                  setSelected({
-                    cardImage: c.image, cardName: c.name, desc: c.desc,
+              {slots.map((w, i) => w ? (
+                <div
+                  key={i}
+                  className={`coll-card ${rankClass(g.rank)} got`}
+                  role="button" tabIndex={0}
+                  onClick={() => setSelected({
+                    cardImage: w.cardImage, cardName: w.cardName, desc: `${w.name}님이 획득한 카드입니다.`,
                     gradeLabel: g.label, gradeName: g.name, gradeRank: g.rank,
-                  });
-                return (
-                  <div
-                    key={c.id}
-                    className={`coll-card ${rankClass(g.rank)} ${got ? "got" : "locked"}`}
-                    onClick={open}
-                    role={got ? "button" : undefined}
-                    tabIndex={got ? 0 : undefined}
-                  >
-                    <img src={`/cards/${c.image}`} alt={c.name} draggable={false} />
-                    {got && g.rank <= 3 && <div className="foil-sweep" />}
-                    {got && newIds.has(c.id) && <span className="coll-new">NEW</span>}
-                    {!got && <div className="lock">？</div>}
-                    <span className="coll-name">{got ? c.name : "미획득"}</span>
-                  </div>
-                );
-              })}
+                  })}
+                >
+                  {w.cardImage && <img src={`/cards/${w.cardImage}`} alt={w.cardName} draggable={false} />}
+                  {g.rank <= 3 && <div className="foil-sweep" />}
+                  <span className="coll-winner">{w.name}</span>
+                </div>
+              ) : (
+                <div key={i} className={`coll-card ${rankClass(g.rank)} locked`}>
+                  <div className="lock">？</div>
+                  <span className="coll-name">미공개</span>
+                </div>
+              ))}
             </div>
           </section>
         );

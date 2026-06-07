@@ -37,6 +37,13 @@ export async function getRecentWinners(empNo) {
   return res.data?.winners || [];
 }
 
+export async function getPublicResult() {
+  await ensureAuth();
+  const fn = httpsCallable(functions, "getPublicResult");
+  const res = await fn({});
+  return res.data || { rosterCount: 0, participantCount: 0, participationRate: 0, commonCount: 0, gradeTotals: {}, hall: [] };
+}
+
 /** 응원전: 응원 댓글 목록(좋아요순) + 내 좋아요 사용 현황 */
 export async function getCheers(empNo) {
   const fn = httpsCallable(functions, "getCheers");
