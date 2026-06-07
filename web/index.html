@@ -12,7 +12,15 @@
     />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- 초기 로드(벤더 청크 다운로드) 동안 보이는 브랜드 스플래시 — React 마운트 시 교체됨 -->
+      <div style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(1000px 520px at 50% -12%,#9c1018 0%,transparent 58%),#1a090c;color:#fff;font-family:'Pretendard Variable',Pretendard,system-ui,sans-serif;">
+        <div style="font-size:11px;letter-spacing:3.5px;font-weight:800;color:#ff7b6e;">HUNET · WORLD CUP 2026</div>
+        <div style="font-size:26px;font-weight:900;letter-spacing:-1.2px;">고놈 월드컵 카드뽑기</div>
+        <div style="width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,0.15);border-top-color:#ff5a4e;animation:bspin .8s linear infinite;"></div>
+      </div>
+    </div>
+    <style>@keyframes bspin{to{transform:rotate(360deg)}}</style>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

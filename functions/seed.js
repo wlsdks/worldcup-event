@@ -31,7 +31,7 @@ const EVENT = {
   contactTeam: "인재경영팀",
   contactPerson: "윤도현",
   contactHow: "DM 또는 직접 방문",
-  prizeNote: "🎁 1~4등 당첨자는 인재경영팀 윤도현님께 DM 또는 방문하여 경품을 수령하세요. 🍫 5등은 각 호실별 비치된 축구공 초콜릿을 가져가서 드시면 됩니다!",
+  prizeNote: "1~4등 당첨자는 인재경영팀 윤도현님께 DM 또는 방문하여 경품을 수령하세요. 5등은 각 호실별 비치된 축구공 초콜릿을 가져가서 드시면 됩니다!",
 };
 
 // ── 등급 ──
@@ -67,27 +67,27 @@ function dateRange(start, end) {
 
 // ── 카드 (같은 등급 내 여러 장이면 뽑을 때 랜덤 1장 노출) ──
 const CARDS = [
-  { id: "c_1st",            gradeId: "g1", name: "붉은악마",   image: "card_1st.png",            desc: "🔥 머리에 불을 켠 전설의 붉은악마 고놈! 골을 향한 열정이 활활 타오른다. 가장 뜨겁고 가장 강한, 모두가 탐내는 단 하나의 카드." },
-  { id: "c_2nd_home",       gradeId: "g2", name: "홈",         image: "card_2nd_home.png",       desc: "🥇 홈 유니폼을 입고 골든볼을 든 에이스 고놈. 홈팬들의 함성을 등에 업으면 두 배로 강해진다!" },
-  { id: "c_2nd_away",       gradeId: "g2", name: "어웨이",     image: "card_2nd_away.png",       desc: "🥇 적진 원정도 두렵지 않은 강심장 고놈. 어웨이에서 골든볼을 거머쥔 진정한 해결사." },
-  { id: "c_3rd_dribble",    gradeId: "g3", name: "드리블",     image: "card_3rd_dribble.png",    desc: "🥈 현란한 드리블의 마법사 고놈! 수비수 사이를 유유히 빠져나가는 발재간의 소유자." },
-  { id: "c_3rd_celebration",gradeId: "g3", name: "세레머니",   image: "card_3rd_celebration.png",desc: "🥈 골 넣고 세레머니 작렬! 흥이 넘치는 분위기 메이커, 골 셀러브레이션 장인 고놈." },
-  { id: "c_3rd_keeper",     gradeId: "g3", name: "키퍼",       image: "card_3rd_keeper.png",     desc: "🥈 슈퍼세이브의 수문장 고놈! 어떤 강슛도 손끝으로 막아내는 철벽 골키퍼." },
-  { id: "c_4th_cheer",      gradeId: "g4", name: "응원",       image: "card_4th_cheer.png",      desc: "🥉 목청 터지게 응원하는 열혈팬 고놈! 태극기 흔들며 외치는 함성이 경기장을 채운다." },
-  { id: "c_4th_home",       gradeId: "g4", name: "집관",       image: "card_4th_home.png",       desc: "🥉 치킨과 콜라로 무장하고 집관 모드 ON! 세상에서 가장 편안한 응원법을 아는 고놈." },
-  { id: "c_4th_vuvuzela",   gradeId: "g4", name: "부부젤라",   image: "card_4th_vuvuzela.png",   desc: "🥉 부부젤라 한 방으로 경기장을 뒤흔드는 고놈. 응원 데시벨만큼은 양보 못 한다!" },
-  { id: "c_4th_goal",       gradeId: "g4", name: "감격",       image: "card_4th_goal.png",       desc: "🥉 '코리아, 골!' 두 손 모아 기도하던 그 마음. 감격의 눈물을 흘리는 진성 팬 고놈." },
+  { id: "c_1st",            gradeId: "g1", name: "붉은악마",   image: "card_1st.png",            desc: "머리에 불을 켠 전설의 붉은악마 고놈! 골을 향한 열정이 활활 타오른다. 가장 뜨겁고 가장 강한, 모두가 탐내는 단 하나의 카드." },
+  { id: "c_2nd_home",       gradeId: "g2", name: "홈",         image: "card_2nd_home.png",       desc: "홈 유니폼을 입고 골든볼을 든 에이스 고놈. 홈팬들의 함성을 등에 업으면 두 배로 강해진다!" },
+  { id: "c_2nd_away",       gradeId: "g2", name: "어웨이",     image: "card_2nd_away.png",       desc: "적진 원정도 두렵지 않은 강심장 고놈. 어웨이에서 골든볼을 거머쥔 진정한 해결사." },
+  { id: "c_3rd_dribble",    gradeId: "g3", name: "드리블",     image: "card_3rd_dribble.png",    desc: "현란한 드리블의 마법사 고놈! 수비수 사이를 유유히 빠져나가는 발재간의 소유자." },
+  { id: "c_3rd_celebration",gradeId: "g3", name: "세레머니",   image: "card_3rd_celebration.png",desc: "골 넣고 세레머니 작렬! 흥이 넘치는 분위기 메이커, 골 셀러브레이션 장인 고놈." },
+  { id: "c_3rd_keeper",     gradeId: "g3", name: "키퍼",       image: "card_3rd_keeper.png",     desc: "슈퍼세이브의 수문장 고놈! 어떤 강슛도 손끝으로 막아내는 철벽 골키퍼." },
+  { id: "c_4th_cheer",      gradeId: "g4", name: "응원",       image: "card_4th_cheer.png",      desc: "목청 터지게 응원하는 열혈팬 고놈! 태극기 흔들며 외치는 함성이 경기장을 채운다." },
+  { id: "c_4th_home",       gradeId: "g4", name: "집관",       image: "card_4th_home.png",       desc: "치킨과 콜라로 무장하고 집관 모드 ON! 세상에서 가장 편안한 응원법을 아는 고놈." },
+  { id: "c_4th_vuvuzela",   gradeId: "g4", name: "부부젤라",   image: "card_4th_vuvuzela.png",   desc: "부부젤라 한 방으로 경기장을 뒤흔드는 고놈. 응원 데시벨만큼은 양보 못 한다!" },
+  { id: "c_4th_goal",       gradeId: "g4", name: "감격",       image: "card_4th_goal.png",       desc: "'코리아, 골!' 두 손 모아 기도하던 그 마음. 감격의 눈물을 흘리는 진성 팬 고놈." },
   // 5등(아이언) — 고놈(곰) 카드 = 당첨
-  { id: "c_5th_a",          gradeId: "g5", name: "질주",       image: "card_5th_a.png",          desc: "⚪ 붉은 유니폼으로 그라운드를 질주하는 드리블러 고놈. 끝까지 포기란 없다!" },
-  { id: "c_5th_b",          gradeId: "g5", name: "강슛",       image: "card_5th_b.png",          desc: "⚪ 발끝에 불이 붙은 골잡이 고놈! 회심의 강슛으로 골망을 흔든다." },
-  { id: "c_5th_c",          gradeId: "g5", name: "전력질주",   image: "card_5th_c.png",          desc: "⚪ 90분 내내 뛰는 체력왕 고놈. 지치지 않는 심장으로 그라운드를 누빈다." },
-  { id: "c_5th_d",          gradeId: "g5", name: "파워",       image: "card_5th_d.png",          desc: "⚪ 알통 자랑하는 파워 고놈! '나 이런 곰이야~' 피지컬 하나는 자신 있다." },
-  { id: "c_5th_e",          gradeId: "g5", name: "테크닉",     image: "card_5th_e.png",          desc: "⚪ 보라 유니폼의 테크니션 고놈. 감각적인 킥 한 방이 일품이다." },
-  { id: "c_5th_f",          gradeId: "g5", name: "헤더",       image: "card_5th_f.png",          desc: "⚪ 공중볼은 내 거! 헤딩 타이밍을 노리는 제공권의 지배자 고놈." },
-  { id: "c_5th_g",          gradeId: "g5", name: "발리슛",     image: "card_5th_g.png",          desc: "⚪ 날아오는 공을 그대로 차버리는 발리슛 장인 고놈. 타이밍의 예술." },
-  { id: "c_5th_h",          gradeId: "g5", name: "선방",       image: "card_5th_h.png",          desc: "⚪ 초록 장갑 끼고 골문을 사수하는 신참 키퍼 고놈. 패기만큼은 국대급!" },
-  { id: "c_5th_i",          gradeId: "g5", name: "단장님",     image: "card_5th_i.png",          desc: "⚪ 정장 빼입고 팔짱 낀 단장님 고놈? 벤치에서 팀을 진두지휘하는 카리스마." },
-  { id: "c_special",        gradeId: "g0", name: "스페셜",     image: "card_special.png",        desc: "🏆 월드컵 우승의 주인공! 트로피를 번쩍 들어올린 전설의 순간을 담은, 세상에 단 하나뿐인 스페셜 고놈." },
+  { id: "c_5th_a",          gradeId: "g5", name: "질주",       image: "card_5th_a.png",          desc: "붉은 유니폼으로 그라운드를 질주하는 드리블러 고놈. 끝까지 포기란 없다!" },
+  { id: "c_5th_b",          gradeId: "g5", name: "강슛",       image: "card_5th_b.png",          desc: "발끝에 불이 붙은 골잡이 고놈! 회심의 강슛으로 골망을 흔든다." },
+  { id: "c_5th_c",          gradeId: "g5", name: "전력질주",   image: "card_5th_c.png",          desc: "90분 내내 뛰는 체력왕 고놈. 지치지 않는 심장으로 그라운드를 누빈다." },
+  { id: "c_5th_d",          gradeId: "g5", name: "파워",       image: "card_5th_d.png",          desc: "알통 자랑하는 파워 고놈! '나 이런 곰이야~' 피지컬 하나는 자신 있다." },
+  { id: "c_5th_e",          gradeId: "g5", name: "테크닉",     image: "card_5th_e.png",          desc: "보라 유니폼의 테크니션 고놈. 감각적인 킥 한 방이 일품이다." },
+  { id: "c_5th_f",          gradeId: "g5", name: "헤더",       image: "card_5th_f.png",          desc: "공중볼은 내 거! 헤딩 타이밍을 노리는 제공권의 지배자 고놈." },
+  { id: "c_5th_g",          gradeId: "g5", name: "발리슛",     image: "card_5th_g.png",          desc: "날아오는 공을 그대로 차버리는 발리슛 장인 고놈. 타이밍의 예술." },
+  { id: "c_5th_h",          gradeId: "g5", name: "선방",       image: "card_5th_h.png",          desc: "초록 장갑 끼고 골문을 사수하는 신참 키퍼 고놈. 패기만큼은 국대급!" },
+  { id: "c_5th_i",          gradeId: "g5", name: "단장님",     image: "card_5th_i.png",          desc: "정장 빼입고 팔짱 낀 단장님 고놈? 벤치에서 팀을 진두지휘하는 카리스마." },
+  { id: "c_special",        gradeId: "g0", name: "스페셜",     image: "card_special.png",        desc: "월드컵 우승의 주인공! 트로피를 번쩍 들어올린 전설의 순간을 담은, 세상에 단 하나뿐인 스페셜 고놈." },
 ];
 
 // ── 응원전 팀 (임시 — 실제 팀으로 교체 예정) ──

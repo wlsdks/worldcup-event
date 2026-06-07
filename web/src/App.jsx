@@ -92,7 +92,11 @@ export default function App() {
   if (booting) {
     return (
       <div className="app boot">
-        <div className="spinner" />
+        <div className="splash">
+          <span className="splash-kicker">HUNET · WORLD CUP 2026</span>
+          <span className="splash-title">고놈 월드컵 카드뽑기</span>
+          <div className="spinner" />
+        </div>
       </div>
     );
   }
