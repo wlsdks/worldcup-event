@@ -2,6 +2,7 @@ import { Suspense, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture, Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
+import { gyro } from "../lib/gyro";
 
 // 등급별 카드 엣지/림 색
 const EDGE = ["#1f9e76", "#caa12a", "#c79a36", "#9aa6b6", "#9c6a3e", "#5a626e"];
@@ -19,9 +20,12 @@ function CardMesh({ front, back, revealed, prize, special, edge }) {
     const t = st.clock.elapsedTime;
     // 공개 후 자동 스웨이 — 손대지 않아도 빛/홀로가 계속 흐르도록(쇼케이스)
     const sway = revealed ? Math.sin(t * 0.8) * 0.26 : 0;
-    // 공개 시 뒷면(π) → 앞면(0) 플립 + 포인터로 미세 3D 틸트
-    const tgtY = (revealed ? 0 : Math.PI) + st.pointer.x * 0.4 + sway;
-    const tgtX = -st.pointer.y * 0.3 + (revealed ? Math.sin(t * 0.6) * 0.05 : 0);
+    // 입력: 자이로(모바일) 우선, 없으면 포인터
+    const px = gyro.active ? gyro.x : st.pointer.x;
+    const py = gyro.active ? gyro.y : st.pointer.y;
+    // 공개 시 뒷면(π) → 앞면(0) 플립 + 기울기로 3D 틸트
+    const tgtY = (revealed ? 0 : Math.PI) + px * (gyro.active ? 0.55 : 0.4) + sway;
+    const tgtX = -py * (gyro.active ? 0.45 : 0.3) + (revealed ? Math.sin(t * 0.6) * 0.05 : 0);
     grp.rotation.y += (tgtY - grp.rotation.y) * k;
     grp.rotation.x += (tgtX - grp.rotation.x) * Math.min(1, dt * 5);
     grp.position.y = Math.sin(t * 1.4) * 0.03; // 잔잔한 부유

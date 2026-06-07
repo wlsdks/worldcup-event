@@ -6,6 +6,7 @@ import { haptic } from "../lib/haptics";
 import CardModal from "./CardModal.jsx";
 import CountUp from "./CountUp.jsx";
 import { shareCardImage } from "../lib/shareCard";
+import { enableGyro } from "../lib/gyro";
 
 // 리빌 히어로 카드는 무거운 Three.js → lazy 로드(메인 번들 영향 없음)
 const Card3D = lazy(() => import("./Card3D.jsx"));
@@ -411,41 +412,14 @@ export default function PackReveal({ result, config, onClose }) {
 
   const overlayRef = useRef(null);
   const summonTimerRef = useRef(null);
-  const gyroRef = useRef(null);
+  const chargeTimerRef = useRef(null);
   useEffect(() => () => {
     if (summonTimerRef.current) clearTimeout(summonTimerRef.current);
-    if (gyroRef.current) window.removeEventListener("deviceorientation", gyroRef.current);
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
   }, []);
 
-  // 모바일 자이로 포일 — 기기를 기울이면 포일/틸트가 반응(라이브러리 없음).
-  // iOS 13+ 는 사용자 제스처에서 권한 요청 필요. 데스크톱/미지원은 자동 무시(폴백).
-  const requestGyro = () => {
-    if (gyroRef.current) return;
-    const DOE = typeof window !== "undefined" && window.DeviceOrientationEvent;
-    if (!DOE) return;
-    const attach = () => {
-      const handler = (e) => {
-        if (e.gamma == null && e.beta == null) return;
-        const el = overlayRef.current?.querySelector(".deck-stage .tilt-layer");
-        if (!el) return;
-        const g = Math.max(-45, Math.min(45, e.gamma || 0));        // 좌우 기울기
-        const b = Math.max(-45, Math.min(45, (e.beta || 0) - 40));  // 앞뒤(45° 파지 기준)
-        el.style.setProperty("--ry", `${(g / 45 * 14).toFixed(1)}deg`);
-        el.style.setProperty("--rx", `${(-b / 45 * 14).toFixed(1)}deg`);
-        el.style.setProperty("--mx", `${(50 + g / 45 * 50).toFixed(1)}%`);
-        el.style.setProperty("--my", `${(50 + b / 45 * 50).toFixed(1)}%`);
-      };
-      window.addEventListener("deviceorientation", handler);
-      gyroRef.current = handler;
-    };
-    try {
-      if (typeof DOE.requestPermission === "function") {
-        DOE.requestPermission().then((res) => { if (res === "granted") attach(); }).catch(() => {});
-      } else {
-        attach();
-      }
-    } catch { /* 무시 */ }
-  };
+  // 모바일 자이로 — 기기 기울이면 3D 카드가 반응. iOS 권한은 공개 탭(제스처)에서 요청.
+  const requestGyro = () => enableGyro();
   const onParallax = (e) => {
     const el = overlayRef.current;
     if (!el) return;
@@ -480,7 +454,23 @@ export default function PackReveal({ result, config, onClose }) {
     if (dur) {
       setSummon({ key: Date.now(), rank, i });
       haptic.summon(rank);
-      summonTimerRef.current = setTimeout(() => { summonTimerRef.current = null; setSummon(null); doReveal(i); }, dur);
+      // 차징 햅틱 — 빌드업 동안 점점 빨라지는 진동(폭발 직전 긴장). 데스크톱은 무시.
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        let el = 0;
+        const ramp = () => {
+          const prog = el / dur;
+          try { navigator.vibrate(7 + Math.round(prog * 11)); } catch { /* 무시 */ }
+          const gap = 380 - 300 * prog; // 380ms → 80ms 가속
+          el += gap;
+          if (el < dur * 0.86) chargeTimerRef.current = setTimeout(ramp, gap);
+        };
+        chargeTimerRef.current = setTimeout(ramp, 320);
+      }
+      summonTimerRef.current = setTimeout(() => {
+        summonTimerRef.current = null;
+        if (chargeTimerRef.current) { clearTimeout(chargeTimerRef.current); chargeTimerRef.current = null; }
+        setSummon(null); doReveal(i);
+      }, dur);
     } else {
       doReveal(i);
     }
@@ -489,6 +479,7 @@ export default function PackReveal({ result, config, onClose }) {
   const skipSummon = () => {
     if (!summon) return;
     if (summonTimerRef.current) { clearTimeout(summonTimerRef.current); summonTimerRef.current = null; }
+    if (chargeTimerRef.current) { clearTimeout(chargeTimerRef.current); chargeTimerRef.current = null; }
     const i = summon.i;
     setSummon(null);
     doReveal(i);

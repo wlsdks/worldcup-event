@@ -1782,6 +1782,16 @@ button.coll-card:disabled { cursor: default; }
   85% { opacity: 0.9; transform: rotate(var(--ang)) translateX(6vmax) scaleX(2.6); }
   100% { opacity: 0; transform: rotate(var(--ang)) translateX(0.5vmax) scaleX(0.4); }
 }
+/* 등급별 차징 차등 — SP 무지개 줄기, 상위는 화려·하위는 절제 */
+.summon.special .sm-charge span {
+  background: linear-gradient(90deg, transparent, #ff6ec4 32%, #ffd86e 52%, #6dff8e 70%, #5ee8ff 86%);
+  box-shadow: 0 0 10px 1px rgba(255,255,255,0.6);
+}
+.summon.special .sm-rings span { border-color: rgba(255,235,185,0.85); border-width: 2.5px; }
+.summon.r1 .sm-rings span { border-width: 2.5px; }
+.summon.r3 .sm-charge, .summon.r4 .sm-charge { opacity: 0.62; }
+.summon.r4 .sm-rings { opacity: 0.5; }
+.summon.r3 .sm-rings span:nth-child(3), .summon.r4 .sm-rings span:nth-child(3) { display: none; }
 
 /* 중앙 에너지 코어 (빛이 모임) */
 .sm-core {
