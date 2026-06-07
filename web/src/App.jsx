@@ -139,7 +139,7 @@ export default function App() {
           )}
 
           {screen === "collection" && (
-            <Collection catalog={catalog} status={status} onBack={() => setScreen("home")} />
+            <Collection catalog={catalog} status={status} user={user} onBack={() => setScreen("home")} />
           )}
 
           {screen === "cheer" && (

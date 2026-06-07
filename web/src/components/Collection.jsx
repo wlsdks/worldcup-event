@@ -30,13 +30,25 @@ function oddsText(odds) {
   return "-";
 }
 
-export default function Collection({ catalog, status, onBack }) {
+export default function Collection({ catalog, status, user, onBack }) {
   const [selected, setSelected] = useState(null);
 
   const grades = catalog.grades || [];
   const cards = catalog.cards || [];
   const owned = new Set((status?.cards || []).map((d) => d.cardId));
   const pct = cards.length ? Math.round((owned.size / cards.length) * 100) : 0;
+
+  // 지난 방문 이후 새로 획득한 카드 = NEW 스탬프. 마운트 시 '본 것'으로 기록.
+  const seenKey = `gonom_seen_${user?.empNo || "guest"}`;
+  const [newIds] = useState(() => {
+    let seen = [];
+    try { seen = JSON.parse(localStorage.getItem(seenKey) || "[]"); } catch { /* 무시 */ }
+    const seenSet = new Set(seen);
+    return new Set([...owned].filter((id) => !seenSet.has(id)));
+  });
+  useEffect(() => {
+    try { localStorage.setItem(seenKey, JSON.stringify([...owned])); } catch { /* 무시 */ }
+  }, [seenKey, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 등급별 카드 1장 뽑힐 확률(가중치/전체가중치+꽝)
   const totalW = grades.reduce((s, g) => s + (g.weight || 0), 0) + (catalog.config?.missWeight || 0);
@@ -104,6 +116,7 @@ export default function Collection({ catalog, status, onBack }) {
                   >
                     <img src={`/cards/${c.image}`} alt={c.name} draggable={false} />
                     {got && g.rank <= 3 && <div className="foil-sweep" />}
+                    {got && newIds.has(c.id) && <span className="coll-new">NEW</span>}
                     {!got && <div className="lock">？</div>}
                     <span className="coll-name">{got ? c.name : "미획득"}</span>
                   </div>

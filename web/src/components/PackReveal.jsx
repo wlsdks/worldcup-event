@@ -4,6 +4,7 @@ import { rcOf, useTilt } from "../lib/cardUtils";
 import { celebrate } from "../lib/celebrate";
 import { haptic } from "../lib/haptics";
 import CardModal from "./CardModal.jsx";
+import CountUp from "./CountUp.jsx";
 
 // 등급별 공개 빌드업 시간(ms) — CSS .summon --sm 과 일치. 5등은 즉시(빌드업 없음).
 const SUMMON_DUR = { 0: 3400, 1: 3200, 2: 3000, 3: 2000, 4: 1000 };
@@ -486,6 +487,28 @@ export default function PackReveal({ result, config, onClose }) {
     setTimeout(() => setPhase("summary"), bestRank <= 3 ? 1100 : 650);
   };
 
+  // 결과 카드 저장/공유 — 최고 등급 카드를 Web Share(가능 시) 또는 다운로드
+  const shareCard = async () => {
+    const best = cards.filter((c) => !c.isMiss).sort((a, b) => a.gradeRank - b.gradeRank)[0];
+    if (!best) return;
+    const url = `/cards/${best.cardImage}`;
+    const fname = `gonom_${(best.cardName || best.gradeName || "card").replace(/\s+/g, "")}.png`;
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const file = new File([blob], fname, { type: blob.type || "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "고놈 월드컵 카드뽑기", text: `${best.gradeName} ${best.cardName || ""} 획득!` });
+        return;
+      }
+    } catch { /* 공유 실패 → 다운로드 폴백 */ }
+    try {
+      const a = document.createElement("a");
+      a.href = url; a.download = fname;
+      document.body.appendChild(a); a.click(); a.remove();
+    } catch { /* 무시 */ }
+  };
+
   const energyRank = phase === "reveal" && !curRevealed && current && current.gradeRank <= 3 ? current.gradeRank : 0;
   // 배경 등급 틴트: 카드가 '공개된 뒤'에만 등급색을 입힌다. 빌드업(공개 전)은 중립으로 둬서
   // 소환 색 에스컬레이션(블루→퍼플→골드)이 배경 등급색에 묻히거나 등급이 미리 새지 않게 함.
@@ -559,7 +582,9 @@ export default function PackReveal({ result, config, onClose }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
               >
-                {current.gradeOdds >= 0.1 ? `${current.gradeOdds}%` : "0.1% 미만"} 확률로 획득!
+                {current.gradeOdds >= 0.1
+                  ? <><CountUp key={`cu-${idx}`} value={current.gradeOdds} decimals={current.gradeOdds < 1 ? 1 : 0} suffix="%" /> 확률로 획득!</>
+                  : "0.1% 미만 확률로 획득!"}
               </motion.div>
             )}
           </div>
@@ -712,7 +737,12 @@ export default function PackReveal({ result, config, onClose }) {
 각 호실별 비치된 <b>축구공 초콜릿</b>을 가져가서 드세요!
             </div>
           )}
-          <button className="btn-primary" onClick={onClose}>확인</button>
+          <div className="summary-actions">
+            {!cards.every((c) => c.isMiss) && (
+              <button className="btn-ghost slim" onClick={shareCard}>카드 저장 · 공유</button>
+            )}
+            <button className="btn-primary" onClick={onClose}>확인</button>
+          </div>
         </motion.div>
       )}
 
