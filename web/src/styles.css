@@ -12,6 +12,19 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 /* 폼 컨트롤도 Pretendard 상속 (button/input은 기본적으로 상속 안 함) */
 button, input, textarea, select { font-family: inherit; }
+
+/* ── 접근성: 키보드 포커스 링(마우스 클릭엔 안 보임) ── */
+:focus-visible { outline: 2px solid #ffb0a8; outline-offset: 3px; border-radius: 8px; }
+button:focus:not(:focus-visible) { outline: none; }
+/* 동작 최소화 선호 시 — 장식 애니메이션/전환 즉시화(연출 JS 타이밍은 유지) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 html, body, #root { height: 100%; margin: 0; }
 body {
   font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
@@ -1865,6 +1878,27 @@ button.coll-card:disabled { cursor: default; }
 .hg-kicker { font-size: 10.5px; letter-spacing: 2.2px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; }
 .hg-name { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; color: #fff; }
 .hg-name em { font-style: normal; color: var(--muted); font-size: 14px; font-weight: 600; }
+
+/* 이벤트 종료 화면 — 수고하셨습니다 + 내 수집 요약 */
+.event-end {
+  text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 32px 18px 26px; margin: 8px 0;
+  border-radius: 22px; border: 1px solid rgba(255,255,255,0.1);
+  background:
+    radial-gradient(120% 120% at 50% -10%, rgba(255,90,70,0.18), transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+  box-shadow: 0 14px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.ee-kicker { font-size: 11px; font-weight: 800; letter-spacing: 3.5px; color: #ff9b92; }
+.ee-title { margin: 2px 0 0; font-size: clamp(26px, 7.5vw, 34px); font-weight: 900; letter-spacing: -1.2px; color: #fff; }
+.ee-sub { margin: 0; font-size: 14px; color: #c9ccd3; }
+.ee-stat { display: flex; align-items: center; gap: 22px; margin: 14px 0 6px; }
+.ee-cell { display: flex; flex-direction: column; gap: 3px; }
+.ee-cell b { font-size: 30px; font-weight: 900; letter-spacing: -1px; color: #fff; font-variant-numeric: tabular-nums;
+  background: linear-gradient(176deg, #fff, #ffd9b0); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.ee-cell span { font-size: 11.5px; font-weight: 700; letter-spacing: 0.4px; color: #9aa0aa; }
+.ee-div { width: 1px; height: 34px; background: rgba(255,255,255,0.14); }
+.event-end .btn-primary.big { width: auto; padding: 15px 40px; margin-top: 6px; }
 
 .home-hero { text-align: center; padding: 10px 0 2px; }
 .hh-kicker { display: inline-block; font-size: 11px; letter-spacing: 3.5px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; margin-bottom: 10px; }

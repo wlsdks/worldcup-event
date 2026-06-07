@@ -21,6 +21,10 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
   const [showPrize, setShowPrize] = useState(false);
   const tilt = useTilt();
   const evMsg = eventMessage(status);
+  const ended = status.eventReason === "ended";
+  const ownedCount = (status?.cards || []).length;
+  const totalCards = (catalog?.cards || []).length;
+  const collPct = totalCards ? Math.round((ownedCount / totalCards) * 100) : 0;
 
   return (
     <div className="screen home">
@@ -34,52 +38,68 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
 
       <WinnerTicker hidden={revealing} me={user?.empNo} />
 
-      <div className="home-hero">
-        <span className="hh-kicker">GONOM WORLD CUP EDITION</span>
-        <h1 className="hh-title">운명의 카드를 뽑아라</h1>
-        {status.eventActive && (
-          <div className="live-chip"><span className="live-dot" />이벤트 진행 중 · 하루 1회</div>
-        )}
-      </div>
+      {ended ? (
+        <section className="event-end">
+          <span className="ee-kicker">EVENT CLOSED</span>
+          <h1 className="ee-title">이벤트가 종료되었습니다</h1>
+          <p className="ee-sub">함께해 주셔서 감사합니다. 수고하셨어요!</p>
+          <div className="ee-stat">
+            <div className="ee-cell"><b>{ownedCount}</b><span>획득한 카드</span></div>
+            <div className="ee-div" aria-hidden />
+            <div className="ee-cell"><b>{collPct}%</b><span>도감 수집률</span></div>
+          </div>
+          <button className="btn-primary big" onClick={onOpenCollection}>내 도감 보기</button>
+        </section>
+      ) : (
+        <>
+          <div className="home-hero">
+            <span className="hh-kicker">GONOM WORLD CUP EDITION</span>
+            <h1 className="hh-title">운명의 카드를 뽑아라</h1>
+            {status.eventActive && (
+              <div className="live-chip"><span className="live-dot" />이벤트 진행 중 · 하루 1회</div>
+            )}
+          </div>
 
-      <div className="draw-stage">
-        <div className="pack-pedestal" aria-hidden>
-          <span className="ped-disc" />
-          <span className="ped-glow" />
-        </div>
-        <div
-          className="pack-tiltwrap"
-          ref={tilt.ref}
-          onPointerMove={tilt.onMove}
-          onPointerLeave={tilt.onLeave}
-        >
-        <div className={`pack-hero ${drawing ? "shaking" : ""}`}>
-          <div className="pack-hero-glow" />
-          <img src="/pack.png" alt="HUNET 월드컵 카드팩" draggable={false} />
-        </div>
-        </div>
-      </div>
+          <div className="draw-stage">
+            <div className="pack-pedestal" aria-hidden>
+              <span className="ped-disc" />
+              <span className="ped-glow" />
+            </div>
+            <div
+              className="pack-tiltwrap"
+              ref={tilt.ref}
+              onPointerMove={tilt.onMove}
+              onPointerLeave={tilt.onLeave}
+            >
+            <div className={`pack-hero ${drawing ? "shaking" : ""}`}>
+              <div className="pack-hero-glow" />
+              <img src="/pack.png" alt="HUNET 월드컵 카드팩" draggable={false} />
+            </div>
+            </div>
+          </div>
 
-      {evMsg && <div className="event-banner">{evMsg}</div>}
-      {error && <div className="form-err center">{error}</div>}
+          {evMsg && <div className="event-banner">{evMsg}</div>}
+          {error && <div className="form-err center">{error}</div>}
 
-      <div className="draw-action">
-        {status.canDrawToday ? (
-          <button className="btn-primary big" onClick={onDraw} disabled={drawing}>
-            {drawing ? "팩 여는 중…" : "카드팩 뽑기"}
-          </button>
-        ) : status.drewToday ? (
-          <button className="btn-primary big" onClick={onOpenCheer}>
-            팀별 응원전을 통해 상품을 획득하세요
-          </button>
-        ) : (
-          <button className="btn-primary big" disabled>
-            지금은 뽑을 수 없어요
-          </button>
-        )}
-      </div>
+          <div className="draw-action">
+            {status.canDrawToday ? (
+              <button className="btn-primary big" onClick={onDraw} disabled={drawing}>
+                {drawing ? "팩 여는 중…" : "카드팩 뽑기"}
+              </button>
+            ) : status.drewToday ? (
+              <button className="btn-primary big" onClick={onOpenCheer}>
+                팀별 응원전을 통해 상품을 획득하세요
+              </button>
+            ) : (
+              <button className="btn-primary big" disabled>
+                지금은 뽑을 수 없어요
+              </button>
+            )}
+          </div>
+        </>
+      )}
 
-      {user.empNo === "0000" && (
+      {user.empNo === "0000" && !ended && (
         <div className="demo-grade-pick">
           <span className="dgp-label">테스트 전용 · 등급 지정 뽑기 (연출 확인용)</span>
           <div className="dgp-btns">
