@@ -1231,10 +1231,19 @@ button.coll-card:disabled { cursor: default; }
   .login-panel, .login-panel > *, .home > *, .cheer > *, .collection > * { animation: none; }
 }
 
-/* 결과 화면 — 1장이면 중앙에 크게 */
-.pack-grid.n1.summary-grid { grid-template-columns: 1fr; max-width: 230px; margin: 0 auto; }
-.summary-grid .grid-cell.clickable { cursor: pointer; transition: transform 0.16s ease, filter 0.2s; }
-.summary-grid .grid-cell.clickable:hover { transform: translateY(-4px); filter: brightness(1.05); }
+/* 결과 화면 — 1장이면 중앙에 크게 (기념품처럼 전시) */
+.pack-grid.n1.summary-grid { grid-template-columns: 1fr; max-width: 252px; margin: 0 auto; }
+.summary-grid .grid-cell.clickable { cursor: pointer; position: relative; transition: transform 0.16s ease, filter 0.2s; }
+.summary-grid .grid-cell.clickable:hover { transform: translateY(-4px); filter: brightness(1.06); }
+.summary-grid .grid-cell.clickable:active { filter: brightness(0.96); }
+/* 탭 affordance — 데스크톱 hover 시 '자세히' 배지 */
+.summary-grid .grid-cell.clickable::after {
+  content: "자세히 보기"; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.4px; color: #fff; white-space: nowrap;
+  background: rgba(10,4,5,0.6); border: 1px solid rgba(255,255,255,0.22); backdrop-filter: blur(4px);
+  padding: 3px 10px; border-radius: 999px; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.summary-grid .grid-cell.clickable:hover::after { opacity: 1; }
 .summary-hint { font-size: 12px; color: var(--muted); text-align: center; margin-top: -4px; }
 
 /* 카드 상세보기 하단 설명란 */

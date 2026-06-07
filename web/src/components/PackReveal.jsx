@@ -196,7 +196,8 @@ function SummonBuildup({ rank }) {
       <div className="sm-spot sm-spot-r" />
       <div className="sm-spot sm-spot-l2" />
       <div className="sm-spot sm-spot-r2" />
-      {rank <= 1 && (
+      {/* 2등(유니크)부터 6빔으로 볼륨 강화 — 3등(4빔)과 위계 구분, 천둥/번개는 1등·SP 전용 */}
+      {rank <= 2 && (
         <>
           <div className="sm-spot sm-spot-l3" />
           <div className="sm-spot sm-spot-r3" />
