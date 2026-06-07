@@ -1133,7 +1133,52 @@ button.coll-card:disabled { cursor: default; }
 @keyframes ripBottom {
   0% { transform: translateY(0) scale(1); }
   18% { transform: translateY(2%); }
-  100% { transform: translateY(40%) scale(1.06); opacity: 0; }
+  100% { transform: translateY(44%) scale(1.07); opacity: 0; }
+}
+
+/* ── 팩 오픈 모션 업그레이드: 차징(흔들림) → 솔기 빛기둥 분출 + 파편 ── */
+.pack-open.charging { animation: packCharge 0.26s cubic-bezier(0.36,0.07,0.4,1) both; }
+@keyframes packCharge {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.025) rotate(-1.1deg); }
+  50% { transform: scale(1.035) rotate(1.2deg); }
+  75% { transform: scale(1.04) rotate(-0.8deg); }
+  100% { transform: scale(1.06) rotate(0deg); }
+}
+/* 솔기 광원 — 차징 때 밝아지고, 찢을 때 위로 빛기둥처럼 분출 */
+.po-seam {
+  position: absolute; left: 50%; top: 27%; width: 76%; height: 3px; transform: translate(-50%,-50%);
+  border-radius: 4px; opacity: 0; pointer-events: none; z-index: 3;
+  background: linear-gradient(90deg, transparent, #fff 25%, #fff 75%, transparent);
+}
+.pack-open.charging .po-seam { animation: seamGlow 0.26s ease-out forwards; }
+@keyframes seamGlow {
+  0% { opacity: 0; box-shadow: 0 0 0 0 rgba(255,236,196,0); }
+  100% { opacity: 1; box-shadow: 0 0 16px 3px rgba(255,236,196,0.9), 0 0 40px 8px rgba(255,200,120,0.5); }
+}
+.pack-open.torn .po-seam { animation: seamBurst 0.55s cubic-bezier(0.2,0.7,0.3,1) forwards; }
+@keyframes seamBurst {
+  0% { opacity: 1; height: 3px; box-shadow: 0 0 16px 3px rgba(255,236,196,0.9); }
+  35% { opacity: 1; height: 78%; box-shadow: 0 0 70px 26px rgba(255,238,200,0.85); }
+  100% { opacity: 0; height: 120%; box-shadow: 0 0 110px 50px rgba(255,238,200,0); }
+}
+/* 파편 — 찢는 순간 솔기에서 위로/사방으로 튀는 입자 */
+.po-shards { position: absolute; left: 50%; top: 27%; width: 0; height: 0; pointer-events: none; z-index: 3; }
+.po-shards span {
+  position: absolute; left: 0; top: 0; width: 5px; height: 5px; border-radius: 1px;
+  background: radial-gradient(circle, #fff, #ffd9a0 70%, transparent); opacity: 0;
+}
+.pack-open.torn .po-shards span {
+  animation: shardFly 0.6s ease-out forwards; animation-delay: calc(var(--i) * 0.012s);
+}
+@keyframes shardFly {
+  0% { opacity: 0; transform: translate(0,0) scale(1); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc((var(--i) - 4.5) * 30px), calc(-46px - var(--i) * 6px)) scale(0.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pack-open.charging { animation-duration: 0.01s; }
+  .po-shards span { display: none; }
 }
 
 /* ════════════ 최종 5장 요약 ════════════ */

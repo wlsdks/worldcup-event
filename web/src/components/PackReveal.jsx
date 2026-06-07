@@ -260,14 +260,21 @@ function IntroSequence({ onDone, rank = 9 }) {
     return () => clearInterval(iv);
   }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 자동 개봉 없음 — 사용자가 직접 탭해야 열림
+  // 자동 개봉 없음 — 사용자가 직접 탭해야 열림. 탭 → 차징(흔들림+솔기 발광) → 찢김(빔+파편)
   function tear() {
     setStep((s) => {
       if (s !== "pack") return s;
-      if (navigator.vibrate) navigator.vibrate(tier === "epic" ? [20, 40, 20, 60, 30] : [20, 50, 30]);
-      setTimeout(onDone, tier === "epic" ? 820 : 720);
-      return "torn";
+      if (navigator.vibrate) navigator.vibrate([12, 26]);
+      return "charging";
     });
+    setTimeout(() => {
+      setStep((s) => {
+        if (s !== "charging") return s;
+        if (navigator.vibrate) navigator.vibrate(tier === "epic" ? [25, 50, 25, 70, 35] : [25, 60, 35]);
+        setTimeout(onDone, tier === "epic" ? 900 : 800);
+        return "torn";
+      });
+    }, 260);
   }
 
   return (
@@ -314,9 +321,9 @@ function IntroSequence({ onDone, rank = 9 }) {
       </AnimatePresence>
 
       <AnimatePresence>
-        {(step === "pack" || step === "torn") && (
+        {(step === "pack" || step === "charging" || step === "torn") && (
           <motion.div
-            className={`pack-open ${step === "torn" ? "torn" : ""}`}
+            className={`pack-open ${step === "torn" ? "torn" : step === "charging" ? "charging" : ""}`}
             onClick={tear}
             initial={{ scale: 0.6, opacity: 0, y: 24 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -331,8 +338,12 @@ function IntroSequence({ onDone, rank = 9 }) {
             )}
             <div className="po-top" />
             <div className="po-bottom" />
+            <div className="po-seam" aria-hidden />
+            <div className="po-shards" aria-hidden>
+              {[...Array(10)].map((_, i) => <span key={i} style={{ "--i": i }} />)}
+            </div>
             <div className="tear-flash" />
-            {step !== "torn" && (
+            {step === "pack" && (
               <div className="booster-tab">
                 {tier === "epic" ? "✦✦ 심상치 않다… 탭하여 개봉 ✦✦" : tier === "rare" ? "✦ 느낌이 좋다! 탭하여 개봉 ✦" : "✦ 탭하여 개봉 ✦"}
               </div>
