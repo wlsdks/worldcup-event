@@ -53,6 +53,12 @@ export default function Collection({ catalog, onBack }) {
   }, 0);
   const shownPart = useCountUp(Math.round(pub?.participationRate || 0));
 
+  // 최근 공개(최신순) + '방금' 하이라이트(10분 이내)
+  const now = Date.now();
+  const RECENT_MS = 10 * 60 * 1000;
+  const recent = [...hall].sort((a, b) => b.at - a.at).slice(0, 6);
+  const isRecent = (at) => at && now - at < RECENT_MS;
+
   return (
     <div className="screen collection">
       <header className="coll-top">
@@ -74,6 +80,21 @@ export default function Collection({ catalog, onBack }) {
         <div className="hs-div" aria-hidden />
         <div className="hs-cell"><b>{pub?.participantCount || 0}</b><span>참여 인원</span></div>
       </div>
+
+      {recent.length > 0 && (
+        <div className="hall-recent">
+          <span className="hall-recent-label">최근 공개</span>
+          <div className="hall-recent-row">
+            {recent.map((w) => (
+              <div key={w.id} className={`hr-card ${rankClass(w.gradeRank)} ${isRecent(w.at) ? "just" : ""}`}>
+                {w.cardImage && <img src={`/cards/${w.cardImage}`} alt={w.cardName} draggable={false} />}
+                <span className="hr-name">{w.name}</span>
+                {isRecent(w.at) && <span className="hr-just">방금</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {grades.map((g) => {
         const unlimited = gradeTotals[g.id] == null;
@@ -108,7 +129,7 @@ export default function Collection({ catalog, onBack }) {
               {slots.map((w, i) => w ? (
                 <div
                   key={i}
-                  className={`coll-card ${rankClass(g.rank)} got`}
+                  className={`coll-card ${rankClass(g.rank)} got ${isRecent(w.at) ? "just" : ""}`}
                   role="button" tabIndex={0}
                   onClick={() => setSelected({
                     cardImage: w.cardImage, cardName: w.cardName, desc: `${w.name}님이 획득한 카드입니다.`,
@@ -117,6 +138,7 @@ export default function Collection({ catalog, onBack }) {
                 >
                   {w.cardImage && <img src={`/cards/${w.cardImage}`} alt={w.cardName} draggable={false} />}
                   {g.rank <= 3 && <div className="foil-sweep" />}
+                  {isRecent(w.at) && <span className="coll-just">방금</span>}
                   <span className="coll-winner">{w.name}</span>
                 </div>
               ) : (

@@ -506,6 +506,20 @@ body {
   font-size: 11px; font-weight: 800; letter-spacing: 0.2px; color: #fff;
   background: linear-gradient(0deg, rgba(0,0,0,0.88), rgba(0,0,0,0.05));
 }
+/* '방금 공개' 하이라이트 */
+.coll-card.just { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent,#ff5a4e) 80%, transparent), 0 0 22px color-mix(in srgb, var(--glow,#ff5a4e) 70%, transparent); animation: justGlow 1.8s ease-in-out infinite; }
+.coll-just { position: absolute; top: 6px; left: 6px; z-index: 4; font-size: 9.5px; font-weight: 900; letter-spacing: 0.4px; color: #fff; padding: 2px 6px; border-radius: 5px; background: linear-gradient(180deg,#ff5a4e,#d8201a); box-shadow: 0 2px 8px rgba(226,35,26,0.6); }
+@keyframes justGlow { 0%,100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent,#ff5a4e) 70%, transparent), 0 0 16px color-mix(in srgb, var(--glow,#ff5a4e) 55%, transparent); } 50% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent,#ff5a4e) 95%, transparent), 0 0 28px color-mix(in srgb, var(--glow,#ff5a4e) 90%, transparent); } }
+
+/* 최근 공개 스트립 */
+.hall-recent { margin: 0 0 18px; display: flex; flex-direction: column; gap: 9px; }
+.hall-recent-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #ff9b92; }
+.hall-recent-row { display: flex; gap: 9px; overflow-x: auto; padding-bottom: 4px; }
+.hr-card { position: relative; flex: 0 0 auto; width: 64px; aspect-ratio: 566/802; border-radius: 9px; overflow: hidden; border: 2px solid var(--accent, var(--line)); background: #0d1430; }
+.hr-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hr-name { position: absolute; left: 0; right: 0; bottom: 0; padding: 3px 2px; text-align: center; font-size: 9.5px; font-weight: 800; color: #fff; background: linear-gradient(0deg, rgba(0,0,0,0.9), transparent); }
+.hr-just { position: absolute; top: 4px; left: 4px; font-size: 8.5px; font-weight: 900; color: #fff; padding: 1px 5px; border-radius: 4px; background: linear-gradient(180deg,#ff5a4e,#d8201a); }
+.hr-card.just { animation: justGlow 1.8s ease-in-out infinite; }
 /* 도감 100% 컴플리트 배너 */
 .coll-complete {
   margin: 10px 0 4px; padding: 11px 16px; border-radius: 12px; text-align: center;
@@ -1914,7 +1928,8 @@ button.coll-card:disabled { cursor: default; }
   background: linear-gradient(176deg, #fff, #ffd9b0); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .ee-cell span { font-size: 11.5px; font-weight: 700; letter-spacing: 0.4px; color: #9aa0aa; }
 .ee-div { width: 1px; height: 34px; background: rgba(255,255,255,0.14); }
-.event-end .btn-primary.big { width: auto; padding: 15px 40px; margin-top: 6px; }
+.event-end .btn-primary.big { width: auto; padding: 15px 40px; }
+.ee-actions { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
 /* 종료 화면 — 내 카드 / 1~4등 블록 */
 .ee-block { width: 100%; display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
 .ee-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #ff9b92; }

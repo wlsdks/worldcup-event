@@ -4,6 +4,7 @@ import WinnerTicker from "./WinnerTicker.jsx";
 import PrizeInfo from "./PrizeInfo.jsx";
 import { useTilt, rcOf } from "../lib/cardUtils";
 import { getPublicResult } from "../api";
+import { shareResultImage } from "../lib/shareCard";
 
 function rankClass(rank) {
   return ["special", "holo", "gold", "silver", "bronze", "basic"][rank] || "basic";
@@ -46,6 +47,12 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
   const topWinners = (pub?.hall || [])
     .filter((h) => h.gradeRank <= 4)
     .sort((a, b) => a.gradeRank - b.gradeRank || a.at - b.at);
+  const [sharingResult, setSharingResult] = useState(false);
+  const shareResult = async () => {
+    if (sharingResult || !pub) return;
+    setSharingResult(true);
+    try { await shareResultImage(pub); } catch { /* 무시 */ } finally { setSharingResult(false); }
+  };
 
   return (
     <div className="screen home">
@@ -98,7 +105,14 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
             </div>
           )}
 
-          <button className="btn-primary big" onClick={onOpenCollection}>명예의 전당 보기</button>
+          <div className="ee-actions">
+            {pub && (pub.hall?.length > 0 || pub.participantCount > 0) && (
+              <button className="btn-ghost slim" onClick={shareResult} disabled={sharingResult}>
+                {sharingResult ? "이미지 생성 중…" : "결과 공유"}
+              </button>
+            )}
+            <button className="btn-primary big" onClick={onOpenCollection}>명예의 전당 보기</button>
+          </div>
         </section>
       ) : (
         <>
