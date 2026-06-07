@@ -156,6 +156,14 @@ const SPARKS = Array.from({ length: 16 }, (_, i) => ({
   size: 2 + (i % 3),
 }));
 
+// 차징: 가장자리에서 카드 중심으로 빨려드는 에너지 입자
+const CHARGE = Array.from({ length: 18 }, (_, i) => ({
+  id: i,
+  ang: Math.round((i * 360) / 18),
+  delay: ((i % 6) * 0.13).toFixed(2),
+  dur: (0.7 + (i % 4) * 0.18).toFixed(2),
+}));
+
 // 등급별 오라 색 에스컬레이션 경로 — 모든 빌드업은 '블루'에서 출발해 등급대만큼 차오른다(near-miss 서스펜스).
 // 동시에 레어도 3톤 그룹핑: 레어=블루 / 에픽·유니크=퍼플 / 전설·SP=골드. 클라이맥스 직전 진짜 등급색으로 '해방'.
 const AURA_PATH = {
@@ -220,8 +228,17 @@ function SummonBuildup({ rank }) {
           <div className="sm-spot sm-spot-r3" />
         </>
       )}
-      {/* 카드 솟아오르는 자리에서 퍼지는 god-ray 팬 */}
+      {/* 카드 솟아오르는 자리에서 퍼지는 god-ray 팬 (연속 회전) + 역회전 레이어 */}
       <div className="sm-rays" />
+      <div className="sm-rays sm-rays2" />
+      {/* 확장 쇼크링 — 에너지가 퍼지는 파동 */}
+      <div className="sm-rings" aria-hidden><span /><span /><span /></div>
+      {/* 차징 — 사방에서 중심으로 빨려드는 에너지 입자 */}
+      <div className="sm-charge" aria-hidden>
+        {CHARGE.map((c) => (
+          <span key={c.id} style={{ "--ang": `${c.ang}deg`, "--cd": `${c.delay}s`, "--cdur": `${c.dur}s` }} />
+        ))}
+      </div>
       <div className="sm-core" />
       <div className="sm-sparks">
         {SPARKS.map((s) => (

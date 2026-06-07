@@ -1731,10 +1731,56 @@ button.coll-card:disabled { cursor: default; }
   mask: radial-gradient(circle, #000 4%, rgba(0,0,0,0.5) 30%, transparent 60%);
   animation: smRays var(--sm) ease-out forwards;
 }
+/* 연속 회전 갓레이 — 차징 동안 계속 돌며 차오르다 클라이맥스에 폭발 */
 @keyframes smRays {
-  0%, 58% { opacity: 0; transform: translate(-50%,-50%) scale(0.2) rotate(0deg); }
-  82% { opacity: 0.85; transform: translate(-50%,-50%) scale(1) rotate(14deg); }
-  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.25) rotate(22deg); }
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.3) rotate(0deg); }
+  22% { opacity: 0.42; }
+  70% { opacity: 0.58; transform: translate(-50%,-50%) scale(0.92) rotate(150deg); }
+  86% { opacity: 0.95; transform: translate(-50%,-50%) scale(1.12) rotate(200deg); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.4) rotate(230deg); }
+}
+/* 역회전 미세 레이어 — 깊이감 */
+.sm-rays2 {
+  background: repeating-conic-gradient(from 0deg,
+    color-mix(in srgb, var(--glow, #fff) 55%, transparent) 0deg 1.2deg,
+    transparent 1.2deg 6deg);
+  animation: smRays2 var(--sm) ease-out forwards;
+}
+@keyframes smRays2 {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.4) rotate(0deg); }
+  25% { opacity: 0.28; }
+  86% { opacity: 0.5; transform: translate(-50%,-50%) scale(1.05) rotate(-170deg); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.32) rotate(-210deg); }
+}
+/* 확장 쇼크링 */
+.sm-rings { position: absolute; left: 50%; top: 44%; width: 0; height: 0; pointer-events: none; }
+.sm-rings span {
+  position: absolute; left: 0; top: 0; width: 14vmax; height: 14vmax; transform: translate(-50%,-50%) scale(0.2);
+  border-radius: 50%; border: 2px solid color-mix(in srgb, var(--glow, #fff) 65%, transparent);
+  opacity: 0; mix-blend-mode: screen; animation: smRing2 1.6s ease-out infinite;
+}
+.sm-rings span:nth-child(2) { animation-delay: 0.53s; }
+.sm-rings span:nth-child(3) { animation-delay: 1.06s; }
+@keyframes smRing2 {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.2); }
+  18% { opacity: 0.7; }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(2.7); }
+}
+/* 차징 — 사방에서 중심으로 빨려드는 에너지 입자 */
+.sm-charge { position: absolute; left: 50%; top: 44%; width: 0; height: 0; pointer-events: none; }
+.sm-charge span {
+  position: absolute; left: 0; top: 0; width: 16px; height: 3px; border-radius: 3px;
+  background: linear-gradient(90deg, transparent, #fff 70%, var(--glow, #ffd9a0));
+  box-shadow: 0 0 8px 1px color-mix(in srgb, var(--glow, #ffd9a0) 80%, transparent);
+  opacity: 0; mix-blend-mode: screen; transform-origin: center;
+  animation: smCharge var(--cdur, 0.9s) ease-in var(--cd, 0s) infinite;
+}
+/* 가장자리 → 중심으로 빨려드는 빛 줄기(차징) */
+@keyframes smCharge {
+  0% { opacity: 0; transform: rotate(var(--ang)) translateX(46vmax) scaleX(1.6); }
+  15% { opacity: 0.95; }
+  85% { opacity: 0.9; transform: rotate(var(--ang)) translateX(6vmax) scaleX(2.6); }
+  100% { opacity: 0; transform: rotate(var(--ang)) translateX(0.5vmax) scaleX(0.4); }
 }
 
 /* 중앙 에너지 코어 (빛이 모임) */
