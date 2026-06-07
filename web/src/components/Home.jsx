@@ -97,24 +97,23 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
         </div>
       )}
 
-      <div className="home-actions">
-        <button className="action-tile" onClick={onOpenCollection}>
-          <span className="at-kicker">COLLECTION</span>
-          <span className="at-label">도감 보기</span>
+      <div className="home-bento">
+        <button className="bento-tile feature cheer" onClick={onOpenCheer}>
+          <span className="bt-left">
+            <span className="bt-kicker">CHEER BATTLE</span>
+            <span className="bt-title">응원전 · 우리 팀 순위 올리기</span>
+          </span>
+          <span className="bt-go">바로가기 ›</span>
         </button>
-        <button className="action-tile" onClick={() => setShowPrize(true)}>
-          <span className="at-kicker">PRIZES</span>
-          <span className="at-label">당첨 상품 안내</span>
+        <button className="bento-tile" onClick={onOpenCollection}>
+          <span className="bt-kicker">COLLECTION</span>
+          <span className="bt-title">도감 보기</span>
+        </button>
+        <button className="bento-tile" onClick={() => setShowPrize(true)}>
+          <span className="bt-kicker">PRIZES</span>
+          <span className="bt-title">당첨 상품 안내</span>
         </button>
       </div>
-
-      <button className="cheer-hero" onClick={onOpenCheer}>
-        <div className="ch-left">
-          <span className="ch-kicker">CHEER BATTLE</span>
-          <span className="ch-msg">우리 팀을 응원하고 순위를 높이세요</span>
-        </div>
-        <span className="ch-go">바로가기 ›</span>
-      </button>
 
       <AnimatePresence>
         {showPrize && (

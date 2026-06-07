@@ -315,7 +315,8 @@ body {
   grid-area: 1 / 1; align-self: center;
   width: 164px; height: 30px; border-radius: 50%;
   background: radial-gradient(50% 100% at 50% 50%, rgba(255,150,110,0.55), rgba(226,35,26,0.2) 52%, transparent 74%);
-  box-shadow: 0 0 24px 6px rgba(255,80,50,0.32);
+  /* 따뜻한 에너지 + 어두운 접지 그림자(공간감/무게) */
+  box-shadow: 0 0 24px 6px rgba(255,80,50,0.32), 0 12px 26px 2px rgba(0,0,0,0.55);
 }
 .pack-pedestal .ped-glow {
   grid-area: 1 / 1; align-self: center; justify-self: center; margin-top: -14px;
@@ -388,43 +389,34 @@ body {
 .pb-arrow { position: absolute; right: 18px; font-size: 22px; font-weight: 800; opacity: 0.5; }
 
 /* 도감 / 당첨상품 — 한 줄 반반 */
-.home-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.action-tile {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  border: 1px solid rgba(255,255,255,0.14); color: var(--text);
-  background: linear-gradient(180deg, rgba(255,255,255,0.085), rgba(255,255,255,0.025));
-  border-radius: 16px; padding: 15px 10px; font-size: 13.5px; font-weight: 800; cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
-  transition: transform 0.14s ease, border-color 0.2s, box-shadow 0.2s;
-}
-.action-tile:hover { border-color: rgba(255,120,90,0.45); box-shadow: 0 9px 24px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.13); }
-.action-tile:active { transform: translateY(2px) scale(0.98); }
-.action-tile { gap: 5px; }
-.action-tile .at-kicker {
-  font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #ff9b92;
-}
-.action-tile .at-label { font-size: 15px; font-weight: 800; letter-spacing: -0.2px; color: #fff; }
-
-/* 응원전 히어로 배너 — 대한민국 응원 메시지 (블루→레드) */
-/* 응원전 진입 — 에디토리얼(그라데이션 소거, 샤프). 좌측 라벨 + 우측 화살표, 좌측 레드 액센트 바 */
-.cheer-hero {
-  position: relative; width: 100%; cursor: pointer; overflow: hidden;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 18px 18px 18px 22px; border-radius: 16px; text-align: left; color: #fff;
+/* ── 2026 벤토 그리드 — 응원전(피처, 풀폭) + 도감/상품(타일). 과장된 라운딩 + 공간감 ── */
+.home-bento { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bento-tile {
+  position: relative; overflow: hidden; cursor: pointer; text-align: left; color: var(--text);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
+  padding: 16px 16px; border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.1);
-  background: #1a0e10;
-  transition: transform 0.14s ease, border-color 0.2s, background 0.2s;
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+  box-shadow: 0 8px 24px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.07);
+  transition: transform 0.18s cubic-bezier(0.22,0.7,0.28,1), border-color 0.2s, box-shadow 0.22s, background 0.2s;
 }
-.cheer-hero::before {
+.bento-tile:hover { transform: translateY(-3px); border-color: rgba(255,120,90,0.42); box-shadow: 0 16px 34px rgba(0,0,0,0.44), inset 0 1px 0 rgba(255,255,255,0.12); }
+.bento-tile:active { transform: translateY(0) scale(0.985); }
+/* 피처(응원전) — 풀폭 가로형 + 좌측 레드 액센트 바 */
+.bento-tile.feature {
+  grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px; padding: 17px 18px 17px 22px;
+}
+.bento-tile.cheer { background: linear-gradient(108deg, rgba(226,35,26,0.2), rgba(255,255,255,0.02) 72%); border-color: rgba(255,90,70,0.4); }
+.bento-tile.cheer::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
   background: linear-gradient(180deg, #ff5a4e, #c8201a);
 }
-.cheer-hero:hover { border-color: rgba(255,120,100,0.4); background: #221115; }
-.cheer-hero:active { transform: translateY(1px); }
-.ch-left { display: flex; flex-direction: column; gap: 4px; }
-.ch-kicker { font-size: 10.5px; letter-spacing: 2.2px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; }
-.ch-msg { font-size: 15.5px; font-weight: 800; letter-spacing: -0.3px; }
-.ch-go { font-size: 13px; font-weight: 800; color: #c9ccd3; flex: 0 0 auto; }
+.bt-left { display: flex; flex-direction: column; gap: 4px; }
+.bt-kicker { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #ff9b92; }
+.bt-title { font-size: 15.5px; font-weight: 800; letter-spacing: -0.3px; color: #fff; }
+.bento-tile.feature .bt-title { font-size: 16.5px; }
+.bt-go { font-size: 13px; font-weight: 800; color: #ffb0a8; flex: 0 0 auto; }
 
 .recent { margin-top: 6px; }
 .recent-title { font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
@@ -1796,8 +1788,9 @@ button.coll-card:disabled { cursor: default; }
 .hg-name em { font-style: normal; color: var(--muted); font-size: 14px; font-weight: 600; }
 
 .home-hero { text-align: center; padding: 10px 0 2px; }
-.hh-kicker { display: inline-block; font-size: 11px; letter-spacing: 3px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; margin-bottom: 9px; }
-.hh-title { font-size: 30px; font-weight: 900; letter-spacing: -1px; line-height: 1.08; margin: 0; color: #fff; text-shadow: 0 2px 20px rgba(226,35,26,0.32); }
+.hh-kicker { display: inline-block; font-size: 11px; letter-spacing: 3.5px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; margin-bottom: 10px; }
+/* 2026 에디토리얼 — 오버사이즈 타이틀, 타이트 트래킹 */
+.hh-title { font-size: clamp(34px, 9.5vw, 46px); font-weight: 900; letter-spacing: -1.8px; line-height: 0.98; margin: 0; color: #fff; text-shadow: 0 2px 26px rgba(226,35,26,0.34); }
 .hh-sub { font-size: 13px; color: #b0b4bd; margin: 9px 0 0; letter-spacing: -0.2px; }
 
 /* 로그인 FIFA 톤 키커 */
