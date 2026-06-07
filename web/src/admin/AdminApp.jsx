@@ -6,9 +6,9 @@ import "./admin.css";
 const MASTER_KEY = "demo-master";
 const NAV = [
   { id: "dash", icon: "▦", label: "대시보드" },
-  { id: "winners", icon: "🏅", label: "당첨자" },
-  { id: "settings", icon: "⚙", label: "설정" },
-  { id: "tools", icon: "🛠", label: "운영 도구" },
+  { id: "winners", icon: "◆", label: "당첨자" },
+  { id: "settings", icon: "▤", label: "설정" },
+  { id: "tools", icon: "◈", label: "운영 도구" },
 ];
 
 export default function AdminApp() {
