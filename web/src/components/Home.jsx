@@ -37,6 +37,9 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
       <div className="home-hero">
         <span className="hh-kicker">GONOM WORLD CUP EDITION</span>
         <h1 className="hh-title">운명의 카드를 뽑아라</h1>
+        {status.eventActive && (
+          <div className="live-chip"><span className="live-dot" />이벤트 진행 중 · 하루 1회</div>
+        )}
       </div>
 
       <div className="draw-stage">
