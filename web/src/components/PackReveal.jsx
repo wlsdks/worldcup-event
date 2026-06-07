@@ -114,6 +114,16 @@ function Card({ card, revealed, size = "lg" }) {
             <img className="back-img" src="/cards/card-back.png" alt="" draggable={false} />
           </div>
         )}
+        {/* 플립 모서리 광택 — 카드가 가장 얇아지는 순간 모서리에 빛이 번쩍(물리감) */}
+        {revealed && size === "lg" && (
+          <motion.span
+            className="flip-edge"
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0, 0.95, 0] }}
+            transition={{ duration: 0.46, times: [0, 0.36, 0.46, 0.62], ease: "easeOut" }}
+          />
+        )}
       </motion.div>
     </div>
   );
@@ -490,9 +500,10 @@ export default function PackReveal({ result, config, onClose }) {
       ref={overlayRef}
       onPointerMove={onParallax}
       className={`pack-overlay ${overlayRc} ${energyRank ? "amped" : ""} phase-${phase}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0, scale: 1.08 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.04 }}
+      transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
     >
       <div className="stadium-bg" aria-hidden>
         <div className="pl topspot" />
@@ -665,8 +676,8 @@ export default function PackReveal({ result, config, onClose }) {
 
       {/* ── 최종 5장 요약 ── */}
       {phase === "summary" && (
-        <motion.div className="summary" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-          <div className="summary-title">이번 팩 결과 <span>({N}장)</span></div>
+        <motion.div className="summary" initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.38, ease: [0.22, 0.61, 0.36, 1] }}>
+          <motion.div className="summary-title" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05, duration: 0.3 }}>이번 팩 결과 <span>({N}장)</span></motion.div>
           <div className={`pack-grid n${N} summary-grid`}>
             {cards.map((c, i) => (
               <motion.div
@@ -674,9 +685,9 @@ export default function PackReveal({ result, config, onClose }) {
                 className={`grid-cell ${c.isMiss ? "" : "clickable"}`}
                 onClick={() => !c.isMiss && setDetail(c)}
                 role={c.isMiss ? undefined : "button"}
-                initial={{ opacity: 0, scale: 0.7, y: 16 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.09, type: "spring", stiffness: 300, damping: 20 }}
+                initial={{ opacity: 0, scale: 0.62, y: 20, rotate: i % 2 ? 7 : -7 }}
+                animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+                transition={{ delay: 0.12 + i * 0.07, type: "spring", stiffness: 320, damping: 21 }}
               >
                 <Card card={c} revealed size="sm" />
               </motion.div>

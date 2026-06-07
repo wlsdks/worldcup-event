@@ -798,6 +798,12 @@ body {
 .tilt-layer.lg { height: 100%; aspect-ratio: auto; }
 /* 플립 transform 은 framer-motion 이 제어 (rotateY + 공개 시 스케일 펀치) */
 .flip-layer { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+/* 플립 중 모서리 광택 — 중앙 세로 광띠(카드가 얇아질 때 모서리에 빛 반사) */
+.flip-edge {
+  position: absolute; top: 0; bottom: 0; left: 44%; right: 44%; z-index: 6; pointer-events: none;
+  border-radius: 16px; mix-blend-mode: screen; filter: blur(2px);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95) 45%, #fff 50%, rgba(255,255,255,0.95) 55%, transparent);
+}
 .face {
   position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
   border-radius: 16px;
