@@ -1,4 +1,4 @@
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture, Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
@@ -6,6 +6,20 @@ import { gyro } from "../lib/gyro";
 
 // 등급별 카드 엣지/림 색
 const EDGE = ["#1f9e76", "#caa12a", "#c79a36", "#9aa6b6", "#9c6a3e", "#5a626e"];
+// 등급별 바닥 글로우 색
+const GLOW = ["#3ce0a0", "#ffd24a", "#ffca5a", "#cdd6e2", "#e0a878", "#7a828e"];
+
+// 방사형 글로우 텍스처(가장자리 투명) — 카드 아래 소프트 헤일로용
+function makeGlowTex() {
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const x = c.getContext("2d");
+  const g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.45, "rgba(255,255,255,0.45)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(c);
+}
 
 function CardMesh({ front, back, revealed, prize, special, edge }) {
   const g = useRef();
@@ -68,6 +82,8 @@ export default function Card3D({ card, revealed }) {
   const prize = card.gradeRank <= 3;
   const special = card.gradeRank <= 1; // SP·전설 최강 홀로
   const edge = EDGE[card.gradeRank] ?? "#5a626e";
+  const glowColor = GLOW[card.gradeRank] ?? "#7a828e";
+  const glowTex = useMemo(makeGlowTex, []);
   return (
     <Canvas
       camera={{ position: [0, 0, 6.5], fov: 34 }}
@@ -78,6 +94,11 @@ export default function Card3D({ card, revealed }) {
       <ambientLight intensity={0.55} />
       <directionalLight position={[3, 4, 5]} intensity={1.5} />
       <directionalLight position={[-4, -2, 2]} intensity={0.5} color="#ffd9b0" />
+      {/* 카드 아래 소프트 글로우 헤일로 — 박스/하드엣지 없이 그라운딩 */}
+      <mesh position={[0, -1.55, -0.15]}>
+        <planeGeometry args={[3.7, 2]} />
+        <meshBasicMaterial map={glowTex} transparent depthWrite={false} blending={THREE.AdditiveBlending} color={glowColor} opacity={prize ? 0.8 : 0.45} />
+      </mesh>
       <Suspense fallback={null}>
         <CardMesh
           front={`/cards/${card.cardImage}`}
