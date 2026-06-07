@@ -1425,6 +1425,24 @@ button.coll-card:disabled { cursor: default; }
 .summon.r1, .summon.holo { --sm: 3.2s; }
 .summon.r0, .summon.special { --sm: 3.4s; }
 
+/* ── 오라 색 에스컬레이션 (블루 → 퍼플 → 골드) ── 모든 빌드업이 블루에서 출발해 등급대만큼 차오른다.
+   .st-* 는 .summon(rc) 보다 명시도가 높아 빌드업 동안 --glow 를 덮어쓰고, 클라이맥스 직전 해방되면 등급 고유색으로 복귀. */
+.summon.st-blue   { --glow: rgba(96,168,255,0.74);  --accent:#5aa6ff; }
+.summon.st-purple { --glow: rgba(180,118,255,0.76); --accent:#b276ff; }
+.summon.st-gold   { --glow: rgba(255,201,74,0.74);  --accent:#ffc94a; }
+/* 단계 상승마다 중앙에서 차오르는 충전 펄스 (새 단계 색으로) */
+.sm-pulse {
+  position: absolute; left: 50%; top: 44%; width: 52vmax; height: 52vmax; transform: translate(-50%,-50%);
+  border-radius: 50%; opacity: 0; mix-blend-mode: screen; filter: blur(11px); pointer-events: none;
+  background: radial-gradient(circle, color-mix(in srgb, var(--glow) 90%, #fff) 0%, var(--glow) 34%, transparent 62%);
+  animation: smPulse 0.55s cubic-bezier(0.2,0.7,0.3,1) forwards;
+}
+@keyframes smPulse {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.38); }
+  28% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.15); }
+}
+
 /* 깊은 어둠 + 중앙 집중 비네팅 */
 .sm-dark {
   position: absolute; inset: 0; opacity: 0;

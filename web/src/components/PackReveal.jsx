@@ -4,7 +4,6 @@ import { rcOf, useTilt } from "../lib/cardUtils";
 import { celebrate } from "../lib/celebrate";
 import CardModal from "./CardModal.jsx";
 
-const RANK_MSG = { 0: "👑 SPECIAL 당첨!!!", 1: "🏆 1등 당첨!!!", 2: "🥇 2등 당첨!!", 3: "🥈 3등 당첨!", 4: "당첨!", 5: "당첨!" };
 // 등급별 공개 빌드업 시간(ms) — CSS .summon --sm 과 일치. 5등은 즉시(빌드업 없음).
 const SUMMON_DUR = { 0: 3400, 1: 3200, 2: 3000, 3: 2000, 4: 1000 };
 // 스페셜 전용 예고 문구
@@ -140,12 +139,40 @@ const SPARKS = Array.from({ length: 16 }, (_, i) => ({
   size: 2 + (i % 3),
 }));
 
+// 등급별 오라 색 에스컬레이션 경로 — 모든 빌드업은 '블루'에서 출발해 등급대만큼 차오른다(near-miss 서스펜스).
+// 동시에 레어도 3톤 그룹핑: 레어=블루 / 에픽·유니크=퍼플 / 전설·SP=골드. 클라이맥스 직전 진짜 등급색으로 '해방'.
+const AURA_PATH = {
+  0: ["blue", "purple", "gold"], // SP
+  1: ["blue", "purple", "gold"], // 전설
+  2: ["blue", "purple"],          // 유니크
+  3: ["blue", "purple"],          // 에픽
+  4: ["blue"],                    // 레어
+};
+
 /** 소환 빌드업 (FIFA 워크아웃 톤) — 어둠 + 양옆 스포트라이트가 하늘로 솟구치고, 불티가 오르며, 클라이맥스에 플레어가 터진다. 등급 높을수록 길고 강하게. */
 function SummonBuildup({ rank }) {
   const rc = rcOf(rank);
+  const path = AURA_PATH[rank] || ["blue"];
+  const dur = SUMMON_DUR[rank] || 1000;
+  const [stage, setStage] = useState(path[0]); // blue → purple → gold → "real"(등급색 해방)
+  const [pulse, setPulse] = useState(0);        // 단계 상승마다 차오르는 충전 펄스
+
+  useEffect(() => {
+    const timers = [];
+    // 첫 단계는 즉시. 이후 단계는 dur 의 18~68% 구간에 분산 배치해 한 칸씩 차오르게.
+    path.forEach((st, k) => {
+      if (k === 0) return;
+      const at = dur * (0.18 + (0.5 * k) / path.length);
+      timers.push(setTimeout(() => { setStage(st); setPulse((p) => p + 1); }, at));
+    });
+    // 클라이맥스(플레어 ~86%) 직전 진짜 등급색으로 해방 → 최종 폭발은 등급 고유색으로.
+    timers.push(setTimeout(() => { setStage("real"); setPulse((p) => p + 1); }, dur * 0.78));
+    return () => timers.forEach(clearTimeout);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <motion.div
-      className={`summon ${rc} r${rank}`}
+      className={`summon ${rc} r${rank} ${stage !== "real" ? `st-${stage}` : ""}`}
       aria-hidden
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -153,6 +180,7 @@ function SummonBuildup({ rank }) {
       transition={{ duration: 0.25 }}
     >
       <div className="sm-dark" />
+      {pulse > 0 && <div key={pulse} className="sm-pulse" />}
       <div className="sm-vignette" />
       {/* 스페셜 전용 — 카드 주변에서 빛이 점점 크게 새어나감 + 예고 문구 */}
       {rank === 0 && (

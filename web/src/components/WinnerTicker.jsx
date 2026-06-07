@@ -5,23 +5,23 @@ import { getRecentWinners } from "../api";
 const RC = ["", "holo", "gold", "silver"];
 
 /** 상단 확성기 배너 — 최근 1~3등 당첨자를 주기적으로 흘려보여줌 */
-export default function WinnerTicker({ hidden }) {
+export default function WinnerTicker({ hidden, me }) {
   const [winners, setWinners] = useState([]);
   const [idx, setIdx] = useState(0);
 
-  // 20초마다 최신 당첨자 갱신
+  // 20초마다 최신 당첨자 갱신 (본인 당첨은 제외)
   useEffect(() => {
     let alive = true;
     const load = async () => {
       try {
-        const w = await getRecentWinners();
+        const w = (await getRecentWinners(me)).filter((x) => !x.mine);
         if (alive) setWinners(w);
       } catch { /* 무시 */ }
     };
     load();
     const poll = setInterval(load, 20000);
     return () => { alive = false; clearInterval(poll); };
-  }, []);
+  }, [me]);
 
   // 4초마다 다음 당첨자로 회전
   useEffect(() => {

@@ -240,7 +240,10 @@ export const drawCard = onCall(async (request) => {
 
 // ───────────────────────────────────────── 당첨 티커 ─────────────────────────────────────────
 // 최근 1~3등 당첨자(이름 마스킹)를 반환. 상단 확성기 배너용.
-export const getRecentWinners = onCall(async () => {
+export const getRecentWinners = onCall(async (request) => {
+  // 호출자 본인 사번 — 본인 당첨은 'mine' 으로 표시(다른 사람 사번은 노출하지 않음).
+  // 본인 결과가 상단 배너/티커에 떠서 리빌 전 스포일러가 되는 것을 막기 위함.
+  const me = cleanStr(request?.data?.empNo);
   const snap = await db.collection("draws").orderBy("createdAt", "desc").limit(60).get();
   const winners = [];
   for (const doc of snap.docs) {
@@ -256,6 +259,7 @@ export const getRecentWinners = onCall(async () => {
           gradeRank: c.gradeRank,
           gradeLabel: c.gradeLabel,
           gradeName: c.gradeName || "",
+          mine: !!me && d.empNo === me,
         });
       }
     });

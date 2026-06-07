@@ -30,10 +30,10 @@ export async function getStatus({ empNo, name }) {
 }
 
 /** 최근 1~3등 당첨자 (확성기 티커용) */
-export async function getRecentWinners() {
+export async function getRecentWinners(empNo) {
   await ensureAuth();
   const fn = httpsCallable(functions, "getRecentWinners");
-  const res = await fn({});
+  const res = await fn({ empNo: empNo || undefined });
   return res.data?.winners || [];
 }
 

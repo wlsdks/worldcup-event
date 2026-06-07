@@ -114,7 +114,7 @@ export default function App() {
           />
         ))}
       </div>
-      {screen === "home" && status && <WinnerBroadcast onActiveChange={setCastActive} />}
+      {screen === "home" && status && <WinnerBroadcast onActiveChange={setCastActive} me={user?.empNo} paused={!!reveal} />}
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -130,6 +130,7 @@ export default function App() {
           {screen === "home" && status && (
             <Home
               castActive={castActive}
+              revealing={!!reveal}
               user={user}
               status={status}
               catalog={catalog}
