@@ -1,6 +1,6 @@
 import { Suspense, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useTexture, Environment, Lightformer, MeshReflectorMaterial } from "@react-three/drei";
+import { useTexture, Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
 import { gyro } from "../lib/gyro";
 
@@ -28,7 +28,7 @@ function CardMesh({ front, back, revealed, prize, special, edge }) {
     const tgtX = -py * (gyro.active ? 0.45 : 0.3) + (revealed ? Math.sin(t * 0.6) * 0.05 : 0);
     grp.rotation.y += (tgtY - grp.rotation.y) * k;
     grp.rotation.x += (tgtX - grp.rotation.x) * Math.min(1, dt * 5);
-    grp.position.y = 0.35 + Math.sin(t * 1.4) * 0.03; // 바닥 위로 띄움 + 잔잔한 부유
+    grp.position.y = Math.sin(t * 1.4) * 0.03; // 잔잔한 부유
   });
 
   const W = 2.4, H = 3.36, T = 0.05;
@@ -70,7 +70,7 @@ export default function Card3D({ card, revealed }) {
   const edge = EDGE[card.gradeRank] ?? "#5a626e";
   return (
     <Canvas
-      camera={{ position: [0, 0.5, 6.4], fov: 34 }}
+      camera={{ position: [0, 0, 6.5], fov: 34 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false }}
       style={{ width: "100%", height: "100%" }}
@@ -87,23 +87,6 @@ export default function Card3D({ card, revealed }) {
           special={special}
           edge={edge}
         />
-        {/* 유리 바닥 — 카드가 비치는 프리미엄 쇼케이스 */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.75, 0]}>
-          <planeGeometry args={[16, 16]} />
-          <MeshReflectorMaterial
-            resolution={512}
-            blur={[320, 130]}
-            mixBlur={1.1}
-            mixStrength={1.3}
-            roughness={0.8}
-            depthScale={1}
-            minDepthThreshold={0.4}
-            maxDepthThreshold={1.2}
-            color="#0a0608"
-            metalness={0.55}
-            mirror={0.4}
-          />
-        </mesh>
         {/* 네트워크 HDR 없이 메모리 환경맵 — 반사/이리데센스용 */}
         <Environment resolution={128}>
           <Lightformer intensity={2.4} position={[2, 2, 3]} scale={[4, 4, 1]} color="#ffffff" />
