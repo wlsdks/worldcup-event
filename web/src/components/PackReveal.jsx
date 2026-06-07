@@ -7,9 +7,11 @@ import CardModal from "./CardModal.jsx";
 import CountUp from "./CountUp.jsx";
 import { shareCardImage } from "../lib/shareCard";
 import { enableGyro } from "../lib/gyro";
+import { can3D } from "../lib/can3d";
 
 // 리빌 히어로 카드는 무거운 Three.js → lazy 로드(메인 번들 영향 없음)
 const Card3D = lazy(() => import("./Card3D.jsx"));
+const USE_3D = can3D(); // 저사양/미지원 기기는 CSS 카드 폴백
 
 // 등급별 공개 빌드업 시간(ms) — CSS .summon --sm 과 일치. 5등은 즉시(빌드업 없음).
 const SUMMON_DUR = { 0: 3400, 1: 3200, 2: 3000, 3: 2000, 4: 1000 };
@@ -648,7 +650,7 @@ export default function PackReveal({ result, config, onClose }) {
                         onClick={() => mode !== "all" && deckAction()}
                       >
                         <div className={`card-bob ${curRevealed ? "revealed" : ""}`}>
-                          {current.isMiss ? (
+                          {current.isMiss || !USE_3D ? (
                             <Card card={current} revealed={curRevealed} size="lg" />
                           ) : (
                             <Suspense fallback={<Card card={current} revealed={curRevealed} size="lg" />}>
