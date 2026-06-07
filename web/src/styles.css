@@ -252,6 +252,8 @@ body {
   transition: background 0.18s ease, border-color 0.2s ease;
 }
 .cheer-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.16); }
+/* 방금 등록된 응원 하이라이트 */
+.cheer-item.just { border-color: rgba(255,150,90,0.6); box-shadow: 0 0 0 1px rgba(255,120,90,0.4), 0 0 18px rgba(255,90,70,0.3); animation: justGlow 1.9s ease-in-out infinite; }
 /* 순위 강조 — 좌측 바 없이 배경 그라데이션 + 보더 + 숫자 글로우로 (이벤트 프리미엄 톤) */
 .cheer-item.rank1 {
   background: linear-gradient(105deg, rgba(255,176,64,0.16), rgba(226,35,26,0.18) 46%, rgba(255,255,255,0.02) 82%);
@@ -678,6 +680,7 @@ body {
 .ticker-msg strong.holo { color: #ffd24a; }
 .ticker-msg strong.gold { color: #f4c145; }
 .ticker-msg strong.silver { color: #d7dee9; }
+.ticker-msg strong.bronze { color: #e3a673; }
 /* 전광판 등급/응원 배지 */
 .ti-badge {
   display: inline-block; font-size: 11px; font-weight: 800; line-height: 1.5;
@@ -687,6 +690,7 @@ body {
 .ti-badge.holo   { color: #ffd24a; border-color: rgba(255,206,58,0.55); background: rgba(255,206,58,0.15); }
 .ti-badge.gold   { color: #f4c145; border-color: rgba(244,193,69,0.55); background: rgba(244,193,69,0.15); }
 .ti-badge.silver { color: #d7dee9; border-color: rgba(203,213,226,0.5); background: rgba(203,213,226,0.13); }
+.ti-badge.bronze { color: #e3a673; border-color: rgba(222,150,92,0.5); background: rgba(222,150,92,0.14); }
 .ti-badge.cheer  { color: #ff9b92; border-color: rgba(255,140,100,0.55); background: rgba(255,140,100,0.15); }
 
 /* ───── 홈 액션 보조 ───── */

@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getRecentWinners, getCheers } from "../api";
 
-const RC = ["", "holo", "gold", "silver"];
+const RC = ["", "holo", "gold", "silver", "bronze"];
 
 /**
  * 상단 전광판 — 최근 당첨자(등급/등수)와 응원 한마디를 번갈아 흘려보여준다.

@@ -256,7 +256,7 @@ export const getRecentWinners = onCall(async (request) => {
     const d = doc.data();
     const at = d.createdAt?.toMillis?.() || 0;
     (d.cards || []).forEach((c, ci) => {
-      if ((c.gradeRank || 99) <= 3) {
+      if ((c.gradeRank ?? 99) <= 4) { // 1~4등(레어 포함)까지 전광판/명예의 전당 연동
         winners.push({
           id: `${doc.id}_${ci}`,
           at,

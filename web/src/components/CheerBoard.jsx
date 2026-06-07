@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getCheers, postCheer, likeCheer } from "../api";
 
@@ -16,11 +16,23 @@ export default function CheerBoard({ user, teams = [], onBack }) {
 
   const [confirmId, setConfirmId] = useState(null); // 좋아요 확인 팝업 대상
   const [liking, setLiking] = useState(false);
+  const [toast, setToast] = useState(null);
+  const seenRef = useRef(null);
 
   const load = useCallback(async () => {
     try {
       const d = await getCheers(user?.empNo);
-      setCheers(d.cheers || []);
+      const list = d.cheers || [];
+      // 첫 로드 이후 새 응원 → 토스트
+      if (seenRef.current) {
+        const fresh = list.filter((c) => !seenRef.current.has(c.id));
+        if (fresh.length) {
+          const t = fresh.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))[0];
+          setToast({ key: Date.now(), name: t.name, team: t.team, message: t.message });
+        }
+      }
+      seenRef.current = new Set(list.map((c) => c.id));
+      setCheers(list);
       setLiked(new Set(d.likedIds || []));
       setLikesUsed(d.likesUsed || 0);
       setLikesMax(d.likesMax || 3);
@@ -32,6 +44,13 @@ export default function CheerBoard({ user, teams = [], onBack }) {
     const poll = setInterval(load, 12000);
     return () => clearInterval(poll);
   }, [load]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4200);
+    return () => clearTimeout(t);
+  }, [toast]);
+  const now = Date.now();
 
   const remaining = Math.max(0, likesMax - likesUsed);
 
@@ -135,7 +154,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 320, damping: 28 }}
-                className={`cheer-item ${i < 3 ? "top" : ""} rank${i + 1}`}
+                className={`cheer-item ${i < 3 ? "top" : ""} rank${i + 1} ${c.createdAt && now - c.createdAt < 600000 ? "just" : ""}`}
               >
                 <div className="ci-rank">
                   <span className="ci-num">{i + 1}</span>
@@ -192,6 +211,22 @@ export default function CheerBoard({ user, teams = [], onBack }) {
                 </button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key={toast.key}
+            className="hall-toast cheer-toast"
+            initial={{ y: -44, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -44, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 320, damping: 24 }}
+          >
+            <span className="ht-spark" aria-hidden>✦</span>
+            <span><b>{toast.name}</b>님 응원 등록!</span>
           </motion.div>
         )}
       </AnimatePresence>
