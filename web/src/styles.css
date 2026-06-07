@@ -597,8 +597,21 @@ body {
 .ticker-mega { font-size: 18px; animation: megawave 1.2s ease-in-out infinite; }
 @keyframes megawave { 0%,100%{ transform: rotate(-12deg); } 50%{ transform: rotate(8deg) scale(1.1); } }
 .ticker-view { position: relative; flex: 1; height: 20px; overflow: hidden; }
-.ticker-msg { position: absolute; inset: 0; font-size: 14px; font-weight: 600; white-space: nowrap; }
-.ticker-msg strong { font-weight: 900; }
+.ticker-msg { position: absolute; inset: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f3e7e6; }
+.ticker-msg strong { font-weight: 900; color: #fff; }
+.ticker-msg strong.holo { color: #ffd24a; }
+.ticker-msg strong.gold { color: #f4c145; }
+.ticker-msg strong.silver { color: #d7dee9; }
+/* 전광판 등급/응원 배지 */
+.ti-badge {
+  display: inline-block; font-size: 11px; font-weight: 800; line-height: 1.5;
+  padding: 1px 8px; border-radius: 999px; margin-right: 7px; vertical-align: middle;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.22); color: #f3e7e6;
+}
+.ti-badge.holo   { color: #ffd24a; border-color: rgba(255,206,58,0.55); background: rgba(255,206,58,0.15); }
+.ti-badge.gold   { color: #f4c145; border-color: rgba(244,193,69,0.55); background: rgba(244,193,69,0.15); }
+.ti-badge.silver { color: #d7dee9; border-color: rgba(203,213,226,0.5); background: rgba(203,213,226,0.13); }
+.ti-badge.cheer  { color: #ff9b92; border-color: rgba(255,140,100,0.55); background: rgba(255,140,100,0.15); }
 
 /* ───── 홈 액션 보조 ───── */
 .draw-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
