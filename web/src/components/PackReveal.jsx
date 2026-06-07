@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { rcOf, useTilt } from "../lib/cardUtils";
 import { celebrate } from "../lib/celebrate";
@@ -6,6 +6,9 @@ import { haptic } from "../lib/haptics";
 import CardModal from "./CardModal.jsx";
 import CountUp from "./CountUp.jsx";
 import { shareCardImage } from "../lib/shareCard";
+
+// 리빌 히어로 카드는 무거운 Three.js → lazy 로드(메인 번들 영향 없음)
+const Card3D = lazy(() => import("./Card3D.jsx"));
 
 // 등급별 공개 빌드업 시간(ms) — CSS .summon --sm 과 일치. 5등은 즉시(빌드업 없음).
 const SUMMON_DUR = { 0: 3400, 1: 3200, 2: 3000, 3: 2000, 4: 1000 };
@@ -637,7 +640,13 @@ export default function PackReveal({ result, config, onClose }) {
                         onClick={() => mode !== "all" && deckAction()}
                       >
                         <div className={`card-bob ${curRevealed ? "revealed" : ""}`}>
-                          <Card card={current} revealed={curRevealed} size="lg" />
+                          {current.isMiss ? (
+                            <Card card={current} revealed={curRevealed} size="lg" />
+                          ) : (
+                            <Suspense fallback={<Card card={current} revealed={curRevealed} size="lg" />}>
+                              <div className="card3d-wrap"><Card3D card={current} revealed={curRevealed} /></div>
+                            </Suspense>
+                          )}
                         </div>
                       </motion.div>
                     </motion.div>
