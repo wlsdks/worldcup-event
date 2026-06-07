@@ -24,8 +24,6 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
 
   return (
     <div className="screen home">
-      <WinnerTicker hidden={castActive || revealing} me={user?.empNo} />
-
       <header className="home-top">
         <div className="home-greet">
           <span className="hg-kicker">HUNET · WORLD CUP 2026</span>
@@ -33,6 +31,8 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
         </div>
         <button className="link-btn" onClick={onLogout}>로그아웃</button>
       </header>
+
+      <WinnerTicker hidden={castActive || revealing} me={user?.empNo} />
 
       <div className="home-hero">
         <span className="hh-kicker">GONOM WORLD CUP EDITION</span>
