@@ -230,71 +230,67 @@ body {
 .cheer-rank-title { font-size: 15px; font-weight: 800; color: #fff; margin-top: 2px; }
 .cheer-rank-title span { color: var(--muted); font-size: 12px; font-weight: 600; }
 
-.cheer-list { display: grid; gap: 9px; }
+/* ── 응원전 랭킹 — 에디토리얼 스코어보드(이모지 메달/하트 제거, 타이포 순위) ── */
+.cheer-list { display: grid; gap: 8px; }
 .cheer-item {
-  position: relative; display: flex; align-items: center; gap: 11px; padding: 12px 13px 12px 12px;
-  border-radius: 15px; background: rgba(255,255,255,0.04);
+  position: relative; display: flex; align-items: center; gap: 13px; padding: 13px 14px 13px 17px;
+  border-radius: 12px; background: rgba(255,255,255,0.035);
   border: 1px solid var(--line); overflow: hidden;
-  transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s;
+  transition: background 0.18s ease, border-color 0.2s ease;
 }
-.cheer-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.34); }
-/* 좌측 등급 컬러 바 */
+.cheer-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.16); }
+/* 좌측 순위 컬러 바 — 순위 강조의 핵심 */
 .cheer-item::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent;
 }
 .cheer-item.rank1 {
-  background: linear-gradient(110deg, rgba(255,196,72,0.18), rgba(226,35,26,0.1) 60%, rgba(255,255,255,0.02));
-  border-color: rgba(255,210,120,0.65); box-shadow: 0 0 24px rgba(255,196,72,0.22);
+  background: linear-gradient(100deg, rgba(226,35,26,0.16), rgba(255,255,255,0.02) 72%);
+  border-color: rgba(255,90,70,0.5);
 }
-.cheer-item.rank1::before { background: linear-gradient(#ffe08a, #f5b210); }
-.cheer-item.rank2 { background: linear-gradient(110deg, rgba(206,214,228,0.14), rgba(255,255,255,0.02)); border-color: rgba(206,214,228,0.4); }
+.cheer-item.rank1::before { background: linear-gradient(#ff7a5d, #e2231a); }
+.cheer-item.rank2 { border-color: rgba(206,214,228,0.26); }
 .cheer-item.rank2::before { background: linear-gradient(#eef2f8, #aab6c8); }
-.cheer-item.rank3 { background: linear-gradient(110deg, rgba(222,150,92,0.16), rgba(255,255,255,0.02)); border-color: rgba(222,150,92,0.45); }
+.cheer-item.rank3 { border-color: rgba(222,150,92,0.3); }
 .cheer-item.rank3::before { background: linear-gradient(#e7b083, #c0703a); }
 
-/* 순위 배지 */
-.ci-rank { position: relative; flex: 0 0 auto; width: 38px; display: grid; place-items: center; }
-.ci-medal { font-size: 26px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45)); }
-.cheer-item.rank1 .ci-medal { font-size: 30px; }
-.rank-num {
-  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
-  font-size: 14px; font-weight: 800; color: var(--muted);
-  background: rgba(255,255,255,0.06); border: 1px solid var(--line);
+/* 순위 — 타이포그래픽 숫자 */
+.ci-rank { flex: 0 0 auto; width: 30px; display: grid; place-items: center; }
+.ci-num {
+  font-size: 21px; font-weight: 900; line-height: 1; letter-spacing: -1.5px;
+  font-variant-numeric: tabular-nums; color: #5f6672;
 }
-/* 1위 왕관 */
-.cheer-item.rank1 .ci-rank::after {
-  content: "👑"; position: absolute; top: 2px; font-size: 13px; transform: translateY(-9px);
-}
+.cheer-item.rank1 .ci-num { font-size: 26px; color: #ffd24a; }
+.cheer-item.rank2 .ci-num { font-size: 23px; color: #d7dee9; }
+.cheer-item.rank3 .ci-num { font-size: 22px; color: #e3a673; }
 
 .ci-body { flex: 1; min-width: 0; }
-.ci-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ci-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ci-team {
-  font-size: 14px; font-weight: 800; color: #fff; letter-spacing: -0.2px;
-  background: linear-gradient(180deg, rgba(255,74,61,0.42), rgba(226,35,26,0.3));
-  border: 1px solid rgba(255,120,110,0.4); padding: 2px 9px; border-radius: 8px;
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.3px; color: #ffb0a8;
+  background: rgba(226,35,26,0.15); border: 1px solid rgba(226,35,26,0.42);
+  padding: 2px 8px; border-radius: 5px;
 }
+.cheer-item.rank1 .ci-team { color: #fff; background: rgba(226,35,26,0.42); border-color: rgba(255,120,100,0.6); }
 .ci-name { font-size: 12px; color: var(--muted); font-weight: 700; }
-.ci-msg { font-size: 14.5px; color: #fdeef0; margin-top: 5px; word-break: break-word; line-height: 1.42; }
+.ci-msg { font-size: 14.5px; color: #f1e6e7; margin-top: 5px; word-break: break-word; line-height: 1.45; }
 
-/* 좋아요 버튼 — 원형, 하트 채움 */
+/* 추천 — 글리프 하트(이모지 제거) + 카운트 */
 .like-btn {
-  flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1px;
-  width: 52px; padding: 9px 4px; border-radius: 14px; cursor: pointer;
-  background: rgba(255,255,255,0.05); border: 1px solid var(--line); color: var(--text);
+  flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 46px; padding: 7px 10px; border-radius: 10px; cursor: pointer;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--line); color: var(--text);
   transition: transform 0.12s ease, background 0.2s, border-color 0.2s;
 }
-.like-btn:not(:disabled):hover { border-color: rgba(255,120,110,0.5); }
-.like-btn:not(:disabled):active { transform: scale(0.9); }
-.like-btn.on {
-  background: linear-gradient(180deg, rgba(255,74,61,0.3), rgba(226,35,26,0.22));
-  border-color: rgba(255,120,110,0.6);
-}
+.like-btn:not(:disabled):hover { border-color: rgba(255,120,110,0.55); background: rgba(255,90,70,0.08); }
+.like-btn:not(:disabled):active { transform: scale(0.92); }
+.like-btn.on { background: rgba(226,35,26,0.16); border-color: rgba(255,120,110,0.55); }
 .like-btn:disabled { cursor: default; }
-.like-btn:disabled:not(.on) { opacity: 0.45; }
-.lb-ic { font-size: 19px; line-height: 1; }
-.like-btn.on .lb-ic { animation: likePop 0.35s ease; }
+.like-btn:disabled:not(.on) { opacity: 0.4; }
+.lb-heart { font-size: 17px; line-height: 1; color: #7a818d; }
+.like-btn:not(:disabled) .lb-heart { color: #ff8a82; }
+.like-btn.on .lb-heart { color: #ff4a3d; animation: likePop 0.35s ease; }
 @keyframes likePop { 0% { transform: scale(0.6); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
-.lb-n { font-size: 13px; font-weight: 800; color: #ff8a82; }
+.lb-n { font-size: 13px; font-weight: 800; color: #ffb0a8; font-variant-numeric: tabular-nums; }
 
 .cheer-empty { color: var(--muted); font-size: 14px; text-align: center; padding: 22px 0; }
 

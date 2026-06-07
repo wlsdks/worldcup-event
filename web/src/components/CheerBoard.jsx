@@ -2,8 +2,6 @@ import { useEffect, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getCheers, postCheer, likeCheer } from "../api";
 
-const MEDAL = ["🥇", "🥈", "🥉"];
-
 export default function CheerBoard({ user, teams = [], onBack }) {
   const [cheers, setCheers] = useState([]);
   const [liked, setLiked] = useState(() => new Set());
@@ -141,7 +139,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
                 className={`cheer-item ${i < 3 ? "top" : ""} rank${i + 1}`}
               >
                 <div className="ci-rank">
-                  {i < 3 ? <span className="ci-medal">{MEDAL[i]}</span> : <span className="rank-num">{i + 1}</span>}
+                  <span className="ci-num">{i + 1}</span>
                 </div>
                 <div className="ci-body">
                   <div className="ci-head">
@@ -154,9 +152,9 @@ export default function CheerBoard({ user, teams = [], onBack }) {
                   className={`like-btn ${isLiked ? "on" : ""}`}
                   onClick={() => canLike && setConfirmId(c.id)}
                   disabled={!canLike}
-                  title={isLiked ? "이미 좋아요함" : remaining === 0 ? "좋아요 소진" : "좋아요"}
+                  title={isLiked ? "이미 추천함" : remaining === 0 ? "추천 소진" : "추천하기"}
                 >
-                  <span className="lb-ic">{isLiked ? "❤️" : "🤍"}</span>
+                  <span className="lb-heart" aria-hidden>{isLiked ? "♥" : "♡"}</span>
                   <span className="lb-n">{c.likes}</span>
                 </button>
               </motion.div>

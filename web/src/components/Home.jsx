@@ -17,7 +17,7 @@ function eventMessage(status) {
   }
 }
 
-export default function Home({ user, status, catalog, drawing, error, onDraw, onOpenCollection, onOpenCheer, onLogout, castActive, revealing }) {
+export default function Home({ user, status, catalog, drawing, error, onDraw, onOpenCollection, onOpenCheer, onLogout, revealing }) {
   const [showPrize, setShowPrize] = useState(false);
   const tilt = useTilt();
   const evMsg = eventMessage(status);
@@ -32,12 +32,11 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
         <button className="link-btn" onClick={onLogout}>로그아웃</button>
       </header>
 
-      <WinnerTicker hidden={castActive || revealing} me={user?.empNo} />
+      <WinnerTicker hidden={revealing} me={user?.empNo} />
 
       <div className="home-hero">
         <span className="hh-kicker">GONOM WORLD CUP EDITION</span>
         <h1 className="hh-title">운명의 카드를 뽑아라</h1>
-        <p className="hh-sub">하루 한 번. 전설부터 일반까지, 오늘의 고놈은?</p>
       </div>
 
       <div className="draw-stage">

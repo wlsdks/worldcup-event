@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { drawCard, getStatus, loadCatalog } from "./api";
 import Login from "./components/Login.jsx";
 import Home from "./components/Home.jsx";
-import WinnerBroadcast from "./components/WinnerBroadcast.jsx";
 import Collection from "./components/Collection.jsx";
 import CheerBoard from "./components/CheerBoard.jsx";
 import PackReveal from "./components/PackReveal.jsx";
@@ -13,7 +12,6 @@ const EMBERS = Array.from({ length: 14 }, (_, i) => i);
 
 export default function App() {
   const [user, setUser] = useState(null); // { empNo, name }
-  const [castActive, setCastActive] = useState(false);
   const [catalog, setCatalog] = useState({ grades: [], cards: [] });
   const [status, setStatus] = useState(null);
   const [screen, setScreen] = useState("login"); // login | home | collection
@@ -114,8 +112,6 @@ export default function App() {
           />
         ))}
       </div>
-      {screen === "home" && status && <WinnerBroadcast onActiveChange={setCastActive} me={user?.empNo} paused={!!reveal} />}
-
       <AnimatePresence mode="wait">
         <motion.div
           key={screen}
@@ -129,7 +125,6 @@ export default function App() {
 
           {screen === "home" && status && (
             <Home
-              castActive={castActive}
               revealing={!!reveal}
               user={user}
               status={status}
