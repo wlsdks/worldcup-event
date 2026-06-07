@@ -239,29 +239,24 @@ body {
   transition: background 0.18s ease, border-color 0.2s ease;
 }
 .cheer-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.16); }
-/* 좌측 순위 컬러 바 — 순위 강조의 핵심 */
-.cheer-item::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent;
-}
+/* 순위 강조 — 좌측 바 없이 배경 그라데이션 + 보더 + 숫자 글로우로 (이벤트 프리미엄 톤) */
 .cheer-item.rank1 {
-  background: linear-gradient(100deg, rgba(226,35,26,0.16), rgba(255,255,255,0.02) 72%);
-  border-color: rgba(255,90,70,0.5);
+  background: linear-gradient(105deg, rgba(255,176,64,0.16), rgba(226,35,26,0.18) 46%, rgba(255,255,255,0.02) 82%);
+  border-color: rgba(255,150,90,0.58);
+  box-shadow: 0 8px 26px rgba(226,35,26,0.2), inset 0 1px 0 rgba(255,255,255,0.09);
 }
-.cheer-item.rank1::before { background: linear-gradient(#ff7a5d, #e2231a); }
-.cheer-item.rank2 { border-color: rgba(206,214,228,0.26); }
-.cheer-item.rank2::before { background: linear-gradient(#eef2f8, #aab6c8); }
-.cheer-item.rank3 { border-color: rgba(222,150,92,0.3); }
-.cheer-item.rank3::before { background: linear-gradient(#e7b083, #c0703a); }
+.cheer-item.rank2 { border-color: rgba(206,214,228,0.34); background: linear-gradient(105deg, rgba(206,214,228,0.1), rgba(255,255,255,0.015) 80%); }
+.cheer-item.rank3 { border-color: rgba(222,150,92,0.36); background: linear-gradient(105deg, rgba(222,150,92,0.11), rgba(255,255,255,0.015) 80%); }
 
 /* 순위 — 타이포그래픽 숫자 */
-.ci-rank { flex: 0 0 auto; width: 30px; display: grid; place-items: center; }
+.ci-rank { flex: 0 0 auto; width: 32px; display: grid; place-items: center; }
 .ci-num {
   font-size: 21px; font-weight: 900; line-height: 1; letter-spacing: -1.5px;
   font-variant-numeric: tabular-nums; color: #5f6672;
 }
-.cheer-item.rank1 .ci-num { font-size: 26px; color: #ffd24a; }
-.cheer-item.rank2 .ci-num { font-size: 23px; color: #d7dee9; }
-.cheer-item.rank3 .ci-num { font-size: 22px; color: #e3a673; }
+.cheer-item.rank1 .ci-num { font-size: 27px; color: #ffd24a; text-shadow: 0 0 18px rgba(255,200,70,0.65); }
+.cheer-item.rank2 .ci-num { font-size: 24px; color: #d7dee9; text-shadow: 0 0 12px rgba(203,213,226,0.4); }
+.cheer-item.rank3 .ci-num { font-size: 23px; color: #e3a673; text-shadow: 0 0 12px rgba(222,150,92,0.4); }
 
 .ci-body { flex: 1; min-width: 0; }
 .ci-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -407,11 +402,14 @@ body {
   grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 10px; padding: 17px 18px 17px 22px;
 }
-.bento-tile.cheer { background: linear-gradient(108deg, rgba(226,35,26,0.2), rgba(255,255,255,0.02) 72%); border-color: rgba(255,90,70,0.4); }
-.bento-tile.cheer::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-  background: linear-gradient(180deg, #ff5a4e, #c8201a);
+/* 피처(응원전) — 좌측 바 제거, 우상단 광원 + 깊은 레드 그라데이션으로 이벤트 프리미엄 */
+.bento-tile.cheer {
+  background:
+    radial-gradient(120% 140% at 92% -10%, rgba(255,120,80,0.28), transparent 52%),
+    linear-gradient(108deg, rgba(226,35,26,0.26), rgba(150,18,14,0.1) 62%, rgba(255,255,255,0.02));
+  border-color: rgba(255,100,76,0.46);
 }
+.bento-tile.cheer:hover { border-color: rgba(255,130,100,0.65); box-shadow: 0 16px 36px rgba(180,24,18,0.34), inset 0 1px 0 rgba(255,255,255,0.12); }
 .bt-left { display: flex; flex-direction: column; gap: 4px; }
 .bt-kicker { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #ff9b92; }
 .bt-title { font-size: 15.5px; font-weight: 800; letter-spacing: -0.3px; color: #fff; }
