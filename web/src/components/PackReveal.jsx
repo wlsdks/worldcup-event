@@ -419,11 +419,12 @@ export default function PackReveal({ result, config, onClose }) {
   };
 
   const energyRank = phase === "reveal" && !curRevealed && current && current.gradeRank <= 3 ? current.gradeRank : 0;
-  // 배경 등급 틴트: 프라이즈 카드 공개 동안 계속 유지(3등부터 배경이 달라지도록), 결과화면은 최고등급
+  // 배경 등급 틴트: 카드가 '공개된 뒤'에만 등급색을 입힌다. 빌드업(공개 전)은 중립으로 둬서
+  // 소환 색 에스컬레이션(블루→퍼플→골드)이 배경 등급색에 묻히거나 등급이 미리 새지 않게 함.
   const overlayRc =
     phase === "summary" || allDone
       ? rcOf(bestRank)
-      : phase === "reveal" && current && current.gradeRank <= 3
+      : phase === "reveal" && curRevealed && current && current.gradeRank <= 3
         ? rcOf(current.gradeRank)
         : "";
 
