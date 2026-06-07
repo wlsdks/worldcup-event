@@ -6,6 +6,22 @@ function rankClass(rank) {
   return ["special", "holo", "gold", "silver", "bronze", "basic"][rank] || "basic";
 }
 
+// 숫자 카운트업 (0 → target, easeOutCubic)
+function useCountUp(target, ms = 1000) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    let raf; const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / ms);
+      setVal(Math.round(target * (1 - Math.pow(1 - t, 3))));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return val;
+}
+
 // 가중치 기반 획득 확률 표시 문자열
 function oddsText(odds) {
   if (odds >= 1) return `${Math.round(odds * 10) / 10}%`;
@@ -31,24 +47,26 @@ export default function Collection({ catalog, status, onBack }) {
     const t = setTimeout(() => setFill(pct), 120);
     return () => clearTimeout(t);
   }, [pct]);
+  const shownPct = useCountUp(pct);          // 수집률 % 카운트업
+  const shownOwned = useCountUp(owned.size); // 보유 수 카운트업
 
   return (
     <div className="screen collection">
       <header className="coll-top">
         <button className="link-btn" onClick={onBack}>← 뒤로</button>
         <h2>카드 도감</h2>
-        <span className="coll-count">{owned.size}<i>/{cards.length}</i></span>
+        <span className="coll-count">{shownOwned}<i>/{cards.length}</i></span>
       </header>
 
       <div className="coll-intro">
         <span className="coll-kicker">CARD COLLECTION</span>
-        <span className="coll-progress-line">{pct}% 수집 완료</span>
+        <span className="coll-progress-line">{shownPct}% 수집 완료</span>
       </div>
       <div className="coll-progress">
         <div className="coll-progress-bar">
           <div className="coll-progress-fill" style={{ width: `${fill}%` }} />
         </div>
-        <span className="coll-progress-pct">{pct}%</span>
+        <span className="coll-progress-pct">{shownPct}%</span>
       </div>
 
       {grades.map((g) => {

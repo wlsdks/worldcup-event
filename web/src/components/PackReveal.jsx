@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { rcOf, useTilt } from "../lib/cardUtils";
 import { celebrate } from "../lib/celebrate";
+import { haptic } from "../lib/haptics";
 import CardModal from "./CardModal.jsx";
 
 // 등급별 공개 빌드업 시간(ms) — CSS .summon --sm 과 일치. 5등은 즉시(빌드업 없음).
@@ -274,13 +275,13 @@ function IntroSequence({ onDone, rank = 9 }) {
   function tear() {
     setStep((s) => {
       if (s !== "pack") return s;
-      if (navigator.vibrate) navigator.vibrate([12, 26]);
+      haptic.charge();
       return "charging";
     });
     setTimeout(() => {
       setStep((s) => {
         if (s !== "charging") return s;
-        if (navigator.vibrate) navigator.vibrate(tier === "epic" ? [25, 50, 25, 70, 35] : [25, 60, 35]);
+        haptic.tear(tier);
         setTimeout(onDone, tier === "epic" ? 900 : 800);
         return "torn";
       });
@@ -441,7 +442,7 @@ export default function PackReveal({ result, config, onClose }) {
     });
     fireBurst(cards[i].gradeRank);
     if (!cards[i].isMiss) celebrate(cards[i].gradeRank);
-    if (cards[i].gradeRank <= 3 && navigator.vibrate) navigator.vibrate(70);
+    if (!cards[i].isMiss) haptic.reveal(cards[i].gradeRank);
     if (cards[i].gradeRank <= 3) {
       // 3등=가벼운 흔들림 / 1·2등(+스페셜)=강한 흔들림
       setShaking(cards[i].gradeRank <= 2 ? "hard" : "soft");
@@ -456,7 +457,7 @@ export default function PackReveal({ result, config, onClose }) {
     const dur = SUMMON_DUR[rank];
     if (dur) {
       setSummon({ key: Date.now(), rank, i });
-      if (navigator.vibrate) navigator.vibrate(rank <= 1 ? [15, 40, 15, 60, 20, 90] : [15, 40, 15]);
+      haptic.summon(rank);
       summonTimerRef.current = setTimeout(() => { summonTimerRef.current = null; setSummon(null); doReveal(i); }, dur);
     } else {
       doReveal(i);
@@ -480,7 +481,7 @@ export default function PackReveal({ result, config, onClose }) {
     setRevealed(cards.map(() => true));
     fireBurst(bestRank);
     if (bestRank <= 5) celebrate(bestRank);
-    if (bestRank <= 3 && navigator.vibrate) navigator.vibrate([40, 40, 80]);
+    if (bestRank <= 5) haptic.reveal(bestRank);
     if (bestRank <= 3) { setShaking(bestRank <= 2 ? "hard" : "soft"); setTimeout(() => setShaking(false), bestRank <= 2 ? 460 : 300); }
     setTimeout(() => setPhase("summary"), bestRank <= 3 ? 1100 : 650);
   };
@@ -505,7 +506,12 @@ export default function PackReveal({ result, config, onClose }) {
       exit={{ opacity: 0, scale: 1.04 }}
       transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
     >
-      <div className="stadium-bg" aria-hidden>
+      <motion.div
+        className="stadium-bg"
+        aria-hidden
+        animate={{ scale: phase === "reveal" && curRevealed ? 1.06 : 1 }}
+        transition={{ duration: 0.85, ease: [0.22, 0.61, 0.36, 1] }}
+      >
         <div className="pl topspot" />
         <div className="topspot-pool" />
         <div className="pl motes">
@@ -517,7 +523,7 @@ export default function PackReveal({ result, config, onClose }) {
             />
           ))}
         </div>
-      </div>
+      </motion.div>
       <div className="cinematic" aria-hidden />
       <AnimatePresence>{phase === "reveal" && burst.rank <= 3 && <Burst key={burst.key} rank={burst.rank} />}</AnimatePresence>
       <AnimatePresence>{summon && <SummonBuildup key={summon.key} rank={summon.rank} />}</AnimatePresence>
