@@ -78,7 +78,7 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
 
       {user.empNo === "0000" && (
         <div className="demo-grade-pick">
-          <span className="dgp-label">🔧 테스트 전용 · 등급 지정 뽑기 (연출 확인용)</span>
+          <span className="dgp-label">테스트 전용 · 등급 지정 뽑기 (연출 확인용)</span>
           <div className="dgp-btns">
             {(catalog?.grades || [])
               .slice()

@@ -76,7 +76,7 @@ export default function Login({ onSubmit }) {
         </form>
 
         <button type="button" className="demo-login" onClick={demoLogin} disabled={loading}>
-          🔧 데모 로그인 (테스트용)
+데모 로그인 (테스트용)
         </button>
       </div>
     </div>

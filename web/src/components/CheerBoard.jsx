@@ -95,7 +95,6 @@ export default function CheerBoard({ user, teams = [], onBack }) {
               className={`team-chip ${team === t.name ? "on" : ""}`}
               onClick={() => setTeam(t.name)}
             >
-              <span className="tc-emoji">{t.emoji}</span>
               {t.name}
             </button>
           ))}
@@ -110,7 +109,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
         <div className="cheer-input-row">
           <input
             className="cheer-in"
-            placeholder="응원 한마디! (예: 우리 팀 화이팅 🔥)"
+            placeholder="응원 한마디 (예: 우리 팀 화이팅!)"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             maxLength={100}
