@@ -338,11 +338,14 @@ export const getCheers = onCall(async (request) => {
   cheers.sort((a, b) => (b.likes - a.likes) || (a.createdAt - b.createdAt));
 
   let likedIds = [];
+  let posted = false;
   if (empNo) {
     const mine = await db.collection("cheerLikes").where("empNo", "==", empNo).get();
     likedIds = mine.docs.map((d) => d.data().cheerId);
+    const mineCheer = await db.doc(`cheers/${empNo}`).get();
+    posted = mineCheer.exists;
   }
-  return { cheers, likedIds, likesUsed: likedIds.length, likesMax: LIKE_MAX };
+  return { cheers, likedIds, likesUsed: likedIds.length, likesMax: LIKE_MAX, posted };
 });
 
 /** 응원 댓글 등록 (팀/이름/한마디 직접 입력) */
@@ -351,32 +354,36 @@ export const postCheer = onCall(async (request) => {
   const team = cleanStr(request.data?.team).slice(0, 30);
   const name = cleanStr(request.data?.name).slice(0, 20);
   const message = cleanStr(request.data?.message).slice(0, 100);
+  if (!empNo) throw new HttpsError("unauthenticated", "로그인이 필요합니다.");
   if (!team) throw new HttpsError("invalid-argument", "응원할 팀을 입력해 주세요.");
   if (!name) throw new HttpsError("invalid-argument", "작성자 이름을 입력해 주세요.");
   if (!message) throw new HttpsError("invalid-argument", "응원 한마디를 입력해 주세요.");
 
-  const ref = db.collection("cheers").doc();
-  await ref.set({
-    empNo, team, name, message, likes: 0,
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
-
-  // 응원 참여 보상: 1인 1회 추가 뽑기 기회(+1). 댓글 도배로 중복 적립 방지(cheerBonusGranted 플래그).
-  let bonusGranted = false;
-  if (empNo) {
-    const userRef = db.doc(`users/${empNo}`);
-    bonusGranted = await db.runTransaction(async (t) => {
-      const us = await t.get(userRef);
-      if (us.exists && us.data().cheerBonusGranted === true) return false;
+  // 1인 1회: 사번을 문서 ID로 사용 → 중복 작성 불가. 작성 + 추가 뽑기(+1)를 원자적으로 처리.
+  const cheerRef = db.doc(`cheers/${empNo}`);
+  const userRef = db.doc(`users/${empNo}`);
+  const bonusGranted = await db.runTransaction(async (t) => {
+    const existing = await t.get(cheerRef);
+    if (existing.exists) {
+      throw new HttpsError("already-exists", "이미 응원글을 작성하셨어요. 한 분당 1회만 작성할 수 있어요.");
+    }
+    const us = await t.get(userRef);
+    t.set(cheerRef, {
+      empNo, team, name, message, likes: 0,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    let granted = false;
+    if (!(us.exists && us.data().cheerBonusGranted === true)) {
       t.set(userRef, {
         empNo,
         bonusDraws: admin.firestore.FieldValue.increment(1),
         cheerBonusGranted: true,
       }, { merge: true });
-      return true;
-    });
-  }
-  return { ok: true, id: ref.id, bonusGranted };
+      granted = true;
+    }
+    return granted;
+  });
+  return { ok: true, id: empNo, bonusGranted };
 });
 
 /** 좋아요 (사용자당 최대 3회, 한 댓글당 1회, 취소 불가) */
@@ -399,10 +406,23 @@ export const likeCheer = onCall(async (request) => {
     if (mine.size >= LIKE_MAX) {
       throw new HttpsError("resource-exhausted", `좋아요를 모두 사용했어요 (최대 ${LIKE_MAX}회).`);
     }
+    // 좋아요 보상: 좋아요 3회 완료 시 1인 1회 추가 뽑기(+1). likeBonusGranted 플래그로 중복 방지.
+    const userRef = db.doc(`users/${empNo}`);
+    const userSnap = await t.get(userRef); // 모든 읽기는 쓰기 전에
+    const newUsed = mine.size + 1;
     // 쓰기
     t.set(likeRef, { empNo, cheerId, createdAt: admin.firestore.FieldValue.serverTimestamp() });
     t.update(cheerRef, { likes: admin.firestore.FieldValue.increment(1) });
-    return { likes: (cheerSnap.data().likes || 0) + 1, likesUsed: mine.size + 1, likesMax: LIKE_MAX };
+    let likeBonusGranted = false;
+    if (newUsed >= LIKE_MAX && !(userSnap.exists && userSnap.data().likeBonusGranted === true)) {
+      t.set(userRef, {
+        empNo,
+        bonusDraws: admin.firestore.FieldValue.increment(1),
+        likeBonusGranted: true,
+      }, { merge: true });
+      likeBonusGranted = true;
+    }
+    return { likes: (cheerSnap.data().likes || 0) + 1, likesUsed: newUsed, likesMax: LIKE_MAX, likeBonusGranted };
   });
   return { ok: true, ...result };
 });

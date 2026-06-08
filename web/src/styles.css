@@ -2100,3 +2100,38 @@ button.coll-card:disabled { cursor: default; }
   .home-hero { padding: 2px 0 0; }
   .hh-kicker { margin-bottom: 3px; }
 }
+
+/* ───── 응원전 안내 버튼 · 작성완료 · 안내 팝업 ───── */
+.cheer-guide-btn {
+  margin-top: 12px; display: inline-flex; align-items: center; gap: 4px;
+  padding: 9px 14px; border-radius: 999px; cursor: pointer; min-height: 40px;
+  font-size: 12.5px; font-weight: 700; color: #ffd6cf;
+  background: rgba(226,35,26,0.16); border: 1px solid rgba(255,120,90,0.4);
+}
+.cheer-guide-btn:active { transform: scale(0.97); }
+
+.cheer-done {
+  margin-bottom: 18px; padding: 16px 16px; border-radius: 14px; text-align: center;
+  background: rgba(60,224,160,0.1); border: 1px solid rgba(60,224,160,0.35);
+}
+.cheer-done-title { font-size: 15px; font-weight: 800; color: #c8ffe0; }
+.cheer-done-sub { font-size: 12.5px; line-height: 1.55; color: #a9c8bb; margin-top: 6px; }
+.cheer-done-sub b { color: #d6ffe9; font-weight: 800; }
+.cheer-notice { margin: 0 0 14px; }
+
+/* 안내 팝업 본문 */
+.cheer-guide { display: flex; flex-direction: column; gap: 14px; padding: 2px 16px 4px; }
+.cg-lead { font-size: 13.5px; line-height: 1.6; color: #ffe0d9; margin: 0; }
+.cg-lead b { color: #fff; font-weight: 800; }
+.cg-block {
+  display: flex; flex-direction: column; gap: 4px; padding: 13px 14px; border-radius: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+}
+.cg-head { font-size: 14.5px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+.cg-body { font-size: 13px; line-height: 1.5; color: #d8dde6; }
+.cg-reward {
+  font-size: 13px; font-weight: 700; color: #ffd76a; line-height: 1.5;
+}
+.cg-reward b { color: #ffe79a; font-weight: 900; }
+.cg-sub { font-size: 12px; line-height: 1.5; color: #9aa0aa; }
+.cg-confirm { width: calc(100% - 32px); margin: 16px 16px 4px; }

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getCheers, postCheer, likeCheer } from "../api";
+import CheerGuide from "./CheerGuide.jsx";
 
 export default function CheerBoard({ user, teams = [], onBack }) {
   const [cheers, setCheers] = useState([]);
@@ -18,7 +19,19 @@ export default function CheerBoard({ user, teams = [], onBack }) {
   const [confirmId, setConfirmId] = useState(null); // 좋아요 확인 팝업 대상
   const [liking, setLiking] = useState(false);
   const [toast, setToast] = useState(null);
+  const [posted, setPosted] = useState(false); // 이미 응원글 작성함(1인 1회)
+  const [showGuide, setShowGuide] = useState(false);
   const seenRef = useRef(null);
+
+  // 응원전 첫 진입 시 안내 팝업 1회 자동 표시(세션당)
+  useEffect(() => {
+    try {
+      if (!sessionStorage.getItem("wc_cheer_guide_seen")) {
+        setShowGuide(true);
+        sessionStorage.setItem("wc_cheer_guide_seen", "1");
+      }
+    } catch { setShowGuide(true); }
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -37,6 +50,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
       setLiked(new Set(d.likedIds || []));
       setLikesUsed(d.likesUsed || 0);
       setLikesMax(d.likesMax || 3);
+      setPosted(!!d.posted);
     } catch { /* 무시 */ }
   }, [user]);
 
@@ -82,9 +96,12 @@ export default function CheerBoard({ user, teams = [], onBack }) {
     if (!confirmId) return;
     setLiking(true);
     try {
-      await likeCheer({ empNo: user.empNo, cheerId: confirmId });
+      const res = await likeCheer({ empNo: user.empNo, cheerId: confirmId });
       setConfirmId(null);
       await load();
+      if (res?.likeBonusGranted) {
+        setNotice("🎉 좋아요 3회 완료! 카드팩 뽑기 기회를 1회 더 얻었어요 — 홈에서 뽑아보세요!");
+      }
     } catch (e2) {
       setErr(e2?.message?.replace(/^.*?\/\s*/, "") || "좋아요에 실패했어요.");
       setConfirmId(null);
@@ -103,12 +120,24 @@ export default function CheerBoard({ user, teams = [], onBack }) {
 
       <div className="cheer-intro">
         <div className="cheer-intro-kicker">CHEER BATTLE</div>
-        <h3 className="cheer-intro-title">우리 팀에 힘을 보태세요</h3>
+        <h3 className="cheer-intro-title">🏆 우리 팀을 우승으로 이끌어 주세요!</h3>
         <p className="cheer-intro-desc">
-          받은 좋아요가 곧 팀의 순위입니다. 마감 시점 상위 3개 팀에 커피 상품권을 드립니다.
+          좋아요를 많이 받을수록 우리 팀의 순위가 올라갑니다.<br />
+          팀원들과 함께 응원에 참여해 커피 상품권의 주인공이 되어보세요!
         </p>
+        <button type="button" className="cheer-guide-btn" onClick={() => setShowGuide(true)}>
+          ⓘ 응원전 안내 · 추가 기회 받는 법
+        </button>
       </div>
 
+      {notice && <div className="form-notice cheer-notice">{notice}</div>}
+
+      {posted ? (
+        <div className="cheer-done">
+          <div className="cheer-done-title">✅ 응원글을 작성했어요!</div>
+          <div className="cheer-done-sub">한 분당 1회만 작성할 수 있어요. 이제 마음에 드는 응원글에 <b>좋아요(3회)</b>를 눌러 카드팩 기회를 한 번 더 받아보세요!</div>
+        </div>
+      ) : (
       <form className="cheer-composer" onSubmit={submit}>
         <div className="team-pick-label">응원할 팀을 선택하세요</div>
         <div className="team-chips">
@@ -143,8 +172,8 @@ export default function CheerBoard({ user, teams = [], onBack }) {
           </button>
         </div>
         {err && <div className="form-err">{err}</div>}
-        {notice && <div className="form-notice">{notice}</div>}
       </form>
+      )}
 
       <div className="cheer-rank-title">실시간 팀 랭킹<span>좋아요순</span></div>
 
@@ -235,6 +264,10 @@ export default function CheerBoard({ user, teams = [], onBack }) {
             <span><b>{toast.name}</b>님 응원 등록!</span>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showGuide && <CheerGuide onClose={() => setShowGuide(false)} />}
       </AnimatePresence>
     </div>
   );
