@@ -2166,7 +2166,7 @@ button.coll-card:disabled { cursor: default; }
 .cg-prize-row { font-size: 13.5px; color: #fff0db; display: flex; align-items: center; gap: 8px; }
 .cg-rank { flex: 0 0 auto; font-size: 11.5px; font-weight: 900; color: #fff; background: rgba(226,35,26,0.85); border-radius: 6px; padding: 2px 8px; }
 .cg-prize-note { margin-top: 4px; font-size: 12px; line-height: 1.45; color: #e0c894; }
-.cg-confirm { width: calc(100% - 30px); margin: 12px 15px 6px; }
+.cg-confirm { width: calc(100% - 30px); margin: 14px 15px 18px; }
 
 /* 남은 카드팩 수 표시 */
 .draws-left { text-align: center; font-size: 13px; font-weight: 700; color: #ffd6cf; margin: -2px 0 2px; }
