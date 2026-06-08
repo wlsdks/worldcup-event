@@ -69,10 +69,13 @@ export default function App() {
     if (drawing) return;
     setError("");
     setDrawing(true);
+    // 탭 즉시 개봉 연출(인트로) 시작 — 결과는 백그라운드로 받아 도착 시 채운다(체감 지연 0).
+    setReveal({ pending: true, cards: [] });
     try {
       const result = await drawCard({ ...user, forceGrade: typeof forceGrade === "string" ? forceGrade : undefined });
       setReveal(result);
     } catch (e) {
+      setReveal(null); // 실패 시 연출 닫기
       const msg = e?.message || "뽑기에 실패했어요. 잠시 후 다시 시도해 주세요.";
       setError(msg.replace(/^.*?\/\s*/, "")); // functions 에러 프리픽스 제거
     } finally {

@@ -393,13 +393,16 @@ function IntroSequence({ onDone, rank = 9 }) {
 }
 
 export default function PackReveal({ result, config, onClose }) {
-  const cards = result.cards || [];
+  const cards = result?.cards || [];
   const N = cards.length;
+  const resultReady = !result?.pending && N > 0; // optimistic: 인트로 중 결과 도착 대기
 
   const [phase, setPhase] = useState("intro"); // intro → reveal → summary
   const [mode, setMode] = useState("one"); // one | all (드래그 제거)
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(() => cards.map(() => false));
+  // 결과가 인트로 도중 도착하면(N 0→실값) 공개상태 배열 재초기화
+  useEffect(() => { setRevealed(cards.map(() => false)); }, [N]); // eslint-disable-line react-hooks/exhaustive-deps
   const [burst, setBurst] = useState({ key: 0, rank: 9 });
   const [shaking, setShaking] = useState(false);
   const [summon, setSummon] = useState(null); // 프라이즈 공개 직전 소환 빌드업
@@ -563,8 +566,16 @@ export default function PackReveal({ result, config, onClose }) {
         {phase === "intro" && <IntroSequence key="intro" rank={bestRank} onDone={() => setPhase("reveal")} />}
       </AnimatePresence>
 
+      {/* 결과 도착 대기(인트로가 먼저 끝난 경우) */}
+      {phase === "reveal" && !resultReady && (
+        <div className="reveal-loading">
+          <div className="spinner" />
+          <div className="reveal-loading-txt">카드 여는 중…</div>
+        </div>
+      )}
+
       {/* ── 공개 ── */}
-      {phase === "reveal" && (
+      {phase === "reveal" && resultReady && (
         <>
           {N > 1 && (
             <div className="mode-tabs">
