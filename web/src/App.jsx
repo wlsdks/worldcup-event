@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { drawCard, getStatus, loadCatalog } from "./api";
+import { drawCard, getStatus, loadCatalog, resetAllDraws } from "./api";
 import Login from "./components/Login.jsx";
 import Home from "./components/Home.jsx";
 import Collection from "./components/Collection.jsx";
@@ -88,6 +88,16 @@ export default function App() {
     try { await refreshStatus(); } catch {}
   };
 
+  const handleReset = async () => {
+    try {
+      const r = await resetAllDraws(user.empNo);
+      await refreshStatus();
+      return r;
+    } catch (e) {
+      throw e;
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem(LS_KEY);
     setUser(null);
@@ -144,6 +154,7 @@ export default function App() {
               onDraw={handleDraw}
               onOpenCollection={() => setScreen("collection")}
               onOpenCheer={() => setScreen("cheer")}
+              onReset={handleReset}
               onLogout={handleLogout}
             />
           )}

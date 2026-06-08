@@ -70,6 +70,13 @@ export async function loadCatalog() {
   return { grades, cards, config, teams };
 }
 
+/** 뽑기 기록 전체 초기화 (데모 계정 0000 전용) */
+export async function resetAllDraws(empNo) {
+  const fn = httpsCallable(functions, "resetAllDraws");
+  const res = await fn({ empNo });
+  return res.data;
+}
+
 // ── 관리자(admin) ──
 export async function adminLoad(masterKey) {
   const fn = httpsCallable(functions, "adminLoad");

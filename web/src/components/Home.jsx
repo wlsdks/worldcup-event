@@ -19,7 +19,21 @@ function eventMessage(status) {
   }
 }
 
-export default function Home({ user, status, catalog, drawing, error, onDraw, onOpenCollection, onOpenCheer, onLogout, revealing }) {
+export default function Home({ user, status, catalog, drawing, error, onDraw, onOpenCollection, onOpenCheer, onReset, onLogout, revealing }) {
+  const [resetting, setResetting] = useState(false);
+  const doReset = async () => {
+    if (resetting) return;
+    if (!window.confirm("모든 뽑기 기록을 초기화할까요?\n(당첨자 안내 비우기 + 재고/뽑기횟수 리셋)")) return;
+    setResetting(true);
+    try {
+      const r = await onReset?.();
+      window.alert(`초기화 완료 — 삭제된 뽑기 ${r?.deletedDraws ?? 0}건`);
+    } catch {
+      window.alert("초기화에 실패했어요.");
+    } finally {
+      setResetting(false);
+    }
+  };
   const [showPrize, setShowPrize] = useState(false);
   const tilt = useTilt();
   const evMsg = eventMessage(status);
@@ -189,6 +203,9 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
                 </button>
               ))}
           </div>
+          <button type="button" className="dgp-reset" onClick={doReset} disabled={resetting}>
+            {resetting ? "초기화 중…" : "전체 뽑기 기록 초기화"}
+          </button>
         </div>
       )}
 

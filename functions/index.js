@@ -489,6 +489,49 @@ export const getStatus = onCall({ minInstances: 1 }, async (request) => {
   };
 });
 
+/** 뽑기 기록 전체 초기화 — 데모/테스트용(사번 0000만 호출 가능).
+ *  draws 전부 삭제 + 모든 user의 뽑기 카운트/보너스 리셋 + 한정 등급 재고 복원.
+ *  응원/좋아요 기록은 보존. */
+export const resetAllDraws = onCall(async (request) => {
+  const empNo = cleanStr(request.data?.empNo);
+  if (empNo !== "0000") {
+    throw new HttpsError("permission-denied", "데모 계정에서만 초기화할 수 있습니다.");
+  }
+  const FV = admin.firestore.FieldValue;
+  let batch = db.batch();
+  let n = 0;
+  const flush = async () => { if (n > 0) { await batch.commit(); batch = db.batch(); n = 0; } };
+
+  // 1) draws 전체 삭제
+  const drawsSnap = await db.collection("draws").get();
+  let deleted = 0;
+  for (const d of drawsSnap.docs) { batch.delete(d.ref); n++; deleted++; if (n >= 450) await flush(); }
+  await flush();
+
+  // 2) 모든 user 뽑기 상태 리셋(보너스/플래그 포함) — 응원/좋아요 기록은 유지
+  const usersSnap = await db.collection("users").get();
+  for (const u of usersSnap.docs) {
+    batch.set(u.ref, {
+      drawCount: 0, cardCount: 0, bonusDraws: 0,
+      cheerBonusGranted: FV.delete(), likeBonusGranted: FV.delete(),
+    }, { merge: true });
+    n++; if (n >= 450) await flush();
+  }
+  await flush();
+
+  // 3) 한정 등급 재고 복원
+  const gradesSnap = await db.collection("grades").get();
+  for (const g of gradesSnap.docs) {
+    const gd = g.data();
+    if (gd.unlimited !== true && gd.inventoryTotal != null) {
+      batch.update(g.ref, { inventoryRemaining: gd.inventoryTotal }); n++;
+    }
+  }
+  await flush();
+
+  return { ok: true, deletedDraws: deleted };
+});
+
 // ─────────────────────────────────────────────────────────────
 // 관리자(admin) — 설정/등급/팀 갱신. 클라이언트 직접 쓰기는 rules로 막혀있으므로
 // 마스터 키로 인증된 호출만 Admin SDK 로 쓰기.
