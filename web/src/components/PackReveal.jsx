@@ -538,7 +538,6 @@ export default function PackReveal({ result, config, onClose }) {
         transition={{ duration: 0.85, ease: [0.22, 0.61, 0.36, 1] }}
       >
         <div className="pl topspot" />
-        <div className="topspot-pool" />
         <div className="pl motes">
           {MOTES.map((o) => (
             <span

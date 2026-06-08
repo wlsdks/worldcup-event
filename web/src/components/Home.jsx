@@ -152,7 +152,7 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
               </button>
             ) : status.drewToday ? (
               <button className="btn-primary big" onClick={onOpenCheer}>
-                팀별 응원전을 통해 상품을 획득하세요
+                🔥 응원전 참여하여 추가 기회 획득!
               </button>
             ) : (
               <button className="btn-primary big" disabled>
