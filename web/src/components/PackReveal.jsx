@@ -8,6 +8,7 @@ import CountUp from "./CountUp.jsx";
 import { shareCardImage } from "../lib/shareCard";
 import { enableGyro } from "../lib/gyro";
 import { can3D } from "../lib/can3d";
+import ErrorBoundary from "./ErrorBoundary.jsx";
 
 // 리빌 히어로 카드는 무거운 Three.js → lazy 로드(메인 번들 영향 없음)
 const Card3D = lazy(() => import("./Card3D.jsx"));
@@ -652,9 +653,11 @@ export default function PackReveal({ result, config, onClose }) {
                           {current.isMiss || !USE_3D ? (
                             <Card card={current} revealed={curRevealed} size="lg" />
                           ) : (
-                            <Suspense fallback={<Card card={current} revealed={curRevealed} size="lg" />}>
-                              <div className="card3d-wrap"><Card3D card={current} revealed={curRevealed} /></div>
-                            </Suspense>
+                            <ErrorBoundary fallback={<Card card={current} revealed={curRevealed} size="lg" />}>
+                              <Suspense fallback={<Card card={current} revealed={curRevealed} size="lg" />}>
+                                <div className="card3d-wrap"><Card3D card={current} revealed={curRevealed} /></div>
+                              </Suspense>
+                            </ErrorBoundary>
                           )}
                         </div>
                       </motion.div>

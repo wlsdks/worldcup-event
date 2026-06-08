@@ -88,7 +88,7 @@ export default function Card3D({ card, revealed }) {
     <Canvas
       camera={{ position: [0, 0, 6.5], fov: 34 }}
       dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false }}
+      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false, failIfMajorPerformanceCaveat: false, powerPreference: "default" }}
       style={{ width: "100%", height: "100%" }}
     >
       <ambientLight intensity={0.55} />
