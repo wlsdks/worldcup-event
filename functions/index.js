@@ -15,7 +15,7 @@ admin.initializeApp();
 const db = admin.firestore();
 
 // 서울 리전 고정
-setGlobalOptions({ region: "asia-northeast3", maxInstances: 10 });
+setGlobalOptions({ region: "asia-northeast3", maxInstances: 20 });
 
 /** KST(Asia/Seoul) 기준 오늘 날짜 'YYYY-MM-DD' */
 function kstDate(date = new Date()) {
@@ -81,7 +81,8 @@ function evalEvent(cfg, today) {
 }
 
 // ───────────────────────────────────────── 뽑기 ─────────────────────────────────────────
-export const drawCard = onCall(async (request) => {
+// minInstances:1 — 행사 첫 뽑기 콜드스타트 제거(소액 상시비용). 행사 종료 후 0으로 되돌리면 비용 없음.
+export const drawCard = onCall({ minInstances: 1 }, async (request) => {
   const empNo = cleanStr(request.data?.empNo);
   const name = cleanStr(request.data?.name);
   const uid = request.auth?.uid || null;
@@ -428,7 +429,8 @@ export const likeCheer = onCall(async (request) => {
 });
 
 // ───────────────────────────────────────── 현황 조회 ─────────────────────────────────────────
-export const getStatus = onCall(async (request) => {
+// minInstances:1 — 로그인 시 첫 호출 콜드스타트 제거(소액 상시비용). 행사 후 0으로 복귀 권장.
+export const getStatus = onCall({ minInstances: 1 }, async (request) => {
   const empNo = cleanStr(request.data?.empNo);
   const name = cleanStr(request.data?.name);
   if (!empNo) throw new HttpsError("invalid-argument", "사번이 필요합니다.");

@@ -50,7 +50,7 @@ export default function Collection({ catalog, onBack }) {
       setPub(d);
     }).catch(() => {});
     load();
-    const poll = setInterval(load, 15000); // 실시간 공개 반영
+    const poll = setInterval(load, 25000); // 실시간 공개 반영(읽기 부하 절감)
     return () => { alive = false; clearInterval(poll); };
   }, []);
 

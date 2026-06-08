@@ -56,7 +56,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
 
   useEffect(() => {
     load();
-    const poll = setInterval(load, 12000);
+    const poll = setInterval(load, 20000);
     return () => clearInterval(poll);
   }, [load]);
 
