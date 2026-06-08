@@ -1994,7 +1994,14 @@ button.coll-card:disabled { cursor: default; }
   color: #ff6b5e; margin-bottom: 7px;
 }
 .cheer-intro-title { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; margin: 0 0 7px; color: #fff; line-height: 1.2; }
-.cheer-intro-desc { font-size: 13.5px; line-height: 1.62; color: #b3b7c0; margin: 0; max-width: 44ch; }
+.cheer-intro-desc { font-size: 13.5px; line-height: 1.62; color: #b3b7c0; margin: 0; }
+/* 응원 팀 선택 드롭다운(39팀 대비) */
+.team-select {
+  appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 38px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1l5 5 5-5' stroke='%23cf9aa2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat; background-position: right 14px center;
+}
+.team-select option { color: #111; background: #fff; }
 .cheer .like-pill {
   font-size: 12px; font-weight: 700; color: #c9ccd3;
   background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);

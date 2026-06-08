@@ -136,18 +136,16 @@ export default function CheerBoard({ user, teams = [], onBack }) {
       ) : (
       <form className="cheer-composer" onSubmit={submit}>
         <div className="team-pick-label">응원할 팀을 선택하세요</div>
-        <div className="team-chips">
+        <select
+          className="cheer-in team-select"
+          value={team}
+          onChange={(e) => setTeam(e.target.value)}
+        >
+          <option value="" disabled>팀을 선택하세요</option>
           {teams.map((t) => (
-            <button
-              type="button"
-              key={t.id}
-              className={`team-chip ${team === t.name ? "on" : ""}`}
-              onClick={() => setTeam(t.name)}
-            >
-              {t.name}
-            </button>
+            <option key={t.id} value={t.name}>{t.name}</option>
           ))}
-        </div>
+        </select>
         <input
           className="cheer-in"
           placeholder="작성자 이름"
@@ -171,7 +169,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
       </form>
       )}
 
-      <div className="cheer-rank-title">실시간 팀 랭킹<span>좋아요순</span></div>
+      <div className="cheer-rank-title">실시간 응원 랭킹<span>좋아요순</span></div>
 
       <div className="cheer-list">
         <AnimatePresence initial={false}>
