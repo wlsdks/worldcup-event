@@ -612,7 +612,7 @@ body {
   position: fixed; inset: 0; z-index: 50;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
   background: radial-gradient(circle at 50% 42%, rgba(20,30,70,0.92), rgba(4,8,20,0.97));
-  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
 }
 .rays {
   position: absolute; width: 160vmax; height: 160vmax; top: 50%; left: 50%;
@@ -714,7 +714,7 @@ body {
   background: rgba(8,3,4,0.74); backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
 }
 .modal {
-  width: 100%; max-width: 420px; border-radius: 22px; overflow: hidden;
+  width: 100%; max-width: 420px; border-radius: 22px; overflow: hidden auto; max-height: 90dvh;
   background: linear-gradient(180deg, #2a0d12, #160508);
   border: 1px solid rgba(255,120,90,0.32);
   box-shadow: 0 34px 80px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08);
@@ -809,7 +809,7 @@ body {
   background:
     radial-gradient(150% 80% at 50% -16%, rgba(20,12,30,0.5), transparent 52%),
     radial-gradient(circle at 50% 42%, rgba(26,9,11,0.95), rgba(2,1,2,0.995) 78%);
-  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
 }
 .pack-overlay.holo   { background: radial-gradient(circle at 50% 42%, rgba(40,22,60,0.95), rgba(3,2,6,0.99) 78%); }
 .pack-overlay.gold   { background: radial-gradient(circle at 50% 42%, rgba(46,33,10,0.95), rgba(4,3,1,0.99) 78%); }
@@ -1127,7 +1127,7 @@ button.coll-card:disabled { cursor: default; }
 /* ════════════ 카드 확대 보기 (클릭 → 크게 + 딤) ════════════ */
 .card-modal-overlay {
   position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 24px;
-  background: rgba(4, 2, 3, 0.82); backdrop-filter: blur(7px);
+  background: rgba(4, 2, 3, 0.82); -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
 }
 .card-modal-overlay.holo   { background: radial-gradient(circle at 50% 45%, rgba(50,26,72,0.7), rgba(4,2,3,0.9)); }
 .card-modal-overlay.gold   { background: radial-gradient(circle at 50% 45%, rgba(64,46,14,0.7), rgba(4,2,3,0.9)); }
@@ -1460,7 +1460,7 @@ button.coll-card:disabled { cursor: default; }
 .summary-grid .grid-cell.clickable::after {
   content: "자세히 보기"; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
   font-size: 10.5px; font-weight: 800; letter-spacing: 0.4px; color: #fff; white-space: nowrap;
-  background: rgba(10,4,5,0.6); border: 1px solid rgba(255,255,255,0.22); backdrop-filter: blur(4px);
+  background: rgba(10,4,5,0.6); border: 1px solid rgba(255,255,255,0.22); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
   padding: 3px 10px; border-radius: 999px; opacity: 0; transition: opacity 0.2s; pointer-events: none;
 }
 .summary-grid .grid-cell.clickable:hover::after { opacity: 1; }
@@ -1599,7 +1599,7 @@ button.coll-card:disabled { cursor: default; }
   font-size: 12.5px; font-weight: 800; color: var(--accent, #ffd9a0); letter-spacing: 0.2px;
   background: rgba(0,0,0,0.46); border: 1px solid color-mix(in srgb, var(--accent,#ffffff) 42%, transparent);
   padding: 4px 12px; border-radius: 999px; text-shadow: 0 1px 2px rgba(0,0,0,0.6);
-  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
 }
 /* 희소성 카피 — '단 N장 한정 · K번째 주인공' */
 .win-scarce {
@@ -2141,31 +2141,31 @@ button.coll-card:disabled { cursor: default; }
 .cheer-notice { margin: 0 0 14px; }
 
 /* 안내 팝업 본문 */
-.cheer-guide { display: flex; flex-direction: column; gap: 9px; padding: 12px 15px 2px; }
-.cg-lead { font-size: 13px; line-height: 1.5; color: #ffe0d9; margin: 0 0 1px; }
+.cheer-guide { display: flex; flex-direction: column; gap: 11px; padding: 14px 16px 4px; }
+.cg-lead { font-size: 14px; line-height: 1.6; color: #fff1ed; margin: 0 0 2px; }
 .cg-lead b { color: #fff; font-weight: 800; }
 .cg-block {
-  display: flex; flex-direction: column; gap: 5px; padding: 13px; border-radius: 14px;
-  background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.09);
+  display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 14px;
+  background: rgba(0,0,0,0.26); border: 1px solid rgba(255,255,255,0.12);
 }
-.cg-head { font-size: 13.5px; font-weight: 800; color: #fff; }
-.cg-body { font-size: 12.5px; line-height: 1.45; color: #cfd4dd; }
+.cg-head { font-size: 15px; font-weight: 800; color: #fff; }
+.cg-body { font-size: 13.5px; line-height: 1.55; color: #eceff4; }
 /* 핵심 보상 — 강조 콜아웃 박스 */
 .cg-reward {
-  font-size: 12.5px; font-weight: 800; color: #ffe1a0; line-height: 1.4;
-  background: rgba(255,180,64,0.12); border: 1px solid rgba(255,180,90,0.3);
-  border-radius: 9px; padding: 7px 10px;
+  font-size: 13.5px; font-weight: 800; color: #ffe7b0; line-height: 1.5;
+  background: rgba(255,180,64,0.16); border: 1px solid rgba(255,180,90,0.4);
+  border-radius: 9px; padding: 9px 11px;
 }
-.cg-reward b { color: #fff4d6; font-weight: 900; }
-.cg-sub { font-size: 11.5px; line-height: 1.4; color: #9aa0aa; }
+.cg-reward b { color: #fff7e2; font-weight: 900; }
+.cg-sub { font-size: 12.5px; line-height: 1.5; color: #c2c8d2; }
 .cg-prizes {
-  display: flex; flex-direction: column; gap: 5px; padding: 11px 13px; border-radius: 12px;
-  background: rgba(255,176,64,0.1); border: 1px solid rgba(255,176,90,0.35);
+  display: flex; flex-direction: column; gap: 7px; padding: 13px; border-radius: 12px;
+  background: rgba(255,176,64,0.14); border: 1px solid rgba(255,176,90,0.4);
 }
-.cg-prizes-title { font-size: 12.5px; font-weight: 800; color: #ffd76a; margin-bottom: 1px; }
-.cg-prize-row { font-size: 12.5px; color: #ffe9cf; display: flex; align-items: center; gap: 8px; }
-.cg-rank { flex: 0 0 auto; font-size: 11px; font-weight: 900; color: #fff; background: rgba(226,35,26,0.7); border-radius: 6px; padding: 2px 7px; }
-.cg-prize-note { margin-top: 3px; font-size: 11px; line-height: 1.4; color: #c9a86e; }
+.cg-prizes-title { font-size: 13.5px; font-weight: 800; color: #ffdc80; margin-bottom: 2px; }
+.cg-prize-row { font-size: 13.5px; color: #fff0db; display: flex; align-items: center; gap: 8px; }
+.cg-rank { flex: 0 0 auto; font-size: 11.5px; font-weight: 900; color: #fff; background: rgba(226,35,26,0.85); border-radius: 6px; padding: 2px 8px; }
+.cg-prize-note { margin-top: 4px; font-size: 12px; line-height: 1.45; color: #e0c894; }
 .cg-confirm { width: calc(100% - 30px); margin: 12px 15px 6px; }
 
 /* 남은 카드팩 수 표시 */

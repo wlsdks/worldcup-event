@@ -29,20 +29,22 @@ function CardMesh({ front, back, revealed, prize, special, edge }) {
   bt.colorSpace = THREE.SRGBColorSpace; bt.anisotropy = 8;
 
   useFrame((st, dt) => {
-    const grp = g.current; if (!grp) return;
-    const k = Math.min(1, dt * 6);
-    const t = st.clock.elapsedTime;
-    // 공개 후 자동 스웨이 — 손대지 않아도 빛/홀로가 계속 흐르도록(쇼케이스)
-    const sway = revealed ? Math.sin(t * 0.8) * 0.26 : 0;
-    // 입력: 자이로(모바일) 우선, 없으면 포인터
-    const px = gyro.active ? gyro.x : st.pointer.x;
-    const py = gyro.active ? gyro.y : st.pointer.y;
-    // 공개 시 뒷면(π) → 앞면(0) 플립 + 기울기로 3D 틸트
-    const tgtY = (revealed ? 0 : Math.PI) + px * (gyro.active ? 0.55 : 0.4) + sway;
-    const tgtX = -py * (gyro.active ? 0.45 : 0.3) + (revealed ? Math.sin(t * 0.6) * 0.05 : 0);
-    grp.rotation.y += (tgtY - grp.rotation.y) * k;
-    grp.rotation.x += (tgtX - grp.rotation.x) * Math.min(1, dt * 5);
-    grp.position.y = Math.sin(t * 1.4) * 0.03; // 잔잔한 부유
+    try {
+      const grp = g.current; if (!grp) return;
+      const k = Math.min(1, dt * 6);
+      const t = st.clock.elapsedTime;
+      // 공개 후 자동 스웨이 — 손대지 않아도 빛/홀로가 계속 흐르도록(쇼케이스)
+      const sway = revealed ? Math.sin(t * 0.8) * 0.26 : 0;
+      // 입력: 자이로(모바일) 우선, 없으면 포인터
+      const px = gyro.active ? gyro.x : st.pointer.x;
+      const py = gyro.active ? gyro.y : st.pointer.y;
+      // 공개 시 뒷면(π) → 앞면(0) 플립 + 기울기로 3D 틸트
+      const tgtY = (revealed ? 0 : Math.PI) + px * (gyro.active ? 0.55 : 0.4) + sway;
+      const tgtX = -py * (gyro.active ? 0.45 : 0.3) + (revealed ? Math.sin(t * 0.6) * 0.05 : 0);
+      grp.rotation.y += (tgtY - grp.rotation.y) * k;
+      grp.rotation.x += (tgtX - grp.rotation.x) * Math.min(1, dt * 5);
+      grp.position.y = Math.sin(t * 1.4) * 0.03; // 잔잔한 부유
+    } catch { /* 렌더 루프 에러는 무시(앱 크래시 방지) */ }
   });
 
   const W = 2.4, H = 3.36, T = 0.05;
@@ -78,7 +80,7 @@ function CardMesh({ front, back, revealed, prize, special, edge }) {
 }
 
 /** 리빌 전용 3D 카드 — 실제 3D 플립 + 환경광 반사 + 홀로그래픽 이리데센스 */
-export default function Card3D({ card, revealed }) {
+export default function Card3D({ card, revealed, onFail }) {
   const prize = card.gradeRank <= 3;
   const special = card.gradeRank <= 1; // SP·전설 최강 홀로
   const edge = EDGE[card.gradeRank] ?? "#5a626e";
@@ -90,6 +92,10 @@ export default function Card3D({ card, revealed }) {
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false, failIfMajorPerformanceCaveat: false, powerPreference: "default" }}
       style={{ width: "100%", height: "100%" }}
+      onCreated={({ gl }) => {
+        // WebGL 컨텍스트 손실(메모리 등) 시 CSS 카드로 폴백
+        try { gl.domElement.addEventListener("webglcontextlost", (e) => { e.preventDefault(); onFail?.(); }, { once: true }); } catch { /* 무시 */ }
+      }}
     >
       <ambientLight intensity={0.55} />
       <directionalLight position={[3, 4, 5]} intensity={1.5} />

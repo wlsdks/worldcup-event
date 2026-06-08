@@ -408,6 +408,7 @@ export default function PackReveal({ result, config, onClose }) {
   const [shaking, setShaking] = useState(false);
   const [summon, setSummon] = useState(null); // 프라이즈 공개 직전 소환 빌드업
   const [detail, setDetail] = useState(null); // 결과 화면에서 카드 상세보기
+  const [card3dFailed, setCard3dFailed] = useState(false); // 3D 실패 시 CSS 카드로 폴백
 
   const allDone = revealed.every(Boolean);
   const current = cards[idx];
@@ -662,12 +663,12 @@ export default function PackReveal({ result, config, onClose }) {
                         onClick={() => mode !== "all" && deckAction()}
                       >
                         <div className={`card-bob ${curRevealed ? "revealed" : ""}`}>
-                          {current.isMiss || !USE_3D ? (
+                          {current.isMiss || !USE_3D || card3dFailed ? (
                             <Card card={current} revealed={curRevealed} size="lg" />
                           ) : (
                             <ErrorBoundary fallback={<Card card={current} revealed={curRevealed} size="lg" />}>
                               <Suspense fallback={<Card card={current} revealed={curRevealed} size="lg" />}>
-                                <div className="card3d-wrap"><Card3D card={current} revealed={curRevealed} /></div>
+                                <div className="card3d-wrap"><Card3D card={current} revealed={curRevealed} onFail={() => setCard3dFailed(true)} /></div>
                               </Suspense>
                             </ErrorBoundary>
                           )}
