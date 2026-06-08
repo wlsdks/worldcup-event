@@ -9,9 +9,6 @@ export default function PrizeInfo({ grades, config, onClose }) {
   const team = config?.contactTeam || "인재경영팀";
   const person = config?.contactPerson || "윤도현";
   const how = config?.contactHow || "DM 또는 직접 방문";
-  const note =
-    config?.prizeNote ||
-    `1~3등 당첨자는 ${team} ${person}님께 ${how}하여 경품을 수령하세요.`;
 
   return (
     <motion.div
@@ -50,7 +47,17 @@ export default function PrizeInfo({ grades, config, onClose }) {
 
         <div className="prize-contact">
           <span className="prize-contact-kicker">NOTICE</span>
-          <span>{note}</span>
+          <div className="prize-notice">
+            <div className="pn-block">
+              <div className="pn-head">🏆 1~4등 당첨자</div>
+              <div className="pn-body">{team} {person}님께 {how}하여 경품 수령</div>
+            </div>
+            <div className="pn-block">
+              <div className="pn-head">⚽ 5등 당첨자</div>
+              <div className="pn-body">각 호실에 비치된 축구공 초콜릿 하나씩!</div>
+              <div className="pn-sub">(호실별 위치는 오픈톡 공지에 안내)</div>
+            </div>
+          </div>
         </div>
       </motion.div>
     </motion.div>

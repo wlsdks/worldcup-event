@@ -62,10 +62,18 @@ export default function Collection({ catalog, onBack }) {
   }, [toast]);
 
   const grades = (catalog.grades || []).slice().sort((a, b) => a.rank - b.rank);
+  const allCards = (catalog.cards || []).slice().sort((a, b) => (a.id < b.id ? -1 : 1));
+  const cardsByGrade = {};
+  allCards.forEach((c) => { (cardsByGrade[c.gradeId] = cardsByGrade[c.gradeId] || []).push(c); });
   const gradeTotals = pub?.gradeTotals || {};
+  const commonByCard = pub?.commonByCard || {};
   const hall = pub?.hall || [];
   const byGrade = {};
   hall.forEach((h) => { (byGrade[h.gradeId] = byGrade[h.gradeId] || []).push(h); });
+  // 카드ID별 당첨자(최신순) — 카드 디자인 단위로 공개 표시
+  const winnersByCard = {};
+  hall.forEach((h) => { (winnersByCard[h.cardId] = winnersByCard[h.cardId] || []).push(h); });
+  Object.values(winnersByCard).forEach((arr) => arr.sort((a, b) => b.at - a.at));
 
   const limitedTotal = Object.values(gradeTotals).reduce((s, n) => s + n, 0);
   // 채워진 슬롯 수(등급별 재고 상한으로 캡 — 테스트 초과뽑기 방어)
@@ -85,12 +93,12 @@ export default function Collection({ catalog, onBack }) {
     <div className="screen collection">
       <header className="coll-top">
         <button className="link-btn" onClick={onBack}>← 뒤로</button>
-        <h2>명예의 전당</h2>
+        <h2>당첨자 안내</h2>
         <span className="coll-count">{claimed}<i>/{limitedTotal}</i></span>
       </header>
 
       <div className="coll-intro">
-        <span className="coll-kicker">HALL OF FAME</span>
+        <span className="coll-kicker">WINNERS</span>
         <span className="coll-progress-line">한정 카드 {claimed} / {limitedTotal} 공개</span>
       </div>
       <p className="hall-desc">
@@ -128,55 +136,87 @@ export default function Collection({ catalog, onBack }) {
 
       {grades.map((g) => {
         const unlimited = gradeTotals[g.id] == null;
+        const gcards = cardsByGrade[g.id] || [];
         if (unlimited) {
+          // 5등(일반): 카드 디자인별로 몇 명이 뽑았는지 표시
           return (
             <section key={g.id} className="coll-grade">
               <div className="grade-head-row">
                 <div className={`grade-head ${rankClass(g.rank)}`}>
                   <span className="grade-label">{g.label}</span>
                   <span className="grade-name">{g.name}</span>
+                  <span className="grade-count">{pub?.commonCount || 0}명</span>
                 </div>
                 <span className="grade-odds basic">참여 상품</span>
               </div>
-              <div className="hall-common">함께한 모두의 카드 · <b>{pub?.commonCount || 0}명</b> 획득</div>
+              <div className="coll-grid">
+                {gcards.map((c) => {
+                  const cnt = commonByCard[c.id] || 0;
+                  return (
+                    <div
+                      key={c.id}
+                      className={`coll-card ${rankClass(g.rank)} got`}
+                      role="button" tabIndex={0}
+                      onClick={() => setSelected({
+                        cardImage: c.image, cardName: c.name, desc: c.desc || `${cnt}명이 함께한 카드입니다.`,
+                        gradeLabel: g.label, gradeName: g.name, gradeRank: g.rank,
+                      })}
+                    >
+                      <img src={`/cards/${c.image}`} alt={c.name} draggable={false} loading="lazy" decoding="async" />
+                      <span className="coll-winner">{cnt}명</span>
+                    </div>
+                  );
+                })}
+              </div>
             </section>
           );
         }
+        // 한정 등급(SP·1~4등): 카드 디자인별로 — 당첨되면 컬러+당첨자, 미당첨이면 회색 아트
         const total = gradeTotals[g.id] || 0;
-        const wins = byGrade[g.id] || [];
-        const slots = Array.from({ length: total }, (_, i) => wins[i] || null);
+        const wonCount = Math.min((byGrade[g.id] || []).length, total);
         return (
           <section key={g.id} className="coll-grade">
             <div className="grade-head-row">
               <div className={`grade-head ${rankClass(g.rank)}`}>
                 <span className="grade-label">{g.label}</span>
                 <span className="grade-name">{g.name}</span>
-                <span className="grade-count">{Math.min(wins.length, total)}/{total}</span>
+                <span className="grade-count">{wonCount}/{total}</span>
               </div>
               <span className={`grade-odds ${rankClass(g.rank)}`}>한정 {total}장</span>
             </div>
             <div className="coll-grid">
-              {slots.map((w, i) => w ? (
-                <div
-                  key={i}
-                  className={`coll-card ${rankClass(g.rank)} got ${isRecent(w.at) ? "just" : ""}`}
-                  role="button" tabIndex={0}
-                  onClick={() => setSelected({
-                    cardImage: w.cardImage, cardName: w.cardName, desc: `${w.name}님이 획득한 카드입니다.`,
-                    gradeLabel: g.label, gradeName: g.name, gradeRank: g.rank,
-                  })}
-                >
-                  {w.cardImage && <img src={`/cards/${w.cardImage}`} alt={w.cardName} draggable={false} loading="lazy" decoding="async" />}
-                  {g.rank <= 3 && <div className="foil-sweep" />}
-                  {isRecent(w.at) && <span className="coll-just">방금</span>}
-                  <span className="coll-winner">{w.name}</span>
-                </div>
-              ) : (
-                <div key={i} className={`coll-card ${rankClass(g.rank)} locked`}>
-                  <div className="lock">？</div>
-                  <span className="coll-name">미공개</span>
-                </div>
-              ))}
+              {gcards.map((c) => {
+                const w = (winnersByCard[c.id] || [])[0];
+                return w ? (
+                  <div
+                    key={c.id}
+                    className={`coll-card ${rankClass(g.rank)} got ${isRecent(w.at) ? "just" : ""}`}
+                    role="button" tabIndex={0}
+                    onClick={() => setSelected({
+                      cardImage: w.cardImage || c.image, cardName: w.cardName || c.name, desc: `${w.name}님이 획득한 카드입니다.`,
+                      gradeLabel: g.label, gradeName: g.name, gradeRank: g.rank,
+                    })}
+                  >
+                    <img src={`/cards/${w.cardImage || c.image}`} alt={w.cardName || c.name} draggable={false} loading="lazy" decoding="async" />
+                    {g.rank <= 3 && <div className="foil-sweep" />}
+                    {isRecent(w.at) && <span className="coll-just">방금</span>}
+                    <span className="coll-winner">{w.name}</span>
+                  </div>
+                ) : (
+                  <div
+                    key={c.id}
+                    className={`coll-card ${rankClass(g.rank)} locked`}
+                    role="button" tabIndex={0}
+                    onClick={() => setSelected({
+                      cardImage: c.image, cardName: "미공개 카드", desc: "아직 아무도 뽑지 않았어요. 주인공을 기다리는 중!",
+                      gradeLabel: g.label, gradeName: g.name, gradeRank: g.rank,
+                    })}
+                  >
+                    <img src={`/cards/${c.image}`} alt="" draggable={false} loading="lazy" decoding="async" />
+                    <span className="coll-name">미공개</span>
+                  </div>
+                );
+              })}
             </div>
           </section>
         );

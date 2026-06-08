@@ -147,7 +147,7 @@ export default function App() {
           )}
 
           {screen === "cheer" && (
-            <CheerBoard user={user} teams={catalog.teams || []} onBack={() => setScreen("home")} />
+            <CheerBoard user={user} teams={catalog.teams || []} onBack={() => { setScreen("home"); refreshStatus().catch(() => {}); }} />
           )}
         </motion.div>
       </AnimatePresence>

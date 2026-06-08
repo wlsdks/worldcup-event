@@ -13,6 +13,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
   const [message, setMessage] = useState("");
   const [posting, setPosting] = useState(false);
   const [err, setErr] = useState("");
+  const [notice, setNotice] = useState("");
 
   const [confirmId, setConfirmId] = useState(null); // 좋아요 확인 팝업 대상
   const [liking, setLiking] = useState(false);
@@ -61,11 +62,15 @@ export default function CheerBoard({ user, teams = [], onBack }) {
       return;
     }
     setErr("");
+    setNotice("");
     setPosting(true);
     try {
-      await postCheer({ empNo: user.empNo, team: team.trim(), name: name.trim(), message: message.trim() });
+      const res = await postCheer({ empNo: user.empNo, team: team.trim(), name: name.trim(), message: message.trim() });
       setMessage("");
       await load();
+      setNotice(res?.bonusGranted
+        ? "🎉 응원 등록 완료! 추가 뽑기 기회를 1회 얻었어요 — 홈에서 한 번 더 뽑아보세요!"
+        : "응원이 등록되었어요. 고마워요! 🙌");
     } catch (e2) {
       setErr(e2?.message?.replace(/^.*?\/\s*/, "") || "응원 등록에 실패했어요.");
     } finally {
@@ -138,6 +143,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
           </button>
         </div>
         {err && <div className="form-err">{err}</div>}
+        {notice && <div className="form-notice">{notice}</div>}
       </form>
 
       <div className="cheer-rank-title">실시간 팀 랭킹<span>좋아요순</span></div>

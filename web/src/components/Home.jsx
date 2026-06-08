@@ -111,16 +111,16 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
                 {sharingResult ? "이미지 생성 중…" : "결과 공유"}
               </button>
             )}
-            <button className="btn-primary big" onClick={onOpenCollection}>명예의 전당 보기</button>
+            <button className="btn-primary big" onClick={onOpenCollection}>당첨자 안내 보기</button>
           </div>
         </section>
       ) : (
         <>
           <div className="home-hero">
             <span className="hh-kicker">GONOM WORLD CUP EDITION</span>
-            <h1 className="hh-title">운명의 카드를 뽑아라</h1>
+            <h1 className="hh-title">스페셜 고놈을 뽑아라</h1>
             {status.eventActive && (
-              <div className="live-chip"><span className="live-dot" />이벤트 진행 중 · 하루 1회</div>
+              <div className="live-chip"><span className="live-dot" />🔥 응원전 참여하여 추가 기회 획득!</div>
             )}
           </div>
 
@@ -188,13 +188,13 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
         <button className="bento-tile feature cheer" onClick={onOpenCheer}>
           <span className="bt-left">
             <span className="bt-kicker">CHEER BATTLE</span>
-            <span className="bt-title">응원전 · 우리 팀 순위 올리기</span>
+            <span className="bt-title">응원전 · 휴넷을 응원하세요🔥</span>
           </span>
           <span className="bt-go">바로가기 ›</span>
         </button>
         <button className="bento-tile" onClick={onOpenCollection}>
-          <span className="bt-kicker">HALL OF FAME</span>
-          <span className="bt-title">명예의 전당</span>
+          <span className="bt-kicker">WINNERS</span>
+          <span className="bt-title">당첨자 안내</span>
         </button>
         <button className="bento-tile" onClick={() => setShowPrize(true)}>
           <span className="bt-kicker">PRIZES</span>

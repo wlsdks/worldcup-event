@@ -291,6 +291,7 @@ export const getPublicResult = onCall(async () => {
   const participants = new Set();
   const hall = [];
   let commonCount = 0;
+  const commonByCard = {}; // 5등 카드별 뽑은 인원 수 { cardId: count }
   drawsSnap.docs.forEach((doc) => {
     const d = doc.data();
     if (!d.gift && !d.forced) participants.add(d.empNo);
@@ -305,12 +306,13 @@ export const getPublicResult = onCall(async () => {
         });
       } else if (rank === 5) {
         commonCount += 1;
+        if (c.cardId) commonByCard[c.cardId] = (commonByCard[c.cardId] || 0) + 1;
       }
     });
   });
   const participantCount = participants.size;
   const participationRate = rosterCount ? Math.round((participantCount / rosterCount) * 1000) / 10 : 0;
-  return { rosterCount, participantCount, participationRate, commonCount, gradeTotals, hall };
+  return { rosterCount, participantCount, participationRate, commonCount, commonByCard, gradeTotals, hall };
 });
 
 // ───────────────────────────────────────── 응원전 ─────────────────────────────────────────
@@ -358,7 +360,23 @@ export const postCheer = onCall(async (request) => {
     empNo, team, name, message, likes: 0,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
-  return { ok: true, id: ref.id };
+
+  // 응원 참여 보상: 1인 1회 추가 뽑기 기회(+1). 댓글 도배로 중복 적립 방지(cheerBonusGranted 플래그).
+  let bonusGranted = false;
+  if (empNo) {
+    const userRef = db.doc(`users/${empNo}`);
+    bonusGranted = await db.runTransaction(async (t) => {
+      const us = await t.get(userRef);
+      if (us.exists && us.data().cheerBonusGranted === true) return false;
+      t.set(userRef, {
+        empNo,
+        bonusDraws: admin.firestore.FieldValue.increment(1),
+        cheerBonusGranted: true,
+      }, { merge: true });
+      return true;
+    });
+  }
+  return { ok: true, id: ref.id, bonusGranted };
 });
 
 /** 좋아요 (사용자당 최대 3회, 한 댓글당 1회, 취소 불가) */
