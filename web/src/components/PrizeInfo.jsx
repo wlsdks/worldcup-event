@@ -46,12 +46,12 @@ export default function PrizeInfo({ grades, onClose }) {
           <div className="prize-notice">
             <div className="pn-block">
               <div className="pn-head">🏆 1~4등 당첨자</div>
-              <div className="pn-body">813호 인재경영팀 윤도현님께 방문하여 경품 수령</div>
+              <div className="pn-body">경품은 인재경영팀 윤도현님께 방문하여 수령하세요.</div>
             </div>
             <div className="pn-block">
               <div className="pn-head">⚽ 5등 당첨자</div>
-              <div className="pn-body">각 호실에 비치된 축구공 초콜릿 하나씩!</div>
-              <div className="pn-sub">(호실별 위치는 오픈톡 공지에 안내)</div>
+              <div className="pn-body">각 호실에 비치된 축구공 초콜릿을 가져가세요!</div>
+              <div className="pn-sub">(호실별 위치는 오픈톡 공지 확인)</div>
             </div>
           </div>
         </div>

@@ -253,7 +253,7 @@ export const getRecentWinners = onCall(async (request) => {
         winners.push({
           id: `${doc.id}_${ci}`,
           at,
-          name: maskName(d.name),
+          name: cleanStr(d.name),
           team: d.team || "",
           gradeRank: c.gradeRank,
           gradeLabel: c.gradeLabel,
@@ -295,7 +295,7 @@ export const getPublicResult = onCall(async () => {
           id: `${doc.id}_${ci}`, gradeId: c.gradeId, gradeRank: rank,
           gradeLabel: c.gradeLabel, gradeName: c.gradeName || "",
           cardId: c.cardId, cardImage: c.cardImage || null, cardName: c.cardName || "",
-          name: maskName(d.name), team: d.team || "", at: d.createdAt?.toMillis?.() || 0,
+          name: cleanStr(d.name), team: d.team || "", at: d.createdAt?.toMillis?.() || 0,
         });
       } else if (rank === 5) {
         commonCount += 1;
