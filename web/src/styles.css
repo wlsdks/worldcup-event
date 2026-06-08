@@ -2072,3 +2072,20 @@ button.coll-card:disabled { cursor: default; }
 /* 상품 안내 팝업 에디토리얼 헤더 */
 .modal-head-txt { display: flex; flex-direction: column; gap: 3px; }
 .modal-kicker { font-size: 10px; letter-spacing: 2.4px; font-weight: 800; color: #ff7b6e; text-transform: uppercase; }
+
+/* ── 모바일 홈 컴팩트(≤480px): 팩/여백 축소로 '연출 확인용' 등급버튼을 첫 화면 안으로 올림 ── */
+@media (max-width: 480px) {
+  .home-hero { padding: 4px 0 0; }
+  .hh-kicker { margin-bottom: 6px; }
+  .draw-stage { padding: 4px 0 10px; }
+  .pack-hero { width: 144px; }
+  .draw-action { gap: 8px; }
+  .demo-grade-pick { margin-top: 6px; padding: 9px 10px; }
+}
+/* 세로가 짧은 폰(≤720px): 팩을 한 단계 더 줄여 등급버튼 행이 첫 화면에 들어오게 */
+@media (max-width: 480px) and (max-height: 720px) {
+  .pack-hero { width: 120px; }
+  .draw-stage { padding: 2px 0 6px; }
+  .home-hero { padding: 2px 0 0; }
+  .hh-kicker { margin-bottom: 3px; }
+}
