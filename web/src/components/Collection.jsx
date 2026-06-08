@@ -62,6 +62,11 @@ export default function Collection({ catalog, onBack }) {
   }, [toast]);
 
   const grades = (catalog.grades || []).slice().sort((a, b) => a.rank - b.rank);
+  // 등급별 출현 확률 = weight / (전체 weight 합 + 꽝 weight)
+  const missWeight = Math.max(0, Number(catalog.config?.missWeight) || 0);
+  const totalWeight = grades.reduce((s, g) => s + (Number(g.weight) || 0), 0) + missWeight;
+  const oddsPct = (g) => (totalWeight > 0 ? (Number(g.weight) || 0) / totalWeight * 100 : 0);
+  const fmtOdds = (p) => (p >= 10 ? Math.round(p) : p >= 1 ? p.toFixed(1) : p.toFixed(2));
   const allCards = (catalog.cards || []).slice().sort((a, b) => (a.id < b.id ? -1 : 1));
   const cardsByGrade = {};
   allCards.forEach((c) => { (cardsByGrade[c.gradeId] = cardsByGrade[c.gradeId] || []).push(c); });
@@ -147,7 +152,7 @@ export default function Collection({ catalog, onBack }) {
                   <span className="grade-name">{g.name}</span>
                   <span className="grade-count">{pub?.commonCount || 0}명</span>
                 </div>
-                <span className="grade-odds basic">참여 상품</span>
+                <span className="grade-odds basic">참여 상품 · <b>{fmtOdds(oddsPct(g))}%</b></span>
               </div>
               <div className="coll-grid">
                 {gcards.map((c) => {
@@ -182,7 +187,7 @@ export default function Collection({ catalog, onBack }) {
                 <span className="grade-name">{g.name}</span>
                 <span className="grade-count">{wonCount}/{total}</span>
               </div>
-              <span className={`grade-odds ${rankClass(g.rank)}`}>한정 {total}장</span>
+              <span className={`grade-odds ${rankClass(g.rank)}`}>한정 {total}장 · <b>{fmtOdds(oddsPct(g))}%</b></span>
             </div>
             <div className="coll-grid">
               {gcards.map((c) => {
