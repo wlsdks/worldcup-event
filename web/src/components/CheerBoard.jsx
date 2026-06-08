@@ -87,19 +87,22 @@ export default function CheerBoard({ user, teams = [], onBack }) {
 
   const confirmLike = async () => {
     if (!confirmId) return;
-    setLiking(true);
+    const cheerId = confirmId;
+    // 낙관적 업데이트: 팝업 즉시 닫고 화면에 좋아요 바로 반영 → 서버 응답은 뒤에서 반영
+    setConfirmId(null);
+    setErr("");
+    setLiked((prev) => new Set(prev).add(cheerId));
+    setLikesUsed((u) => u + 1);
+    setCheers((prev) => prev.map((c) => (c.id === cheerId ? { ...c, likes: (c.likes || 0) + 1 } : c)));
     try {
-      const res = await likeCheer({ empNo: user.empNo, cheerId: confirmId });
-      setConfirmId(null);
-      await load();
+      const res = await likeCheer({ empNo: user.empNo, cheerId });
       if (res?.likeBonusGranted) {
         setNotice("좋아요 3회 완료! 카드팩 뽑기 기회를 1회 더 얻었어요 — 홈에서 뽑아보세요.");
       }
+      await load(); // 서버 정답으로 정렬·수치 재동기화
     } catch (e2) {
       setErr(e2?.message?.replace(/^.*?\/\s*/, "") || "좋아요에 실패했어요.");
-      setConfirmId(null);
-    } finally {
-      setLiking(false);
+      await load(); // 실패 시 낙관적 변경 롤백(서버 상태로 복구)
     }
   };
 
