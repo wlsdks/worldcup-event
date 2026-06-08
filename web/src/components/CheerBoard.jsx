@@ -169,7 +169,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
       </form>
       )}
 
-      <div className="cheer-rank-title">실시간 응원 랭킹<span>좋아요순</span></div>
+      <div className="cheer-rank-title">실시간 응원랭킹<span>좋아요순</span></div>
 
       <div className="cheer-list">
         <AnimatePresence initial={false}>

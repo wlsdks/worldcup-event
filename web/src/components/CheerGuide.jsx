@@ -50,7 +50,7 @@ export default function CheerGuide({ onClose }) {
             <div className="cg-prize-row"><span className="cg-rank">1위</span> 배달의민족 상품권 5만원</div>
             <div className="cg-prize-row"><span className="cg-rank">2위</span> 배달의민족 상품권 3만원</div>
             <div className="cg-prize-row"><span className="cg-rank">3위</span> 배달의민족 상품권 2만원</div>
-            <div className="cg-prize-note">동점 발생 시 차순위 팀을 선정하여 상품을 지급합니다.</div>
+            <div className="cg-prize-note">동일팀 중복 선정 시, 차순위 팀 상품 지급</div>
           </div>
         </div>
 

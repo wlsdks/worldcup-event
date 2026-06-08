@@ -20,8 +20,9 @@ const EVENT = {
   startDate: "2026-06-04", // KST, 포함
   endDate: "2026-06-06",   // KST, 포함 (3일)
   drawsPerDay: 1,
+  baseDraws: 3, // 1인 기본 뽑기 횟수(총량). +응원글(1) +좋아요3회(1) = 최대 5회
   cardsPerPack: 1, // 한 번 뽑을 때 한 팩에 나오는 카드 수 (1장)
-  unlimitedDraws: false, // 운영: 하루1회 제한 + 재고차감(소진 시 더 안 나옴)
+  unlimitedDraws: false, // 운영: 총 baseDraws+보너스 한도 내 뽑기 + 재고차감(소진 시 더 안 나옴)
   // 꽝 없음. 1~4등(한정)에 당첨되지 않으면 전부 5등(무제한)이 나온다.
   missWeight: 0,
   // 사번+이름이 roster(명단)와 일치해야만 참여 가능. (false면 누구나 입장)
@@ -90,21 +91,17 @@ const CARDS = [
   { id: "c_special",        gradeId: "g0", name: "스페셜",     image: "card_special.png",        desc: "월드컵 우승의 주인공! 트로피를 번쩍 들어올린 전설의 순간을 담은, 세상에 단 하나뿐인 스페셜 고놈." },
 ];
 
-// ── 응원전 팀 (임시 — 실제 팀으로 교체 예정) ──
+// ── 응원전 팀 (휴넷 부서 39팀) ──
 // cheerCount 는 시드로 건드리지 않음(merge) → 재시드해도 응원 수 유지.
-// 응원 팀 — admin에서 지정/관리(임시 10팀). 사용자는 직접 입력 대신 이 중에서 선택.
-const TEAMS = [
-  { id: "t1",  name: "개발본부",     emoji: "🦁", order: 1 },
-  { id: "t2",  name: "인재경영팀",   emoji: "🐯", order: 2 },
-  { id: "t3",  name: "영업본부",     emoji: "🐻", order: 3 },
-  { id: "t4",  name: "마케팅팀",     emoji: "🦊", order: 4 },
-  { id: "t5",  name: "경영지원팀",   emoji: "🐼", order: 5 },
-  { id: "t6",  name: "콘텐츠개발팀", emoji: "🐰", order: 6 },
-  { id: "t7",  name: "디자인팀",     emoji: "🦄", order: 7 },
-  { id: "t8",  name: "고객성공팀",   emoji: "🐨", order: 8 },
-  { id: "t9",  name: "재무회계팀",   emoji: "🐸", order: 9 },
-  { id: "t10", name: "전략기획팀",   emoji: "🐵", order: 10 },
+const TEAM_NAMES = [
+  "기업교육1팀","기업교육2팀","기업교육3팀","프런티어세일즈1팀","프런티어세일즈2팀","프런티어세일즈3팀",
+  "그로스세일즈팀","사업전략팀","HU사업팀","L&D마케팅팀","하이브리드러닝사업팀","교육운영1팀","교육운영2팀",
+  "교육운영3팀","하이브리드러닝운영팀","컨텐츠매니지먼트팀","BPO사업운영팀","고객행복팀","교육지원팀",
+  "IT전략기획팀","IT인프라팀","LABS플랫폼팀","HU플랫폼팀","러닝메이커솔루션팀","LMS솔루션팀","CMS솔루션팀",
+  "공통플랫폼팀","FRONT개발팀","AI LAB","LX혁신팀","휴넷리더십센터","L&D혁신팀","리더스아카데미팀",
+  "AX아카데미팀","컨텐츠혁신팀","인재경영팀","전략경영팀","커뮤니케이션팀","디자인팀",
 ];
+const TEAMS = TEAM_NAMES.map((name, i) => ({ id: "t" + String(i + 1).padStart(2, "0"), name, emoji: "", order: i + 1 }));
 
 // ── 참여자 명단 (임시 — 실제 사번/이름으로 교체 예정) ──
 // 사번+이름이 아래와 일치해야만 입장/뽑기 가능. (config.rosterRequired=false 면 검사 안 함)

@@ -119,26 +119,19 @@ export const drawCard = onCall({ minInstances: 1 }, async (request) => {
     const isTestAccount = empNo === "0000";
     const unlimitedDraws = cfg.unlimitedDraws === true || isTestAccount;
 
-    // 유저 상태(관리자 지급 보너스 추가뽑기) 읽기 — 모든 write 전에
+    // 유저 상태 읽기 — 모든 write 전에. 총 허용 = 기본 N회 + 응원/좋아요로 적립한 보너스.
     const userRef = db.doc(`users/${empNo}`);
     const userSnap = await t.get(userRef);
     const bonusDraws = userSnap.exists ? (Number(userSnap.data().bonusDraws) || 0) : 0;
+    const drawsUsed = userSnap.exists ? (Number(userSnap.data().drawCount) || 0) : 0;
+    const baseDraws = Math.max(1, Number(cfg.baseDraws) || 3);
+    const allowance = baseDraws + bonusDraws;
 
-    // 무한모드: 매번 새 기록 / 일반모드: 하루1회 잠금(사번__날짜). 잠겨도 보너스가 있으면 가능.
-    let useBonus = false;
-    let drawRef;
-    if (unlimitedDraws) {
-      drawRef = db.collection("draws").doc();
-    } else {
-      const dailyRef = db.doc(`draws/${empNo}__${today}`);
-      const existing = await t.get(dailyRef);
-      if (existing.exists) {
-        if (bonusDraws > 0) { useBonus = true; drawRef = db.collection("draws").doc(); }
-        else throw new HttpsError("already-exists", "오늘은 이미 뽑으셨어요. 내일 다시 도전해 주세요!");
-      } else {
-        drawRef = dailyRef;
-      }
+    // 총 허용 횟수까지 뽑기 가능(일일 제한 없음). 매 뽑기는 새 기록 문서.
+    if (!unlimitedDraws && drawsUsed >= allowance) {
+      throw new HttpsError("failed-precondition", "카드팩 뽑기 기회를 모두 사용했어요!");
     }
+    const drawRef = db.collection("draws").doc();
 
     const gradesSnap = await t.get(db.collection("grades"));
     const grades = gradesSnap.docs.map((d) => ({ id: d.id, ref: d.ref, ...d.data() }));
@@ -226,7 +219,6 @@ export const drawCard = onCall({ minInstances: 1 }, async (request) => {
         lastDrawDate: today,
         drawCount: admin.firestore.FieldValue.increment(1),
         cardCount: admin.firestore.FieldValue.increment(picked.length),
-        ...(useBonus ? { bonusDraws: admin.firestore.FieldValue.increment(-1) } : {}),
         updatedAt: now,
       },
       { merge: true }
@@ -470,6 +462,11 @@ export const getStatus = onCall({ minInstances: 1 }, async (request) => {
   const bonusDraws = Number(userSnap.data()?.bonusDraws) || 0;
   // 테스트 계정(사번 0000)은 운영설정과 무관하게 무한 뽑기
   const unlimited = cfg.unlimitedDraws === true || empNo === "0000";
+  // 총 허용 = 기본 N회 + 적립 보너스. 남은 횟수 = 허용 − 사용(뽑은 팩 수).
+  const baseDraws = Math.max(1, Number(cfg.baseDraws) || 3);
+  const drawsUsed = packs.length;
+  const allowance = baseDraws + bonusDraws;
+  const drawsLeft = Math.max(0, allowance - drawsUsed);
 
   return {
     name: savedName,
@@ -481,7 +478,11 @@ export const getStatus = onCall({ minInstances: 1 }, async (request) => {
     cardsPerPack: cfg.cardsPerPack || 5,
     unlimitedDraws: unlimited,
     bonusDraws,
-    canDrawToday: ev.ok && (unlimited || !drewToday || bonusDraws > 0),
+    baseDraws,
+    drawsUsed,
+    drawsLeft,
+    allowance,
+    canDrawToday: ev.ok && (unlimited || drawsLeft > 0),
     drewToday,
     cards,
     packsCount: packs.length,

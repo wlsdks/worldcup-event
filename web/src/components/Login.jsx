@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Login({ onSubmit }) {
+export default function Login({ onSubmit, demo = false }) {
   const [empNo, setEmpNo] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -75,9 +75,11 @@ export default function Login({ onSubmit }) {
           </button>
         </form>
 
-        <button type="button" className="demo-login" onClick={demoLogin} disabled={loading}>
-데모 로그인 (테스트용)
-        </button>
+        {demo && (
+          <button type="button" className="demo-login" onClick={demoLogin} disabled={loading}>
+            데모 로그인 (테스트용)
+          </button>
+        )}
       </div>
     </div>
   );

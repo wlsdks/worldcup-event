@@ -8,6 +8,9 @@ import CheerBoard from "./components/CheerBoard.jsx";
 import PackReveal from "./components/PackReveal.jsx";
 
 const LS_KEY = "gonom_user";
+// /demo 경로(또는 ?demo)로 접속할 때만 '데모 로그인' 버튼 노출 — 실사용 페이지에는 숨김
+const DEMO_MODE = typeof window !== "undefined" &&
+  (window.location.pathname.toLowerCase().includes("/demo") || /[?&]demo\b/i.test(window.location.search));
 const EMBERS = Array.from({ length: 14 }, (_, i) => i);
 
 export default function App() {
@@ -125,7 +128,7 @@ export default function App() {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.32, ease: [0.22, 0.61, 0.36, 1] }}
         >
-          {screen === "login" && <Login onSubmit={handleLogin} />}
+          {screen === "login" && <Login onSubmit={handleLogin} demo={DEMO_MODE} />}
 
           {screen === "home" && status && (
             <Home
