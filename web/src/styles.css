@@ -1995,13 +1995,27 @@ button.coll-card:disabled { cursor: default; }
 }
 .cheer-intro-title { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; margin: 0 0 7px; color: #fff; line-height: 1.2; }
 .cheer-intro-desc { font-size: 13.5px; line-height: 1.62; color: #b3b7c0; margin: 0; }
-/* 응원 팀 선택 드롭다운(39팀 대비) */
-.team-select {
-  appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 38px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1l5 5 5-5' stroke='%23cf9aa2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-repeat: no-repeat; background-position: right 14px center;
+/* 응원 팀 선택 — 아코디언(39팀) */
+.team-acc { position: relative; }
+.team-acc-head {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(0,0,0,0.3); border: 1px solid var(--line); color: var(--text);
+  border-radius: 12px; padding: 12px 13px; font-size: 15px; cursor: pointer;
 }
-.team-select option { color: #111; background: #fff; }
+.team-acc-head .ph { color: #8b909b; }
+.team-acc-arrow { transition: transform 0.2s; color: #cf9aa2; font-size: 12px; }
+.team-acc.open .team-acc-arrow { transform: rotate(180deg); }
+.team-acc-list {
+  margin-top: 6px; max-height: 244px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: rgba(0,0,0,0.35); border: 1px solid var(--line); border-radius: 12px; padding: 5px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.team-acc-item {
+  text-align: left; background: none; border: 0; color: var(--text); cursor: pointer;
+  padding: 10px 11px; border-radius: 8px; font-size: 14px;
+}
+.team-acc-item:active { background: rgba(255,255,255,0.06); }
+.team-acc-item.on { background: rgba(226,35,26,0.28); color: #fff; font-weight: 700; }
 .cheer .like-pill {
   font-size: 12px; font-weight: 700; color: #c9ccd3;
   background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
@@ -2161,3 +2175,26 @@ button.coll-card:disabled { cursor: default; }
 /* 개봉 결과 대기 로딩 */
 .reveal-loading { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 14px; color: #ffd6cf; }
 .reveal-loading-txt { font-size: 14px; font-weight: 700; }
+
+/* 개봉 인트로 — 빛입자 응집(워프 광선 대체) */
+.converge { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 1; }
+.converge.out { opacity: 0; transition: opacity 0.35s ease; }
+.cv-spark {
+  position: absolute; width: 7px; height: 7px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, rgba(255,224,180,0.7) 45%, transparent 72%);
+  opacity: 0; filter: blur(0.3px);
+  transform: rotate(var(--ang)) translateX(var(--dist)) scale(0.5);
+  animation: cvIn 1.05s cubic-bezier(0.5,0,0.2,1) forwards;
+}
+@keyframes cvIn {
+  0% { opacity: 0; transform: rotate(var(--ang)) translateX(var(--dist)) scale(0.5); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--ang)) translateX(0) scale(1.6); }
+}
+.cv-core {
+  position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fff; opacity: 0;
+  box-shadow: 0 0 30px 10px rgba(255,240,210,0.7);
+  animation: cvCore 1.05s ease-in forwards;
+}
+@keyframes cvCore { 0% { opacity: 0; transform: scale(0.2); } 70% { opacity: 0.35; } 100% { opacity: 0.95; transform: scale(2.4); } }
+@media (prefers-reduced-motion: reduce) { .cv-spark, .cv-core { animation-duration: 0.01ms; } }

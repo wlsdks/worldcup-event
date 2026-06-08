@@ -316,12 +316,13 @@ function IntroSequence({ onDone, rank = 9 }) {
 
   return (
     <motion.div className={`intro ${tier} ${rc}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className={`warp ${step !== "warp" ? "out" : ""}`}>
+      <div className={`converge ${step !== "warp" ? "out" : ""}`}>
+        <span className="cv-core" />
         {WARP.map((i) => (
           <span
             key={i}
-            className="warp-line"
-            style={{ transform: `rotate(${(i * 360) / 26}deg) translateY(-8vmax)`, animationDelay: `${(i % 6) * 0.08}s` }}
+            className="cv-spark"
+            style={{ "--ang": `${(i * 360) / WARP.length}deg`, "--dist": `${26 + (i % 6) * 7}vmax`, animationDelay: `${(i % 5) * 0.07}s` }}
           />
         ))}
       </div>

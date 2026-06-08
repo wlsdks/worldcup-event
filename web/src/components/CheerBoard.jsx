@@ -10,6 +10,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
   const [likesMax, setLikesMax] = useState(3);
 
   const [team, setTeam] = useState("");
+  const [teamOpen, setTeamOpen] = useState(false);
   const [name, setName] = useState(user?.name || "");
   const [message, setMessage] = useState("");
   const [posting, setPosting] = useState(false);
@@ -136,16 +137,26 @@ export default function CheerBoard({ user, teams = [], onBack }) {
       ) : (
       <form className="cheer-composer" onSubmit={submit}>
         <div className="team-pick-label">응원할 팀을 선택하세요</div>
-        <select
-          className="cheer-in team-select"
-          value={team}
-          onChange={(e) => setTeam(e.target.value)}
-        >
-          <option value="" disabled>팀을 선택하세요</option>
-          {teams.map((t) => (
-            <option key={t.id} value={t.name}>{t.name}</option>
-          ))}
-        </select>
+        <div className={`team-acc ${teamOpen ? "open" : ""}`}>
+          <button type="button" className="team-acc-head" onClick={() => setTeamOpen((o) => !o)}>
+            <span className={team ? "" : "ph"}>{team || "팀을 선택하세요"}</span>
+            <span className="team-acc-arrow" aria-hidden>▾</span>
+          </button>
+          {teamOpen && (
+            <div className="team-acc-list">
+              {teams.map((t) => (
+                <button
+                  type="button"
+                  key={t.id}
+                  className={`team-acc-item ${team === t.name ? "on" : ""}`}
+                  onClick={() => { setTeam(t.name); setTeamOpen(false); }}
+                >
+                  {t.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <input
           className="cheer-in"
           placeholder="작성자 이름"
