@@ -396,7 +396,8 @@ export const likeCheer = onCall(async (request) => {
     const dupSnap = await t.get(likeRef);
     if (dupSnap.exists) throw new HttpsError("already-exists", "이미 좋아요한 응원이에요.");
     const mine = await t.get(db.collection("cheerLikes").where("empNo", "==", empNo));
-    if (mine.size >= LIKE_MAX) {
+    // 테스트 계정(0000)은 좋아요 무제한
+    if (empNo !== "0000" && mine.size >= LIKE_MAX) {
       throw new HttpsError("resource-exhausted", `좋아요를 모두 사용했어요 (최대 ${LIKE_MAX}회).`);
     }
     // 좋아요 보상: 좋아요 3회 완료 시 1인 1회 추가 뽑기(+1). likeBonusGranted 플래그로 중복 방지.
@@ -530,6 +531,37 @@ export const resetAllDraws = onCall(async (request) => {
   await flush();
 
   return { ok: true, deletedDraws: deleted };
+});
+
+/** 좋아요 전체 초기화 — 데모/테스트용(사번 0000만). cheerLikes 전부 삭제 + 모든 cheers.likes=0
+ *  + user의 likeBonusGranted 플래그 해제. 응원글 자체는 보존. */
+export const resetAllLikes = onCall(async (request) => {
+  const empNo = cleanStr(request.data?.empNo);
+  if (empNo !== "0000") {
+    throw new HttpsError("permission-denied", "데모 계정에서만 초기화할 수 있습니다.");
+  }
+  const FV = admin.firestore.FieldValue;
+  let batch = db.batch();
+  let n = 0;
+  const flush = async () => { if (n > 0) { await batch.commit(); batch = db.batch(); n = 0; } };
+
+  // 1) cheerLikes 전부 삭제
+  const likesSnap = await db.collection("cheerLikes").get();
+  let deleted = 0;
+  for (const d of likesSnap.docs) { batch.delete(d.ref); n++; deleted++; if (n >= 450) await flush(); }
+  await flush();
+
+  // 2) 모든 cheers.likes = 0
+  const cheersSnap = await db.collection("cheers").get();
+  for (const c of cheersSnap.docs) { batch.update(c.ref, { likes: 0 }); n++; if (n >= 450) await flush(); }
+  await flush();
+
+  // 3) user likeBonusGranted 해제(좋아요 보너스 재적립 가능)
+  const usersSnap = await db.collection("users").get();
+  for (const u of usersSnap.docs) { batch.set(u.ref, { likeBonusGranted: FV.delete() }, { merge: true }); n++; if (n >= 450) await flush(); }
+  await flush();
+
+  return { ok: true, deletedLikes: deleted };
 });
 
 // ─────────────────────────────────────────────────────────────

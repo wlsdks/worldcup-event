@@ -77,6 +77,13 @@ export async function resetAllDraws(empNo) {
   return res.data;
 }
 
+/** 좋아요 전체 초기화 (데모 계정 0000 전용) */
+export async function resetAllLikes(empNo) {
+  const fn = httpsCallable(functions, "resetAllLikes");
+  const res = await fn({ empNo });
+  return res.data;
+}
+
 // ── 관리자(admin) ──
 export async function adminLoad(masterKey) {
   const fn = httpsCallable(functions, "adminLoad");

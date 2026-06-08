@@ -2199,9 +2199,10 @@ button.coll-card:disabled { cursor: default; }
 @keyframes cvCore { 0% { opacity: 0; transform: scale(0.2); } 70% { opacity: 0.35; } 100% { opacity: 0.95; transform: scale(2.4); } }
 @media (prefers-reduced-motion: reduce) { .cv-spark, .cv-core { animation-duration: 0.01ms; } }
 
-/* 데모 전용 — 전체 뽑기 기록 초기화 버튼 */
+/* 데모 전용 — 초기화 버튼들 */
+.dgp-reset-row { display: flex; gap: 8px; margin-top: 9px; }
 .dgp-reset {
-  margin-top: 9px; width: 100%; min-height: 40px; padding: 9px 12px; border-radius: 10px; cursor: pointer;
+  flex: 1; min-height: 40px; padding: 9px 10px; border-radius: 10px; cursor: pointer;
   font-size: 12.5px; font-weight: 700; color: #ffb3ab;
   background: rgba(226,35,26,0.1); border: 1px dashed rgba(255,120,90,0.45);
 }

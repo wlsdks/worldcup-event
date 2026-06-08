@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { drawCard, getStatus, loadCatalog, resetAllDraws } from "./api";
+import { drawCard, getStatus, loadCatalog, resetAllDraws, resetAllLikes } from "./api";
 import Login from "./components/Login.jsx";
 import Home from "./components/Home.jsx";
 import Collection from "./components/Collection.jsx";
@@ -98,6 +98,10 @@ export default function App() {
     }
   };
 
+  const handleResetLikes = async () => {
+    return resetAllLikes(user.empNo);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem(LS_KEY);
     setUser(null);
@@ -155,6 +159,7 @@ export default function App() {
               onOpenCollection={() => setScreen("collection")}
               onOpenCheer={() => setScreen("cheer")}
               onReset={handleReset}
+              onResetLikes={handleResetLikes}
               onLogout={handleLogout}
             />
           )}

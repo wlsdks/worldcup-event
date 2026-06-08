@@ -61,7 +61,8 @@ export default function CheerBoard({ user, teams = [], onBack }) {
   }, [toast]);
   const now = Date.now();
 
-  const remaining = Math.max(0, likesMax - likesUsed);
+  const unlimitedLikes = user?.empNo === "0000";
+  const remaining = unlimitedLikes ? 999 : Math.max(0, likesMax - likesUsed);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -112,7 +113,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
       <header className="coll-top">
         <button className="link-btn" onClick={onBack}>← 뒤로</button>
         <h2>응원전</h2>
-        <span className="like-pill">남은 좋아요 {likesMax - likesUsed}</span>
+        <span className="like-pill">남은 좋아요 {user?.empNo === "0000" ? "무한" : Math.max(0, likesMax - likesUsed)}</span>
       </header>
 
       <div className="cheer-intro">
@@ -240,7 +241,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
             >
               <h3>좋아요를 누르시겠습니까?</h3>
               <div className="confirm-body">
-                <div className="confirm-remain">현재 남은 좋아요 횟수 : <b>{remaining}회</b></div>
+                <div className="confirm-remain">현재 남은 좋아요 횟수 : <b>{unlimitedLikes ? "무한" : `${remaining}회`}</b></div>
                 <div className="confirm-warn">좋아요는 등록 후 취소할 수 없습니다.</div>
                 <div>확인하시겠습니까?</div>
               </div>
