@@ -5,11 +5,7 @@ function rankClass(rank) {
 }
 
 /** 당첨 상품 안내 모달 */
-export default function PrizeInfo({ grades, config, onClose }) {
-  const team = config?.contactTeam || "인재경영팀";
-  const person = config?.contactPerson || "윤도현";
-  const how = config?.contactHow || "DM 또는 직접 방문";
-
+export default function PrizeInfo({ grades, onClose }) {
   return (
     <motion.div
       className="modal-overlay"
@@ -50,7 +46,7 @@ export default function PrizeInfo({ grades, config, onClose }) {
           <div className="prize-notice">
             <div className="pn-block">
               <div className="pn-head">🏆 1~4등 당첨자</div>
-              <div className="pn-body">{team} {person}님께 {how}하여 경품 수령</div>
+              <div className="pn-body">813호 인재경영팀 윤도현님께 방문하여 경품 수령</div>
             </div>
             <div className="pn-block">
               <div className="pn-head">⚽ 5등 당첨자</div>
