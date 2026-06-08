@@ -11,6 +11,14 @@ export function can3D() {
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return (cached = false);
   } catch { /* 무시 */ }
 
+  // iOS(아이폰/아이패드, 모든 WebKit) — 무거운 three.js(환경맵/물리재질)에서 깨짐·메모리 이슈가
+  // 잦아 안정적인 CSS 카드로 폴백(연출은 동일, 3D 틸트만 제외).
+  try {
+    const ua = navigator.userAgent || "";
+    const isIOS = /iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1);
+    if (isIOS) return (cached = false);
+  } catch { /* 무시 */ }
+
   // WebGL 미지원 → 폴백
   try {
     const c = document.createElement("canvas");

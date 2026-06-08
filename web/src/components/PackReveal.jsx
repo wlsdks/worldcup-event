@@ -275,7 +275,7 @@ function IntroSequence({ onDone, rank = 9 }) {
   // 좋은 등급은 찢기 전부터 "뭔가 다르다" — 정확한 등급은 숨기고 등급대만 암시. 색은 등급색(rc)으로.
   const tier = rank <= 2 ? "epic" : rank === 3 ? "rare" : "";
   const rc = rank <= 5 ? rcOf(rank) : "";
-  const introMsg = INTRO_MSG[rank] || "...";
+  const introMsg = INTRO_MSG[rank] || "운명의 카드가 다가온다…";
   const [typed, setTyped] = useState("");
 
   // warp(1.0s) → type(타자기) → pack
