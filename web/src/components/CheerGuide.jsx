@@ -44,6 +44,13 @@ export default function CheerGuide({ onClose }) {
             <div className="cg-reward">좋아요 3회 누르기 완료 시 카드팩 뽑기 기회 <b>1회 추가 지급!</b></div>
             <div className="cg-sub">우리 팀뿐만 아니라 다른 팀의 멋진 응원글에도 아낌없는 응원을 보내주세요!</div>
           </div>
+
+          <div className="cg-prizes">
+            <div className="cg-prizes-title">🏅 마감 시점 좋아요 상위 3개 팀</div>
+            <div className="cg-prize-row"><span className="cg-rank">1위</span> 배달의민족 상품권 5만원</div>
+            <div className="cg-prize-row"><span className="cg-rank">2위</span> 배달의민족 상품권 3만원</div>
+            <div className="cg-prize-row"><span className="cg-rank">3위</span> 배달의민족 상품권 2만원</div>
+          </div>
         </div>
 
         <button className="btn-primary cg-confirm" onClick={onClose}>응원하러 가기</button>

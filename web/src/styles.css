@@ -2134,4 +2134,11 @@ button.coll-card:disabled { cursor: default; }
 }
 .cg-reward b { color: #ffe79a; font-weight: 900; }
 .cg-sub { font-size: 12px; line-height: 1.5; color: #9aa0aa; }
+.cg-prizes {
+  display: flex; flex-direction: column; gap: 6px; padding: 13px 14px; border-radius: 12px;
+  background: rgba(255,176,64,0.1); border: 1px solid rgba(255,176,90,0.35);
+}
+.cg-prizes-title { font-size: 13px; font-weight: 800; color: #ffd76a; margin-bottom: 2px; }
+.cg-prize-row { font-size: 13px; color: #ffe9cf; display: flex; align-items: center; gap: 8px; }
+.cg-rank { flex: 0 0 auto; font-size: 11px; font-weight: 900; color: #fff; background: rgba(226,35,26,0.7); border-radius: 6px; padding: 2px 7px; }
 .cg-confirm { width: calc(100% - 32px); margin: 16px 16px 4px; }

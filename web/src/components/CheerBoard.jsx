@@ -23,15 +23,8 @@ export default function CheerBoard({ user, teams = [], onBack }) {
   const [showGuide, setShowGuide] = useState(false);
   const seenRef = useRef(null);
 
-  // 응원전 첫 진입 시 안내 팝업 1회 자동 표시(세션당)
-  useEffect(() => {
-    try {
-      if (!sessionStorage.getItem("wc_cheer_guide_seen")) {
-        setShowGuide(true);
-        sessionStorage.setItem("wc_cheer_guide_seen", "1");
-      }
-    } catch { setShowGuide(true); }
-  }, []);
+  // 응원전 진입 시 안내 팝업 항상 자동 표시
+  useEffect(() => { setShowGuide(true); }, []);
 
   const load = useCallback(async () => {
     try {
@@ -123,7 +116,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
         <h3 className="cheer-intro-title">🏆 우리 팀을 우승으로 이끌어 주세요!</h3>
         <p className="cheer-intro-desc">
           좋아요를 많이 받을수록 우리 팀의 순위가 올라갑니다.<br />
-          팀원들과 함께 응원에 참여해 커피 상품권의 주인공이 되어보세요!
+          팀원들과 함께 응원에 참여해 배달의민족 상품권의 주인공이 되어보세요!
         </p>
         <button type="button" className="cheer-guide-btn" onClick={() => setShowGuide(true)}>
           ⓘ 응원전 안내 · 추가 기회 받는 법

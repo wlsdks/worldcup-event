@@ -43,12 +43,12 @@ const EVENT = {
 // 등급 체계: 스페셜 / 전설(1등) / 유니크(2등) / 에픽(3등) / 레어(4등) / 일반(5등)
 // 재고(inventoryTotal)=등급별 카드 수(5등 제외, 무제한). 확률은 400명 기준(가중치 합=400 → 0.25/0.25/0.5/0.75/1%).
 const GRADES = [
-  { id: "g0", rank: 0, label: "SP",  name: "스페셜", color: "special", weight: 1,   inventoryTotal: 1,    unlimited: false, daily: [1, 0, 0], prize: "국가대표 축구 유니폼" },
-  { id: "g1", rank: 1, label: "1st", name: "전설",   color: "holo",   weight: 1,   inventoryTotal: 1,    unlimited: false, daily: [1, 0, 0], prize: "5만원 쿠폰" },
-  { id: "g2", rank: 2, label: "2nd", name: "유니크", color: "gold",   weight: 2,   inventoryTotal: 2,    unlimited: false, daily: [2, 0, 0], prize: "3만원 상당 상품" },
-  { id: "g3", rank: 3, label: "3rd", name: "에픽",   color: "silver", weight: 3,   inventoryTotal: 3,    unlimited: false, daily: [3, 0, 0], prize: "치킨 쿠폰" },
-  { id: "g4", rank: 4, label: "4th", name: "레어",   color: "bronze", weight: 4,   inventoryTotal: 4,    unlimited: false, daily: [4, 0, 0], prize: "미니 선풍기" },
-  { id: "g5", rank: 5, label: "5th", name: "일반",   color: "basic",  weight: 389, inventoryTotal: null, unlimited: true,                  prize: "축구공 초콜릿 (각 호실 비치분)" },
+  { id: "g0", rank: 0, label: "SP",  name: "스페셜", color: "special", weight: 1,   inventoryTotal: 1,    unlimited: false, daily: [1, 0, 0], prize: "국가대표 레플리카 유니폼" },
+  { id: "g1", rank: 1, label: "1st", name: "전설",   color: "holo",   weight: 1,   inventoryTotal: 1,    unlimited: false, daily: [1, 0, 0], prize: "배달의민족 상품권 5만원" },
+  { id: "g2", rank: 2, label: "2nd", name: "유니크", color: "gold",   weight: 2,   inventoryTotal: 2,    unlimited: false, daily: [2, 0, 0], prize: "배달의민족 상품권 3만원" },
+  { id: "g3", rank: 3, label: "3rd", name: "에픽",   color: "silver", weight: 3,   inventoryTotal: 3,    unlimited: false, daily: [3, 0, 0], prize: "치킨 기프티콘" },
+  { id: "g4", rank: 4, label: "4th", name: "레어",   color: "bronze", weight: 4,   inventoryTotal: 4,    unlimited: false, daily: [4, 0, 0], prize: "휴대용 선풍기" },
+  { id: "g5", rank: 5, label: "5th", name: "일반",   color: "basic",  weight: 389, inventoryTotal: null, unlimited: true,                  prize: "축구공 초콜릿" },
 ];
 
 /** startDate~endDate(포함) 날짜 문자열 배열 'YYYY-MM-DD' */

@@ -1,29 +1,17 @@
-import { auth, db, functions } from "./firebase";
-import { signInAnonymously } from "firebase/auth";
+import { db, functions } from "./firebase";
 import { httpsCallable } from "firebase/functions";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 
-/** 콜러블 호출 시 자동으로 익명 로그인 보장 (서버 호출 컨텍스트 확보용) */
-async function ensureAuth() {
-  if (!auth.currentUser) {
-    try {
-      await signInAnonymously(auth);
-    } catch (e) {
-      // 익명 로그인 비활성화 등 — 치명적이지 않으면 무시하고 진행
-      console.warn("anon sign-in failed", e);
-    }
-  }
-}
+// 익명 로그인 제거: 서버는 empNo 기반으로 동작하고 uid는 선택적 메타데이터일 뿐이라,
+// 매 호출마다 (익명인증 비활성 시) 실패하는 sign-in 왕복이 지연만 유발했음.
 
 export async function drawCard({ empNo, name, forceGrade }) {
-  await ensureAuth();
   const fn = httpsCallable(functions, "drawCard");
   const res = await fn({ empNo, name, forceGrade });
   return res.data;
 }
 
 export async function getStatus({ empNo, name }) {
-  await ensureAuth();
   const fn = httpsCallable(functions, "getStatus");
   const res = await fn({ empNo, name });
   return res.data;
@@ -31,14 +19,12 @@ export async function getStatus({ empNo, name }) {
 
 /** 최근 1~3등 당첨자 (확성기 티커용) */
 export async function getRecentWinners(empNo) {
-  await ensureAuth();
   const fn = httpsCallable(functions, "getRecentWinners");
   const res = await fn({ empNo: empNo || undefined });
   return res.data?.winners || [];
 }
 
 export async function getPublicResult() {
-  await ensureAuth();
   const fn = httpsCallable(functions, "getPublicResult");
   const res = await fn({});
   return res.data || { rosterCount: 0, participantCount: 0, participationRate: 0, commonCount: 0, gradeTotals: {}, hall: [] };
@@ -53,7 +39,6 @@ export async function getCheers(empNo) {
 
 /** 응원 댓글 등록 (팀/이름/한마디 직접 입력) */
 export async function postCheer({ empNo, team, name, message }) {
-  await ensureAuth();
   const fn = httpsCallable(functions, "postCheer");
   const res = await fn({ empNo, team, name, message });
   return res.data;
@@ -61,7 +46,6 @@ export async function postCheer({ empNo, team, name, message }) {
 
 /** 응원 댓글 좋아요 */
 export async function likeCheer({ empNo, cheerId }) {
-  await ensureAuth();
   const fn = httpsCallable(functions, "likeCheer");
   const res = await fn({ empNo, cheerId });
   return res.data;
@@ -88,19 +72,16 @@ export async function loadCatalog() {
 
 // ── 관리자(admin) ──
 export async function adminLoad(masterKey) {
-  await ensureAuth();
   const fn = httpsCallable(functions, "adminLoad");
   const res = await fn({ masterKey });
   return res.data;
 }
 export async function adminUpdate(masterKey, section, data) {
-  await ensureAuth();
   const fn = httpsCallable(functions, "adminUpdate");
   const res = await fn({ masterKey, section, data });
   return res.data;
 }
 export async function adminAction(masterKey, action, data) {
-  await ensureAuth();
   const fn = httpsCallable(functions, "adminAction");
   const res = await fn({ masterKey, action, data });
   return res.data;

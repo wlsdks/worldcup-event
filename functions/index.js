@@ -96,6 +96,14 @@ export const drawCard = onCall({ minInstances: 1 }, async (request) => {
 
   const today = kstDate();
 
+  // 카드 풀(active)은 운영 중 변하지 않는 정적 카탈로그 → 트랜잭션 밖에서 1회 읽기(트랜잭션 경량화·속도↑).
+  const cardsAllSnap = await db.collection("cards").where("active", "==", true).get();
+  const cardsByGrade = {};
+  cardsAllSnap.docs.forEach((d) => {
+    const c = { id: d.id, ...d.data() };
+    (cardsByGrade[c.gradeId] = cardsByGrade[c.gradeId] || []).push(c);
+  });
+
   const result = await db.runTransaction(async (t) => {
     // ── 1) 읽기 (모든 read는 write보다 먼저) ──
     const cfgSnap = await t.get(db.doc("config/event"));
@@ -135,14 +143,6 @@ export const drawCard = onCall({ minInstances: 1 }, async (request) => {
     const gradesSnap = await t.get(db.collection("grades"));
     const grades = gradesSnap.docs.map((d) => ({ id: d.id, ref: d.ref, ...d.data() }));
     if (grades.length === 0) throw new HttpsError("failed-precondition", "등급 설정이 없습니다.");
-
-    // ── 2) 카드 풀 읽기 (모든 read는 write보다 먼저) ──
-    const cardsAllSnap = await t.get(db.collection("cards").where("active", "==", true));
-    const cardsByGrade = {};
-    cardsAllSnap.docs.forEach((d) => {
-      const c = { id: d.id, ...d.data() };
-      (cardsByGrade[c.gradeId] = cardsByGrade[c.gradeId] || []).push(c);
-    });
 
     // ── 3) 팩 추첨: cardsPerPack 장 (당첨 가중치 + 꽝 가중치, 재고 소진 반영) ──
     // 당첨 등급 weight 합 + missWeight(꽝) 중에서 추첨. 재고가 없으면 후보에서 빠진다.
