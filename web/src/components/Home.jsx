@@ -188,7 +188,7 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
         <button className="bento-tile feature cheer" onClick={onOpenCheer}>
           <span className="bt-left">
             <span className="bt-kicker">CHEER BATTLE</span>
-            <span className="bt-title">응원전 · 휴넷을 응원하세요🔥</span>
+            <span className="bt-title">응원전 · 우리팀을 응원하세요</span>
           </span>
           <span className="bt-go">바로가기 ›</span>
         </button>
