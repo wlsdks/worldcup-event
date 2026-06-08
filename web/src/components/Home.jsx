@@ -83,7 +83,7 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
               <div className="ee-mine-row">
                 {myCards.map((c, i) => (
                   <div key={i} className={`ee-mini ${rcOf(c.rank)}`}>
-                    <img src={`/cards/${c.image}`} alt={c.name} draggable={false} />
+                    <img src={`/cards/${c.image}`} alt={c.name} draggable={false} loading="lazy" decoding="async" />
                   </div>
                 ))}
               </div>

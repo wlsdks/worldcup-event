@@ -117,7 +117,7 @@ export default function Collection({ catalog, onBack }) {
           <div className="hall-recent-row">
             {recent.map((w) => (
               <div key={w.id} className={`hr-card ${rankClass(w.gradeRank)} ${isRecent(w.at) ? "just" : ""}`}>
-                {w.cardImage && <img src={`/cards/${w.cardImage}`} alt={w.cardName} draggable={false} />}
+                {w.cardImage && <img src={`/cards/${w.cardImage}`} alt={w.cardName} draggable={false} loading="lazy" decoding="async" />}
                 <span className="hr-name">{w.name}</span>
                 {isRecent(w.at) && <span className="hr-just">방금</span>}
               </div>
@@ -166,7 +166,7 @@ export default function Collection({ catalog, onBack }) {
                     gradeLabel: g.label, gradeName: g.name, gradeRank: g.rank,
                   })}
                 >
-                  {w.cardImage && <img src={`/cards/${w.cardImage}`} alt={w.cardName} draggable={false} />}
+                  {w.cardImage && <img src={`/cards/${w.cardImage}`} alt={w.cardName} draggable={false} loading="lazy" decoding="async" />}
                   {g.rank <= 3 && <div className="foil-sweep" />}
                   {isRecent(w.at) && <span className="coll-just">방금</span>}
                   <span className="coll-winner">{w.name}</span>

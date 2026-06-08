@@ -26,6 +26,8 @@ button:focus:not(:focus-visible) { outline: none; }
   }
 }
 html, body, #root { height: 100%; margin: 0; }
+/* 모바일: 당겨서 새로고침/스크롤 체이닝 방지(연출 중 배경 노출 차단) */
+html, body { overscroll-behavior: none; }
 body {
   font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
@@ -56,7 +58,7 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.screen { padding: 22px 20px 40px; min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.screen { padding: 22px 20px 40px; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
 
 /* 전역 앰비언트 불씨 파티클 (가챠 홈의 '끊임없이 떠다니는 파티클' 레퍼런스) */
 .ambient { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
@@ -109,7 +111,7 @@ body {
 /* ───── 로그인 ───── */
 /* 부모 .app(480px) 폭에 갇히지 않도록 뷰포트 전체로 펼친다 (웹에서도 풀스크린) */
 .login {
-  position: fixed; inset: 0; width: 100vw; min-height: 100vh;
+  position: fixed; inset: 0; width: 100vw; min-height: 100vh; min-height: 100dvh;
   justify-content: center; align-items: center; gap: 0; overflow: auto;
   padding: 32px 20px;
   background: url('/main-hero.png') center center / cover no-repeat, #0a0304;
@@ -792,7 +794,7 @@ body {
 .pack-overlay {
   position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column;
   align-items: center; justify-content: space-between;
-  padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); overflow: hidden;
+  padding: calc(14px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom)); overflow: hidden;
   background:
     radial-gradient(150% 80% at 50% -16%, rgba(20,12,30,0.5), transparent 52%),
     radial-gradient(circle at 50% 42%, rgba(26,9,11,0.95), rgba(2,1,2,0.995) 78%);
