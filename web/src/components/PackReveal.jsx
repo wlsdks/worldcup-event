@@ -717,9 +717,9 @@ export default function PackReveal({ result, config, onClose }) {
                 <div className="rp-prize">{current.gradePrize || current.gradeName} 당첨!</div>
                 <div className="rp-contact">
                   {current.gradeRank <= 4 ? (
-                    <>경품은 <b>{team} {person}</b>님께 DM 또는 방문하여 수령하세요.</>
+                    <>경품은 <b>{team} {person}</b>님께 방문하여 수령하세요.</>
                   ) : (
-                    <>각 호실에 비치된 <b>축구공 초콜릿</b>을 가져가서 드시면 됩니다!</>
+                    <>각 호실에 비치된 <b>축구공 초콜릿</b>을 가져가세요!<br />(호실별 위치는 오픈톡 공지 확인)</>
                   )}
                 </div>
               </motion.div>
@@ -763,12 +763,12 @@ export default function PackReveal({ result, config, onClose }) {
           )}
           {bestRank <= 4 && (
             <div className="pack-contact">
-<b>{team} {person}</b>님께 DM 또는 방문하여 경품을 수령하세요!
+              경품은 <b>{team} {person}</b>님께 방문하여 수령하세요.
             </div>
           )}
           {bestRank === 5 && (
             <div className="pack-contact">
-각 호실별 비치된 <b>축구공 초콜릿</b>을 가져가서 드세요!
+              각 호실에 비치된 <b>축구공 초콜릿</b>을 가져가세요!<br />(호실별 위치는 오픈톡 공지 확인)
             </div>
           )}
           <div className="summary-actions">
