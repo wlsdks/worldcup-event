@@ -145,8 +145,12 @@ export default function Home({ user, status, catalog, drawing, error, onDraw, on
           {evMsg && <div className="event-banner">{evMsg}</div>}
           {error && <div className="form-err center">{error}</div>}
 
-          {status.eventActive && !status.unlimitedDraws && typeof status.drawsLeft === "number" && (
-            <div className="draws-left">남은 카드팩 <b>{status.drawsLeft}</b>개</div>
+          {status.eventActive && (
+            <div className="draws-left">
+              남은 카드팩 {status.unlimitedDraws
+                ? <b>무한</b>
+                : <><b>{status.drawsLeft ?? 0}</b>개</>}
+            </div>
           )}
 
           <div className="draw-action">
