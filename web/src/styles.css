@@ -109,7 +109,7 @@ body {
 .form-err.center { text-align: center; margin: 8px 0; }
 .form-notice {
   margin-top: 8px; padding: 9px 12px; border-radius: 10px; font-size: 13px; font-weight: 700;
-  color: #c8ffe0; background: rgba(60,224,160,0.14); border: 1px solid rgba(60,224,160,0.4); line-height: 1.45;
+  color: #ffe1a0; background: rgba(255,180,64,0.13); border: 1px solid rgba(255,180,90,0.34); line-height: 1.45;
 }
 
 /* ───── 로그인 ───── */
@@ -2111,12 +2111,12 @@ button.coll-card:disabled { cursor: default; }
 .cheer-guide-btn:active { transform: scale(0.97); }
 
 .cheer-done {
-  margin-bottom: 18px; padding: 16px 16px; border-radius: 14px; text-align: center;
-  background: rgba(60,224,160,0.1); border: 1px solid rgba(60,224,160,0.35);
+  margin-bottom: 18px; padding: 15px 16px; border-radius: 14px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
 }
-.cheer-done-title { font-size: 15px; font-weight: 800; color: #c8ffe0; }
-.cheer-done-sub { font-size: 12.5px; line-height: 1.55; color: #a9c8bb; margin-top: 6px; }
-.cheer-done-sub b { color: #d6ffe9; font-weight: 800; }
+.cheer-done-title { font-size: 14.5px; font-weight: 800; color: #fff; }
+.cheer-done-sub { font-size: 12.5px; line-height: 1.5; color: #b6bcc6; margin-top: 5px; }
+.cheer-done-sub b { color: #ffd76a; font-weight: 800; }
 .cheer-notice { margin: 0 0 14px; }
 
 /* 안내 팝업 본문 */
@@ -2124,15 +2124,18 @@ button.coll-card:disabled { cursor: default; }
 .cg-lead { font-size: 13px; line-height: 1.5; color: #ffe0d9; margin: 0 0 1px; }
 .cg-lead b { color: #fff; font-weight: 800; }
 .cg-block {
-  display: flex; flex-direction: column; gap: 2px; padding: 11px 13px 11px 13px; border-radius: 12px;
-  background: rgba(255,255,255,0.045); border: 1px solid var(--line); border-left: 3px solid var(--cg-accent, rgba(255,180,90,0.6));
+  display: flex; flex-direction: column; gap: 5px; padding: 13px; border-radius: 14px;
+  background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.09);
 }
-.cg-block-team { --cg-accent: #ffc24a; }
-.cg-block-like { --cg-accent: #ff5a4e; }
-.cg-head { font-size: 13.5px; font-weight: 800; color: #fff; margin-bottom: 1px; }
-.cg-body { font-size: 12.5px; line-height: 1.4; color: #d8dde6; }
-.cg-reward { font-size: 12.5px; font-weight: 800; color: #ffd76a; line-height: 1.4; }
-.cg-reward b { color: #ffe79a; font-weight: 900; }
+.cg-head { font-size: 13.5px; font-weight: 800; color: #fff; }
+.cg-body { font-size: 12.5px; line-height: 1.45; color: #cfd4dd; }
+/* 핵심 보상 — 강조 콜아웃 박스 */
+.cg-reward {
+  font-size: 12.5px; font-weight: 800; color: #ffe1a0; line-height: 1.4;
+  background: rgba(255,180,64,0.12); border: 1px solid rgba(255,180,90,0.3);
+  border-radius: 9px; padding: 7px 10px;
+}
+.cg-reward b { color: #fff4d6; font-weight: 900; }
 .cg-sub { font-size: 11.5px; line-height: 1.4; color: #9aa0aa; }
 .cg-prizes {
   display: flex; flex-direction: column; gap: 5px; padding: 11px 13px; border-radius: 12px;

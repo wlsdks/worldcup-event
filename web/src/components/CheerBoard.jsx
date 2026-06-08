@@ -76,8 +76,8 @@ export default function CheerBoard({ user, teams = [], onBack }) {
       setMessage("");
       await load();
       setNotice(res?.bonusGranted
-        ? "🎉 응원 등록 완료! 추가 뽑기 기회를 1회 얻었어요 — 홈에서 한 번 더 뽑아보세요!"
-        : "응원이 등록되었어요. 고마워요! 🙌");
+        ? "응원 등록 완료! 카드팩 뽑기 기회를 1회 더 얻었어요 — 홈에서 한 번 더 뽑아보세요."
+        : "응원이 등록되었어요. 고마워요!");
     } catch (e2) {
       setErr(e2?.message?.replace(/^.*?\/\s*/, "") || "응원 등록에 실패했어요.");
     } finally {
@@ -93,7 +93,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
       setConfirmId(null);
       await load();
       if (res?.likeBonusGranted) {
-        setNotice("🎉 좋아요 3회 완료! 카드팩 뽑기 기회를 1회 더 얻었어요 — 홈에서 뽑아보세요!");
+        setNotice("좋아요 3회 완료! 카드팩 뽑기 기회를 1회 더 얻었어요 — 홈에서 뽑아보세요.");
       }
     } catch (e2) {
       setErr(e2?.message?.replace(/^.*?\/\s*/, "") || "좋아요에 실패했어요.");
@@ -127,7 +127,7 @@ export default function CheerBoard({ user, teams = [], onBack }) {
 
       {posted ? (
         <div className="cheer-done">
-          <div className="cheer-done-title">✅ 응원글을 작성했어요!</div>
+          <div className="cheer-done-title">응원글을 작성했어요</div>
           <div className="cheer-done-sub">한 분당 1회만 작성할 수 있어요. 이제 마음에 드는 응원글에 <b>좋아요(3회)</b>를 눌러 카드팩 기회를 한 번 더 받아보세요!</div>
         </div>
       ) : (
